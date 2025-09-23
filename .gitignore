@@ -1,0 +1,44 @@
+# ===============================
+# Common
+# ===============================
+node_modules/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+logs/
+
+# Env files
+.env
+*.local
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Editor folders/files
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# ===============================
+# Backend (be)
+# ===============================
+be/node_modules/
+be/dist/
+be/build/
+
+# ===============================
+# Frontend (fe)
+# ===============================
+fe/node_modules/
+fe/dist/
+fe/dist-ssr/
