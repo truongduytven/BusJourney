@@ -1,4 +1,4 @@
-import SearchForm from "@/components/common/searchForm";
+import SearchForm from "@/components/forms/searchForm";
 import TripCard from "@/components/common/tripCard";
 import Container from "@/components/layout/container";
 import Slidenav from "@/components/pages/SearchPage/slidenav";
@@ -21,7 +21,6 @@ import {
 } from "@/components/ui/sheet";
 import { useAppDispatch, useAppSelector } from "@/redux/hook";
 import { fetchTrips } from "@/redux/slices/tripSlice";
-import { fetchTypeBuses } from "@/redux/slices/typeBusSlice";
 import { Funnel, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import NoTripImage from "@/assets/no_trip.png";
@@ -166,10 +165,6 @@ export default function SearchPage() {
 
 
   const [selectedTrip, setSelectedTrip] = useState<string | null>(null);
-
-  useEffect(() => {
-    dispatch(fetchTypeBuses());
-  }, [dispatch]);
 
   useEffect(() => {
     const payload = localStorage.getItem("tripSearch");

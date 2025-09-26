@@ -1,5 +1,5 @@
 import Banner from "@/assets/banner.png";
-import SearchForm from "@/components/common/searchForm";
+import SearchForm from "@/components/forms/searchForm";
 import { Button } from "@/components/ui/button";
 import BannerSub1 from "@/assets/banner_sub_1.png";
 import BannerSub2 from "@/assets/banner_sub_2.png";
@@ -21,7 +21,7 @@ import {
 import VoucherTicket from "@/components/common/voucherTicket";
 import RatingCard from "@/components/common/ratingCard";
 import { Bus, CircleCheckBig, TicketCheck, TicketPercent } from "lucide-react";
-import QuestionForm from "@/components/common/questionForm";
+import QuestionForm from "@/components/forms/questionForm";
 import FadeInSection from "@/components/common/faeInSection";
 
 export default function Home() {

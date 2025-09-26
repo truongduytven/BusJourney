@@ -32,15 +32,10 @@ interface SearchFormProps {
 
 export default function SearchForm({ className }: SearchFormProps) {
   const [open, setOpen] = React.useState(false);
-  const [date, setDate] = React.useState<Date | undefined>(() => {
-    const storedDateStr = localStorage.getItem("date");
-    if (storedDateStr) {
-      const storedDate = new Date(storedDateStr);
-      storedDate.setHours(storedDate.getHours() - 7, storedDate.getMinutes(), 0, 0);
-      return storedDate < new Date() ? new Date() : storedDate;
-    }
-    return new Date();
-  });
+  const [date, setDate] = React.useState<Date | undefined>(
+    localStorage.getItem("tripSearch") ? new Date(JSON.parse(localStorage.getItem("tripSearch")!).departureDate) < new Date() ? new Date() : new Date(JSON.parse(localStorage.getItem("tripSearch")!).departureDate) : new Date()
+  );
+  
   const cities = useAppSelector((state) => state.cities.list) || [];
   const status = useAppSelector((state) => state.cities.status);
   const [fromCity, setFromCity] = useState<string | null>(null);
@@ -52,12 +47,6 @@ export default function SearchForm({ className }: SearchFormProps) {
   useEffect(() => {
     fromCity && localStorage.setItem("fromCity", fromCity);
     toCity && localStorage.setItem("toCity", toCity);
-    if (date && date.getDay() === new Date().getDay()) {
-      const dateNow = new Date();
-      date && localStorage.setItem("date", dateNow.toISOString());
-    } else {
-      date && localStorage.setItem("date", date.toISOString());
-    }
   }, [fromCity, toCity, date]);
 
   useEffect(() => {
@@ -81,7 +70,7 @@ export default function SearchForm({ className }: SearchFormProps) {
     const searchPayload = {
       fromCityId: fromCity,
       toCityId: toCity,
-      departureDate: localStorage.getItem("date") || new Date().toISOString(),
+      departureDate: date.toISOString(),
       sort: "default",
       pageNumber: 1,
       pageSize: 10,

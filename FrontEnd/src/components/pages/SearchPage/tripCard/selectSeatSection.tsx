@@ -27,21 +27,27 @@ import { toast } from "sonner";
 import PrefixInput from "@/components/ui/prefix-input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useNavigate } from "react-router-dom";
-import type { IPoint, ITripSeatResult } from "@/types/trip";
+import type { IPoint, ISeat, ITripSeatResult } from "@/types/trip";
 import Loading from "@/components/ui/loading";
 import { useDebounce } from "@uidotdev/usehooks";
+import { useDispatch } from "react-redux";
+import { setSelectedTrip } from "@/redux/slices/selectedTripSlice";
+import type { ITripData } from "@/types/selectedTrip";
 
 interface SelectSeatSectionProps {
   setIsShowModal: (isShow: boolean) => void;
   data?: ITripSeatResult | undefined;
+  tripData: ITripData
   status: string;
 }
 
 export default function SelectSeatSection({
   setIsShowModal,
   data,
+  tripData,
   status,
 }: SelectSeatSectionProps) {
+  const dispatch = useDispatch();
   const [progress, setProgress] = useState(50);
   const [inputPickUp, setInputPickUp] = useState("");
   const [inputDropOff, setInputDropOff] = useState("");
@@ -49,7 +55,7 @@ export default function SelectSeatSection({
   const [selectDropOff, setSelectDropOff] = useState<string>("1");
   const [listPickupPoint, setListPickupPoint] = useState<IPoint[]>([]);
   const [listDropOffPoint, setListDropOffPoint] = useState<IPoint[]>([]);
-  const [selectedSeats, setSelectedSeats] = useState<string[]>([]);
+  const [selectedSeats, setSelectedSeats] = useState<ISeat[]>([]);
   const debouncedInputPickUp = useDebounce(inputPickUp, 500);
   const debouncedInputDropOff = useDebounce(inputDropOff, 500);
   const ticketBuyed = data ? data.bookedSeats : [];
@@ -111,7 +117,7 @@ export default function SelectSeatSection({
         />
       );
     }
-    if (selectedSeats.includes(findByRowCol.code)) {
+    if (selectedSeats.includes(findByRowCol)) {
       return (
         <Tooltip>
           <TooltipTrigger>
@@ -119,7 +125,7 @@ export default function SelectSeatSection({
               src={isBedSeat ? SelectedBedSeat : SelectedSeat}
               alt={`Ghế ${seatNumber}`}
               className={cn("w-7 h-6 cursor-pointer", isBedSeat && "w-6 h-10")}
-              onClick={() => handleSelectSeat(findByRowCol.code)}
+              onClick={() => handleSelectSeat(findByRowCol)}
             />
           </TooltipTrigger>
           <TooltipContent>
@@ -138,7 +144,7 @@ export default function SelectSeatSection({
             src={isBedSeat ? BedSeat : Seat}
             alt={`Ghế ${seatNumber}`}
             className={cn("w-7 h-6 cursor-pointer", isBedSeat && "w-6 h-10")}
-            onClick={() => handleSelectSeat(findByRowCol.code)}
+            onClick={() => handleSelectSeat(findByRowCol)}
           />
         </TooltipTrigger>
         <TooltipContent>
@@ -150,12 +156,12 @@ export default function SelectSeatSection({
     );
   };
 
-  const handleSelectSeat = (seatNumber: string) => {
+  const handleSelectSeat = (seat: ISeat) => {
     let newSelectedSeats = [...selectedSeats];
-    if (newSelectedSeats.includes(seatNumber)) {
-      newSelectedSeats = newSelectedSeats.filter((s) => s !== seatNumber);
+    if (newSelectedSeats.includes(seat)) {
+      newSelectedSeats = newSelectedSeats.filter((s) => s !== seat);
     } else {
-      newSelectedSeats.push(seatNumber);
+      newSelectedSeats.push(seat);
     }
     if (newSelectedSeats.length > 8) {
       toast.error("Bạn chỉ được chọn tối đa 8 ghế!");
@@ -190,6 +196,23 @@ export default function SelectSeatSection({
     searchPickup();
     searchDropOff();
   }, [debouncedInputPickUp, debouncedInputDropOff, data]);
+
+  const handleFinishSelectSeat = () => {
+    dispatch(setSelectedTrip({
+      tripId: tripData.tripId,
+      route: tripData.route,
+      tripImage: tripData.tripImage,
+      busCompanyName: tripData.busCompanyName,
+      departureTime: tripData.departureTime,
+      arrivalTime: tripData.arrivalTime,
+      typeBusName: tripData.typeBusName,
+      selectedSeats: selectedSeats,
+      selectedPickUpPoint: data?.points.startPoint.find(point => point.id === selectPickUp),
+      selectedDropOffPoint: data?.points.endPoint.find(point => point.id === selectDropOff),
+      totalPrice: selectedSeats.length * Number(data?.price || 0)
+    }))
+    navigate("/information-checkout");
+  }
 
   return (
     <div className="mt-10 border-t border-gray-300 pt-4 text-sm text-gray-400 w-full flex flex-col">
@@ -358,7 +381,7 @@ export default function SelectSeatSection({
               <div className="text-base text-primary">
                 Ghế đã chọn:{" "}
                 <span className="font-semibold text-lg text-secondary">
-                  {selectedSeats.join(", ")}
+                  {selectedSeats.map(seat => seat.code).join(", ")}
                 </span>
               </div>
             </div>
@@ -506,7 +529,7 @@ export default function SelectSeatSection({
               <ArrowLeft /> Quay lại
             </Button>
             <Button
-              onClick={() => navigate("/information-checkout")}
+              onClick={() => handleFinishSelectSeat()}
               disabled={selectedSeats.length === 0}
               className="text-white cursor-pointer"
             >

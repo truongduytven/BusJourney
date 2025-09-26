@@ -1,52 +1,85 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
-import type { City } from "@/types/city";
-import { toast } from "sonner";
+import { createSlice } from "@reduxjs/toolkit";
+import type { PayloadAction } from "@reduxjs/toolkit";
+import type { InformationCheckout, ITripPayload, IUserInformation } from "@/types/selectedTrip";
 
-interface SelectedTripState {
-  list: City[];
-  status: "idle" | "loading" | "succeeded" | "failed";
-  error: string | null;
-}
-
-const initialState: SelectedTripState = {
-  list: [],
-  status: "idle",
-  error: null,
+const initialState: InformationCheckout = {
+  tripId: "",
+  route: "",
+  busCompanyName: "",
+  tripImage: "",
+  departureTime: new Date(),
+  arrivalTime: new Date(),
+  typeBusName: "",
+  selectedSeats: [],
+  selectedPickUpPoint: undefined,
+  selectedDropOffPoint: undefined,
+  totalPrice: 0,
+  userInformation: {
+    name: "",
+    email: "",
+    phone: "",
+  },
+  paymentMethod: "cash",
+  voucherId: "",
+  isReadyForBooking: false,
 };
 
-interface responseData {
-    message: string;
-    data: City[];
-}
-
-export const fetchCities = createAsyncThunk<City[]>(
-  "cities/fetch",
-  async () => {
-    const res = await axios.get<responseData>(`${import.meta.env.VITE_API_URL}/cities`);
-    return res.data.data;
-  }
-);
-
-const citySlice = createSlice({
-  name: "cities",
+const selectedTripSlice = createSlice({
+  name: "selectedTrip",
   initialState,
-  reducers: {},
-  extraReducers: (builder) => {
-    builder
-      .addCase(fetchCities.pending, (state) => {
-        state.status = "loading";
-      })
-      .addCase(fetchCities.fulfilled, (state, action) => {
-        state.status = "succeeded";
-        state.list = action.payload;
-      })
-      .addCase(fetchCities.rejected, (state, action) => {
-        state.status = "failed";
-        state.error = action.error.message ?? null;
-        toast.error("Lỗi khi tải danh sách thành phố: " + state.error);
-      });
+  reducers: {
+    setSelectedTrip: (state, action: PayloadAction<ITripPayload>) => {
+      const {
+        tripId,
+        route,
+        busCompanyName,
+        tripImage,
+        departureTime,
+        arrivalTime,
+        typeBusName,
+        selectedSeats,
+        selectedPickUpPoint,
+        selectedDropOffPoint,
+        totalPrice,
+      } = action.payload;
+      state.tripId = tripId;
+      state.route = route;
+      state.tripImage = tripImage;
+      state.busCompanyName = busCompanyName;
+      state.departureTime = departureTime;
+      state.arrivalTime = arrivalTime;
+      state.typeBusName = typeBusName;
+      state.selectedSeats = selectedSeats;
+      state.selectedPickUpPoint = selectedPickUpPoint;
+      state.selectedDropOffPoint = selectedDropOffPoint;
+      state.totalPrice = totalPrice;
+    },
+
+    setUserInformation: (state, action: PayloadAction<IUserInformation>) => {
+      const { name, email, phone } = action.payload;
+      state.userInformation.name = name;
+      state.userInformation.email = email;
+      state.userInformation.phone = phone;
+    },
+
+    setPaymentMethod: (
+      state,
+      action: PayloadAction<{
+        paymentMethod: string;
+        voucherId: string;
+      }>
+    ) => {
+      state.paymentMethod = action.payload.paymentMethod;
+      state.voucherId = action.payload.voucherId;
+    },
+
+    toggleChangeIsReadyForBooking: (state, action: PayloadAction<boolean>) => {
+        state.isReadyForBooking = action.payload;
+    }
   },
 });
 
-export default citySlice.reducer;
+export const { setSelectedTrip, setUserInformation, setPaymentMethod, toggleChangeIsReadyForBooking } =
+  selectedTripSlice.actions;
+
+export default selectedTripSlice.reducer;

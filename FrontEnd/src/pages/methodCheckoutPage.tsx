@@ -22,19 +22,29 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import type { informationCheckoutSchema } from "@/schemas";
-import { convertMoney } from "@/utils";
+import { convertMoney, formatDate, formatTime } from "@/utils";
 import {
   Armchair,
+  ArrowLeft,
   Bus,
   CircleDot,
   InfoIcon,
+  MapPin,
   MapPinCheck,
+  MapPinCheckInside,
   MessageCircleQuestionIcon,
+  RefreshCcw,
   User2Icon,
+  X,
 } from "lucide-react";
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import LogoFull from "@/assets/logo_full.png";
 import type z from "zod";
+import { useDispatch, useSelector } from "react-redux";
+import type { RootState } from "@/redux/store";
+import { setUserInformation } from "@/redux/slices/selectedTripSlice";
+import type { CouponData } from "@/types/trip";
 
 interface UserInfo {
   fullName: string;
@@ -43,53 +53,95 @@ interface UserInfo {
 }
 
 export default function MethodCheckoutPage() {
-  const [selectedVoucher, setSelectedVoucher] = useState<number | null>(null);
+  const [selectedVoucher, setSelectedVoucher] = useState<CouponData | null>(
+    null
+  );
   const [selectedMethod, setSelectedMethod] = useState<string>("VNPAY");
-  const [timeLeft, setTimeLeft] = useState(600);
+  const { list } = useSelector((state: RootState) => state.trips);
+  const dispatch = useDispatch();
+  const selectedTicket = useSelector(
+    (state: RootState) => state.selectedTicket
+  );
   const [userInfo, setUserInfo] = useState<UserInfo>(
     localStorage.getItem("checkoutInfo")
-      ? JSON.parse(localStorage.getItem("checkoutInfo")!)
+      ? {
+          fullName: selectedTicket.userInformation.name,
+          email: selectedTicket.userInformation.email,
+          numberPhone: selectedTicket.userInformation.phone,
+        }
       : { fullName: "", email: "", numberPhone: "" }
   );
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev < 1) {
-          clearInterval(timer);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-    return () => clearInterval(timer);
-  }, []);
-
-  const formatTime = () => {
-    const minutes = Math.floor(timeLeft / 60);
-    const seconds = timeLeft % 60;
-    return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+  const handleSubmit = (data: z.infer<typeof informationCheckoutSchema>) => {
+    dispatch(
+      setUserInformation({
+        name: data.fullName,
+        email: data.email,
+        phone: data.numberPhone,
+      })
+    );
+    setUserInfo(data);
   };
 
-  const handleSubmit = (data: z.infer<typeof informationCheckoutSchema>) => {
-    localStorage.setItem("checkoutInfo", JSON.stringify(data));
-    setUserInfo(data);
-    console.log(data);
+  const calculateRefundPercentage = (
+    departureTime: string | Date
+  ): { percentage: number; color: string } => {
+    const now = new Date();
+    const departure =
+      typeof departureTime === "string"
+        ? new Date(departureTime)
+        : departureTime;
+    const timeDiffInHours =
+      (departure.getTime() - now.getTime()) / (1000 * 60 * 60);
+
+    if (timeDiffInHours > 24) {
+      return {
+        percentage: 0,
+        color: "green",
+      };
+    } else if (timeDiffInHours > 12) {
+      return {
+        percentage: 30,
+        color: "yellow",
+      };
+    } else if (timeDiffInHours > 6) {
+      return {
+        percentage: 50,
+        color: "orange",
+      };
+    } else {
+      return {
+        percentage: 100,
+        color: "red",
+      };
+    }
   };
 
   return (
     <div className="w-full flex flex-1 flex-col justify-center bg-gray-background overflow-y-scroll pt-18">
-      <div className="fixed top-0 left-0 z-10 w-full flex justify-center bg-white border-t border-gray-300 p-4">
+      <div className="fixed top-0 left-0 z-10 w-full flex justify-center bg-white border-t border-gray-300">
         <Container className="flex justify-between items-center">
-          <div className="text-lg flex-1 font-medium"> Thời gian thanh toán trong </div>
-          <div className="flex-1 flex justify-center text-4xl font-semibold text-secondary">
-            {formatTime()}
+          <div className="text-lg flex-1 font-medium">
+            {" "}
+            Thông tin thanh toán{" "}
           </div>
-          <div className="flex-1 flex justify-end text-blue-500 underline text-sm items-center cursor-pointer">Liên hệ hỗ trợ <MessageCircleQuestionIcon className="ml-1" size={16}/></div>
+          <Link to="/" className="px-5 py-2 md:flex-1 flex justify-center">
+            <img src={LogoFull} alt="Logo" className="h-10 md:h-14 w-auto" />
+          </Link>
+          <div className="flex-1 flex justify-end text-blue-500 underline text-sm items-center cursor-pointer">
+            Liên hệ hỗ trợ{" "}
+            <MessageCircleQuestionIcon className="ml-1" size={16} />
+          </div>
         </Container>
       </div>
       <Container className="flex flex-col p-6">
+        <div
+          onClick={() => navigate(-1)}
+          className="text-sm mb-4 font-medium cursor-pointer hover:underline"
+        >
+          <ArrowLeft className="inline" size={14} /> Quay lại
+        </div>
         <div className="w-full flex justify-between gap-x-5">
           <div className="flex-5 flex flex-col gap-y-5">
             <div className="flex flex-col bg-white p-5 border-[0.5px] border-gray-300 rounded-md">
@@ -219,65 +271,183 @@ export default function MethodCheckoutPage() {
             <div className="flex flex-col p-4 bg-white border border-gray-300 rounded-md gap-y-4">
               <div className="flex justify-between">
                 <div>Giá vé</div>
-                <div className="font-medium">{convertMoney(180000)}</div>
+                <div className="font-medium">
+                  {convertMoney(selectedTicket.totalPrice)}
+                </div>
               </div>
               <div className="flex justify-between">
                 <div>Khuyến mãi</div>
-                <div className="text-green-600 font-medium">
-                  {" "}
-                  -20% ({convertMoney(20000)})
-                </div>
+                {selectedVoucher ? (
+                  <div className="text-green-600 font-medium">
+                    {" "}
+                    {selectedVoucher.discountType === "percent"
+                      ? `-${Number(selectedVoucher.discountValue).toFixed(0)}%`
+                      : `-${convertMoney(
+                          Number(selectedVoucher.discountValue)
+                        )}`}{" "}
+                    (
+                    {selectedVoucher.discountType === "percent"
+                      ? convertMoney(
+                          (Number(selectedVoucher.discountValue) / 100) *
+                            selectedTicket.totalPrice >
+                            Number(selectedVoucher.maxDiscountValue)
+                            ? Number(selectedVoucher.maxDiscountValue)
+                            : (Number(selectedVoucher.discountValue) / 100) *
+                                selectedTicket.totalPrice
+                        )
+                      : convertMoney(Number(selectedVoucher.discountValue))}
+                    )
+                  </div>
+                ) : (
+                  <div className="text-green-600 font-medium">
+                    {" "}
+                    -0% ({convertMoney(0)})
+                  </div>
+                )}
               </div>
               {selectedVoucher === null ? (
-                <div>Chưa áp dụng voucher nào</div>
+                <AlertDialog>
+                  <AlertDialogTrigger className="w-full">
+                    <Button
+                      variant="outline"
+                      className="w-full hover:bg-primary hover:text-white"
+                    >
+                      Chọn voucher
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader className="w-full sm:text-center font-semibold text-lg">
+                      Chọn voucher
+                    </AlertDialogHeader>
+                    <AlertDialogDescription>
+                      <ScrollArea>
+                        <div className="flex flex-col max-h-[50vh] pr-4 mt-2 mb-4 gap-4">
+                          {list?.data
+                            .find((trip) => trip.id === selectedTicket.tripId)
+                            ?.buses.bus_companies.coupons.map((item) => (
+                              <div
+                                className="flex justify-between items-center ml-2"
+                                key={item.id}
+                              >
+                                <VoucherTicket
+                                  data={item}
+                                  className="hover:scale-100 w-3/4"
+                                />
+                                <Button
+                                  onClick={() => setSelectedVoucher(item)}
+                                  className="bg-primary text-white hover:bg-primary/90 p-0"
+                                >
+                                  <AlertDialogCancel className="cursor-pointer">
+                                    Chọn
+                                  </AlertDialogCancel>
+                                </Button>
+                              </div>
+                            ))}
+                        </div>
+                      </ScrollArea>
+                    </AlertDialogDescription>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel className="border-gray-300 text-gray-500 cursor-pointer">
+                        Trở về
+                      </AlertDialogCancel>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               ) : (
-                <div className="flex justify-center">
-                  <VoucherTicket isTag={false} isScale={false} />
+                // Khi đã có voucher, show Voucher + 2 icon
+                <div className="relative w-full flex justify-center">
+                  <div className="group flex items-center w-full">
+                    {/* Voucher hiển thị */}
+                    <div className="transition-transform duration-300 group-hover:-translate-x-12">
+                      <VoucherTicket
+                        data={selectedVoucher}
+                        isTag={false}
+                        isScale={false}
+                      />
+                    </div>
+
+                    {/* Icon hành động */}
+                    <div className="absolute right-2 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <AlertDialog>
+                        <AlertDialogTrigger>
+                          <Button
+                            variant="default"
+                            className="rounded-full bg-yellow-400 hover:bg-yellow-500"
+                            size="icon"
+                          >
+                            <RefreshCcw />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader className="w-full sm:text-center font-semibold text-lg">
+                            Chọn voucher khác
+                          </AlertDialogHeader>
+                          <AlertDialogDescription>
+                            <ScrollArea>
+                              <div className="flex flex-col max-h-[50vh] pr-4 mt-2 mb-4 gap-4">
+                                {list?.data
+                                  .find(
+                                    (trip) => trip.id === selectedTicket.tripId
+                                  )
+                                  ?.buses.bus_companies.coupons.map((item) => (
+                                    <div
+                                      className="flex justify-between items-center ml-2"
+                                      key={item.id}
+                                    >
+                                      <VoucherTicket
+                                        data={item}
+                                        className="hover:scale-100 w-3/4"
+                                      />
+                                      <Button
+                                        onClick={() => setSelectedVoucher(item)}
+                                        className="bg-primary text-white hover:bg-primary/90 p-0"
+                                      >
+                                        <AlertDialogCancel className="cursor-pointer">
+                                          Chọn
+                                        </AlertDialogCancel>
+                                      </Button>
+                                    </div>
+                                  ))}
+                              </div>
+                            </ScrollArea>
+                          </AlertDialogDescription>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel className="border-gray-300 text-gray-500 cursor-pointer">
+                              Trở về
+                            </AlertDialogCancel>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                      <Button
+                        variant="default"
+                        className="rounded-full bg-red-400 hover:bg-red-500"
+                        size="icon"
+                        onClick={() => setSelectedVoucher(null)}
+                      >
+                        <X />
+                      </Button>
+                    </div>
+                  </div>
                 </div>
               )}
-              <AlertDialog>
-                <AlertDialogTrigger className="w-full">
-                  <Button
-                    variant="outline"
-                    className="w-full hover:bg-primary hover:text-white"
-                  >
-                    Chọn voucher
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader className="w-full sm:text-center font-semibold text-lg">
-                    Chọn voucher
-                  </AlertDialogHeader>
-                  <AlertDialogDescription>
-                    <ScrollArea>
-                      <div className="flex flex-col max-h-[50vh] pr-4 mt-2 mb-4 gap-4">
-                        {[1, 2, 3, 4, 5].map((item) => (
-                          <div className="flex justify-between items-center ml-2">
-                            <VoucherTicket className="hover:scale-100 w-3/4" />
-                            <Button
-                              onClick={() => setSelectedVoucher(item)}
-                              className="bg-primary text-white hover:bg-primary/90 p-0"
-                            >
-                              <AlertDialogCancel className=" cursor-pointer">
-                                Chọn
-                              </AlertDialogCancel>
-                            </Button>
-                          </div>
-                        ))}
-                      </div>
-                    </ScrollArea>
-                  </AlertDialogDescription>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel className="border-gray-300 text-gray-500 cursor-pointer">
-                      Trở về
-                    </AlertDialogCancel>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
               <Divider />
               <div className="flex justify-between items-center">
                 <div className="text-base font-semibold">Tạm tính</div>
-                <div className="text-lg font-bold">{convertMoney(160000)}</div>
+                <div className="text-lg font-bold">
+                  {selectedVoucher
+                    ? convertMoney(
+                        selectedTicket.totalPrice -
+                          (selectedVoucher?.discountType === "percent"
+                            ? (Number(selectedVoucher.discountValue) / 100) *
+                                selectedTicket.totalPrice >
+                              Number(selectedVoucher.maxDiscountValue)
+                              ? Number(selectedVoucher.maxDiscountValue)
+                              : (Number(selectedVoucher.discountValue) / 100) *
+                                selectedTicket.totalPrice
+                            : Number(selectedVoucher?.discountValue))
+                      )
+                    : convertMoney(selectedTicket.totalPrice || 0)}
+                </div>
               </div>
             </div>
             <div className="flex flex-col p-4 bg-white border border-gray-300 rounded-md gap-y-4">
@@ -286,25 +456,149 @@ export default function MethodCheckoutPage() {
               </div>
               <div className="flex flex-col p-2 border border-gray-300 rounded-md gap-y-4">
                 <div className="flex justify-between text-sm font-medium">
-                  <div>T6, 27/09/2025</div>
-                  <div className="underline cursor-pointer text-blue-500">
-                    Xem chi tiết
-                  </div>
+                  <div>{formatDate(selectedTicket.departureTime)}</div>
+                  <Sheet>
+                    <SheetTrigger asChild>
+                      <div className="underline cursor-pointer text-blue-500">
+                        Xem chi tiết
+                      </div>
+                    </SheetTrigger>
+                    <SheetContent className="px-4 pt-10">
+                      <div className="text-lg text-center font-bold">
+                        Thông tin chuyến đi
+                      </div>
+                      <div className="flex flex-col gap-y-6 my-6">
+                        <div className="flex justify-between">
+                          <div className="text-sm text-primary/70">Tuyến</div>
+                          <div className="font-medium text-sm text-primary">
+                            {selectedTicket.route}
+                          </div>
+                        </div>
+                        <div className="flex justify-between">
+                          <div className="text-sm text-primary/70">Chuyến</div>
+                          <div className="font-medium text-sm text-primary">
+                            {formatTime(selectedTicket.departureTime)}{" "}
+                            {formatDate(selectedTicket.departureTime)}
+                          </div>
+                        </div>
+                        <div className="flex justify-between">
+                          <div className="text-sm text-primary/70">Nhà xe</div>
+                          <div className="font-medium text-sm text-primary">
+                            {selectedTicket.busCompanyName}
+                          </div>
+                        </div>
+                        <div className="flex justify-between">
+                          <div className="text-sm text-primary/70">Loại xe</div>
+                          <div className="font-medium text-sm text-primary">
+                            {selectedTicket.typeBusName}
+                          </div>
+                        </div>
+                        <div className="flex justify-between">
+                          <div className="text-sm text-primary/70">
+                            Số lượng
+                          </div>
+                          <div className="font-medium text-sm text-primary">
+                            {selectedTicket.selectedSeats.length} vé
+                          </div>
+                        </div>
+                        <div className="flex justify-between">
+                          <div className="text-sm text-primary/70">Mã ghế</div>
+                          <div className="font-medium text-sm text-primary">
+                            {selectedTicket.selectedSeats
+                              .map((seat) => seat.code)
+                              .join(", ")}
+                          </div>
+                        </div>
+                        <div className="flex justify-between">
+                          <div className="text-sm text-primary/70">
+                            Tạm tính
+                          </div>
+                          <div className="font-medium text-sm text-primary">
+                            {convertMoney(selectedTicket.totalPrice)}
+                          </div>
+                        </div>
+                        <div className="flex flex-col gap-y-2 text-sm">
+                          <div className="text-base font-bold">
+                            <MapPin
+                              className="inline mr-2 text-white"
+                              fill="blue"
+                            />
+                            Điểm đón
+                          </div>
+                          <div>
+                            {selectedTicket.selectedPickUpPoint?.locationName}
+                          </div>
+                          <div>
+                            Dự kiến đón lúc{" "}
+                            {formatTime(
+                              selectedTicket.selectedPickUpPoint?.time ||
+                                new Date()
+                            )}
+                            {" - "}
+                            {formatDate(
+                              selectedTicket.selectedPickUpPoint?.time ||
+                                new Date()
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex flex-col gap-y-2 text-sm">
+                          <div className="text-base font-bold">
+                            <MapPinCheckInside
+                              className="inline mr-2 text-white"
+                              fill="red"
+                            />
+                            Điểm trả
+                          </div>
+                          <div>
+                            {selectedTicket.selectedDropOffPoint?.locationName}
+                          </div>
+                          <div>
+                            Dự kiến trả lúc{" "}
+                            {formatTime(
+                              selectedTicket.selectedDropOffPoint?.time ||
+                                new Date()
+                            )}
+                            {" - "}
+                            {formatDate(
+                              selectedTicket.selectedDropOffPoint?.time ||
+                                new Date()
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                      <SheetFooter>
+                        <SheetClose asChild>
+                          <Button className="w-full bg-primary text-white hover:bg-primary/90 p-0">
+                            Đóng
+                          </Button>
+                        </SheetClose>
+                      </SheetFooter>
+                    </SheetContent>
+                  </Sheet>
                 </div>
                 <div className="flex ">
                   <img
-                    src="https://static.vexere.com/production/images/1724302676718.jpeg"
+                    src={
+                      selectedTicket.tripImage ||
+                      "https://static.vexere.com/production/images/1724302676718.jpeg"
+                    }
                     alt="ảnh xe"
                     className="w-16 h-16 object-cover"
                   />
                   <div className="flex flex-col gap-y-1 ml-4 text-sm">
-                    <div className="font-semibold">MexBus</div>
-                    <div>Giường nằm 32 chỗ</div>
+                    <div className="font-semibold">
+                      {selectedTicket.busCompanyName}
+                    </div>
+                    <div>{selectedTicket.typeBusName}</div>
                     <div className="flex gap-x-1 items-center text-xs text-gray-500">
                       <User2Icon fill="gray" size={14} />
-                      <div>3</div>
+                      <div>{selectedTicket.selectedSeats.length}</div>
                       <Armchair className="ml-3" fill="gray" size={14} />
-                      <div>A1,A2,A3</div>
+                      <div>
+                        {selectedTicket.selectedSeats
+                          .map((r) => r.code)
+                          .join(",")}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -317,20 +611,31 @@ export default function MethodCheckoutPage() {
                   </div>
                   <div className="flex flex-col justify-between items-start text-base text-primary">
                     <div>
-                      <b>9:30 •</b> Văn phòng Hồ Chí Minh
+                      <b>{formatTime(selectedTicket.departureTime)} •</b>{" "}
+                      {selectedTicket.route.split(" - ")[0]}
                     </div>
                     <div className="flex-1 flex items-center text-sm text-transparent">
                       2h30m
                     </div>
                     <div>
-                      <b>12:00 •</b> Văn phòng Vũng Tàu
+                      <b>{formatTime(selectedTicket.arrivalTime)} •</b>{" "}
+                      {selectedTicket.route.split(" - ")[1]}
                     </div>
                   </div>
                 </div>
                 <Divider />
-                <div className="text-tertiary font-medium text-sm flex items-center">
-                  Phí hủy hiện tại 30%{" "}
-                  <InfoIcon size={14} className="inline ml-2 text-primary" />
+                <div
+                  className={`text-${
+                    calculateRefundPercentage(selectedTicket.departureTime)
+                      .color
+                  }-500 font-medium text-sm flex items-center`}
+                >
+                  Phí hủy hiện tại{" "}
+                  {
+                    calculateRefundPercentage(selectedTicket.departureTime)
+                      .percentage
+                  }
+                  % <InfoIcon size={14} className="inline ml-2 text-primary" />
                 </div>
               </div>
             </div>

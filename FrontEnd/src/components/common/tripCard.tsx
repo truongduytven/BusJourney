@@ -45,6 +45,15 @@ export default function TripCard({
   const [isShowDetail, setIsShowDetail] = useState(false);
   const [isShowModal, setIsShowModal] = useState(false);
   const startTimeNumber = new Date(item.departureTime);
+  const tripData = item && {
+    tripId: item.id || "",
+    route: `${item.route.startLocation.name || ""} - ${item.route.endLocation.name || ""}`,
+    tripImage: item.buses.images[0] || "",
+    busCompanyName: item.buses.bus_companies.name || "",
+    departureTime: new Date(item.departureTime),
+    arrivalTime: new Date(item.arrivalTime),
+    typeBusName: item.buses.type_buses.name || "",
+  }
   startTimeNumber.setHours(
     new Date(item.departureTime).getHours() + 7,
     new Date(item.departureTime).getMinutes(),
@@ -264,7 +273,7 @@ export default function TripCard({
         </div>
         {isShowDetail && <DetailSection data={list.find((data) => data.tripId === item.id)} status={status} />}
         {selectedTrip && selectedTrip === item.id && (
-          <SelectSeatSection data={listSeats.find((seat) => seat.tripId === item.id)} status={statusSeats} setIsShowModal={setIsShowModal} />
+          <SelectSeatSection data={listSeats.find((seat) => seat.tripId === item.id)} status={statusSeats} setIsShowModal={setIsShowModal} tripData={tripData} />
         )}
       </div>
       {isShowModal && (

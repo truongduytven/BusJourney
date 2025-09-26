@@ -17,9 +17,6 @@ import BecomePartnerPage from "./pages/partner";
 function App() {
   const location = useLocation();
   const dispatch = useAppDispatch();
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [location.pathname]);
 
   const [showIntro, setShowIntro] = useState(
     localStorage.getItem("hasVisited") !== "true" && location.pathname === "/"

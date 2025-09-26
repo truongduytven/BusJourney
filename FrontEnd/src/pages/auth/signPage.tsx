@@ -5,8 +5,8 @@ import SignInImage from "@/assets/signin_img.png";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
-import SigninForm from "@/components/common/signinForm";
-import SignupForm from "@/components/common/signupForm";
+import SigninForm from "@/components/forms/signinForm";
+import SignupForm from "@/components/forms/signupForm";
 import { useAppDispatch } from "@/redux/hook";
 import { fetchCities } from "@/redux/slices/citySlice";
 

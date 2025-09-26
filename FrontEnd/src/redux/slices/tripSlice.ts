@@ -20,20 +20,16 @@ export const fetchTrips = createAsyncThunk<
   TripSearchPayload // arg type
 >("trips/fetch", async (payload, { rejectWithValue }) => {
   try {
-    const {
-      pageNumber,
-      pageSize,
-      minPrice,
-      maxPrice,
-      sort,
-      ...body
-    } = payload;
+    const { pageNumber, pageSize, minPrice, maxPrice, sort, ...body } = payload;
 
     const res = await axios.post<SearchTrips>(
       `${import.meta.env.VITE_API_URL}/trips/search`,
       {
         ...body,
-        departureDate: new Date(body.departureDate) < new Date() ? new Date().toISOString() : body.departureDate,
+        departureDate:
+          new Date(body.departureDate) < new Date()
+            ? new Date().toISOString()
+            : body.departureDate,
       },
       {
         params: {
@@ -64,6 +60,9 @@ const tripSlice = createSlice({
       .addCase(fetchTrips.fulfilled, (state, action) => {
         state.status = "succeeded";
         state.list = action.payload;
+        action.payload.data.length === 0
+          ? toast.error("Không tìm thấy chuyến xe phù hợp")
+          : toast.success("Tải chuyến xe thành công");
       })
       .addCase(fetchTrips.rejected, (state, action) => {
         state.status = "failed";
