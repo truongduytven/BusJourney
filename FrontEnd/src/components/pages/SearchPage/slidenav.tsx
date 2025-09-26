@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import type { TypeBus, TypeCompany } from "@/types/trip";
 import { convertMoney } from "@/utils";
-import { ChevronsUpDown, Star, Trash2 } from "lucide-react";
+import { ChevronsUpDown, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Range } from "react-range";
 
@@ -46,7 +46,6 @@ export default function Slidenav({
   useEffect(() => {
     const handleMouseUp = () => {
       if (draggingIndex !== null) {
-        console.log("Call API với giá trị:", range);
         setDraggingIndex(null);
       }
     };

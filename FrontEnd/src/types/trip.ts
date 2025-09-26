@@ -10,9 +10,90 @@ export interface SearchTrips {
 }
 
 export interface TripDetail {
-  
+  tripId: string;
+  coupons: ICoupon[];
+  points: ITripPoint;
+  rating: IListRating;
+  policy: null;
+  images: string[];
+  extensions:string[];
 }
 
+
+export interface IListRating {
+  average: string;
+  totalReviews: number;
+  countHaveDescription: number;
+  countHaveImage: number;
+  typebus: string;
+  route: string;
+  list: IListRatingItem[];
+}
+
+interface IListRatingItem {
+  id: string;
+  tripId: string;
+  rating: number;
+  commenttext: string;
+  createAt: Date;
+  createdBy: string;
+  isVisible: boolean;
+  account: {
+    id: string;
+    name: string;
+    avatar: string;
+  }
+}
+
+interface ITripPoint {
+  startPoint: IPoint[];
+  endPoint: IPoint[];
+}
+
+export interface IPoint {
+  id: string;
+  tripId: string;
+  type: string;
+  time: Date;
+  locationName: string;
+}
+
+export interface ICoupon {
+  id: string;
+  discountType: string;
+  discountValue: string;
+  description: string;
+  validFrom: Date;
+  validTo: Date;
+  maxDiscountValue?: string;
+  maxUses: number;
+  usedCount: number;
+  status: string;
+}
+
+export interface ITripSeatResult {
+  tripId: string;
+  price: string;
+  typeName: string;
+  totalSeats: number;
+  numberCols: number;
+  numberRows: number;
+  isFloor: boolean;
+  numberColsFloor?: number;
+  numberRowsFloor?: number;
+  seats: ISeat[];
+  bookedSeats: string[];
+  points: ITripPoint;
+}
+
+export interface ISeat {
+  id: string;
+  code: string;
+  indexCol: number;
+  indexRow: number;
+  floor: number;
+  typeBusId: string;
+}
 export interface TripResults {
   id: string;
   departureTime: string;

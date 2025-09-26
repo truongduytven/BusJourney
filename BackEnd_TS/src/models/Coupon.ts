@@ -6,6 +6,7 @@ export interface ICoupon {
     description: string
     discountType: string
     discountValue: number
+    maxDiscountValue?: number
     maxUses: number
     usedCount: number
     validFrom: Date
@@ -20,6 +21,7 @@ export default class Coupon extends BaseModel implements ICoupon {
     description!: string
     discountType!: string
     discountValue!: number
+    maxDiscountValue?: number
     maxUses!: number
     usedCount!: number
     validFrom!: Date

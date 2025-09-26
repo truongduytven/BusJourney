@@ -23,7 +23,7 @@ import { useAppDispatch, useAppSelector } from "@/redux/hook";
 import { fetchTrips } from "@/redux/slices/tripSlice";
 import { fetchTypeBuses } from "@/redux/slices/typeBusSlice";
 import { Funnel, X } from "lucide-react";
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import NoTripImage from "@/assets/no_trip.png";
 
 export default function SearchPage() {
@@ -89,7 +89,6 @@ export default function SearchPage() {
     }
   };
 
-  //Filter type bus
   const [filterTypebus, setFilterTypebus] = useState<string[] | null>(
     localStorage.getItem("tripSearch")
       ? JSON.parse(localStorage.getItem("tripSearch") || "{}").typeBus
@@ -265,7 +264,7 @@ export default function SearchPage() {
               />
             </div>
             <div className="flex-1 py-10 md:py-6 text-primary flex flex-col">
-              {(list?.data.length || 0) > 0 && (
+              {((list?.data.length || 0) > 0 && status !== "loading") && (
                 <div className="text-2xl font-bold mb-4">
                   Kết quả: {list?.data.length || 0} chuyến xe
                 </div>
@@ -370,6 +369,7 @@ export default function SearchPage() {
                   </PaginationContent>
                 </Pagination>
               )}
+              <div className="h-[50vh]"/>
             </div>
           </div>
         </div>

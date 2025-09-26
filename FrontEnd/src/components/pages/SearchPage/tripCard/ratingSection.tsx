@@ -12,8 +12,11 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { BadgeCheck, ChevronDown, Star } from "lucide-react";
+import type { IListRating } from "@/types/trip";
+import { formatDate, formatTime } from "@/utils";
 
 interface RatingSectionProps {
+  data: IListRating | undefined;
   sortType?: string | null;
   filterRate?: string[] | null;
   onSelect?: (item: string) => void;
@@ -21,7 +24,7 @@ interface RatingSectionProps {
 }
 
 export default function RatingSection(
-    { sortType, filterRate, onSelect, setSortType }: RatingSectionProps
+    { sortType, filterRate, onSelect, setSortType, data }: RatingSectionProps
 ) {
   return (
     <div className="w-full flex justify-center">
@@ -29,7 +32,7 @@ export default function RatingSection(
         <div className="flex justify-between items-center text-lg font-bold">
           <div>Đánh giá</div>
           <div className="flex items-center text-xl">
-            4.5 <Star className="ml-1 text-yellow-200" fill="yellow" />
+            {Number(data && data.average).toFixed(1)} <Star className="ml-1 text-yellow-200" fill="yellow" />
           </div>
         </div>
         <Divider />
@@ -44,7 +47,7 @@ export default function RatingSection(
               }
             )}
           >
-            Tất cả (600)
+            Tất cả ({data && data.totalReviews})
           </div>
           <div
             onClick={() => setSortType("có nhận xét")}
@@ -56,7 +59,7 @@ export default function RatingSection(
               }
             )}
           >
-            Có nhận xét (200)
+            Có nhận xét ({data && data.countHaveDescription})
           </div>
           <div
             onClick={() => setSortType("có hình ảnh")}
@@ -68,7 +71,7 @@ export default function RatingSection(
               }
             )}
           >
-            Có hình ảnh (200)
+            Có hình ảnh ({data && data.countHaveImage})
           </div>
           <Popover>
             <PopoverTrigger className="w-1/4">
@@ -79,7 +82,7 @@ export default function RatingSection(
                   fill="yellow"
                   size={14}
                 />{" "}
-                (200)
+                ({data && data.totalReviews})
                 <ChevronDown size={14} className="ml-1" />
               </div>
             </PopoverTrigger>
@@ -153,45 +156,45 @@ export default function RatingSection(
           </Popover>
         </div>
         <div className="flex flex-col gap-y-4">
-          {[1, 2, 3, 4, 5].map((item) => (
+          {data && data.list.map((item, index) => (
             <div
-              key={item}
+              key={index}
               className="flex flex-col gap-y-3 border-b py-4 border-gray-200"
             >
               <div className="flex items-center">
                 <img
-                  src="https://i.pravatar.cc/150?img=20"
+                  src={item.account.avatar || "https://i.pravatar.cc/150?img=3"}
                   className="w-10 h-10 rounded-full"
                 />
                 <div className="flex flex-col">
                   <div className="font-semibold text-primary ml-3">
-                    Nguyễn Văn A
+                    {item.account.name}
                   </div>
                   <div className="flex text-sm text-gray-400 ml-3 gap-x-1">
-                    <Star size={14} className="text-yellow-300" fill="yellow" />
-                    <Star size={14} className="text-yellow-300" fill="yellow" />
-                    <Star size={14} className="text-yellow-300" fill="yellow" />
-                    <Star size={14} />
-                    <Star size={14} />
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <Star
+                        key={star}
+                        size={14}
+                        className={star <= item.rating ? "text-yellow-300" : ""}
+                        fill={star <= item.rating ? "yellow" : "none"}
+                      />
+                    ))}
                   </div>
                 </div>
-                <div className="flex text-green-500 items-center ml-2 font-semibold">
-                  <BadgeCheck size={14} className="mr-1" /> Đã đi • 17/09/2024
+                <div className="flex text-green-600 items-center ml-2 font-semibold">
+                  <BadgeCheck size={20} className="mr-1" color="white" fill="green"/> Đã đi • {formatTime(item.createAt)} - {formatDate(item.createAt)}
                 </div>
               </div>
               <p>
-                Máy lạnh của xe chảy nước rất nhiều, ghế ướt không thể ngồi
-                được. Nhà xe chỉ liên hệ để hỏi thăm khi nhắn tin phàn nàn về
-                dịch vụ chứ không có phương án khắc phục. Trải nghiệm đi xe cực
-                kì tệ
+                {item.commenttext}
               </p>
               <img
                 src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSVQx9TnYE1O_EKVE57oOsApvWq2hC5LzBWMQ&s"
                 className="w-16 h-16 rounded-lg"
               />
               <div className="flex justify-between text-sm text-gray-400">
-                <div>Loại xe: Ghế ngồi limousine</div>
-                <div>Tuyến đường: Hồ Chí Minh - Mũi Né</div>
+                <div>Loại xe: {data.typebus}</div>
+                <div>Tuyến đường: {data.route}</div>
               </div>
             </div>
           ))}

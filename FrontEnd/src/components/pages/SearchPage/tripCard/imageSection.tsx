@@ -15,7 +15,6 @@ interface ImageSectionProps {
 export default function ImageSection({ listImage }: ImageSectionProps) {
   const [api, setApi] = useState<CarouselApi>();
   const [selectedIndex, setSelectedIndex] = useState(0);
-  listImage = listImage?.concat(listImage);
   useEffect(() => {
     if (!api) return;
     const updateIndex = () => {
@@ -40,7 +39,7 @@ export default function ImageSection({ listImage }: ImageSectionProps) {
                 <img
                   src={image}
                   alt={`Image ${index + 1}`}
-                  className="w-1/2 h-auto rounded-md"
+                  className="w-[428px] h-80 rounded-md object-cover"
                 />
               </div>
             </CarouselItem>

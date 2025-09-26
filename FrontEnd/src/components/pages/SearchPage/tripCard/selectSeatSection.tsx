@@ -1,6 +1,5 @@
 import Divider from "@/components/ui/diviver";
 import { Progress } from "@/components/ui/progress";
-import { useAppSelector } from "@/redux/hook";
 import {
   ArrowLeft,
   CircleCheck,
@@ -16,8 +15,7 @@ import BedSeat from "@/assets/bed_seat.png";
 import SelectedBedSeat from "@/assets/selected_bed_seat.png";
 import BlockedBedSeat from "@/assets/blocked_bed_seat.png";
 import SteeringWheel from "@/assets/steering-wheel.png";
-import { convertMoney } from "@/utils";
-import type { TypeBus } from "@/types/typeBus";
+import { convertMoney, formatTime } from "@/utils";
 import {
   Tooltip,
   TooltipContent,
@@ -29,58 +27,65 @@ import { toast } from "sonner";
 import PrefixInput from "@/components/ui/prefix-input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useNavigate } from "react-router-dom";
+import type { IPoint, ITripSeatResult } from "@/types/trip";
+import Loading from "@/components/ui/loading";
+import { useDebounce } from "@uidotdev/usehooks";
 
 interface SelectSeatSectionProps {
   setIsShowModal: (isShow: boolean) => void;
+  data?: ITripSeatResult | undefined;
+  status: string;
 }
 
 export default function SelectSeatSection({
   setIsShowModal,
+  data,
+  status,
 }: SelectSeatSectionProps) {
   const [progress, setProgress] = useState(50);
   const [inputPickUp, setInputPickUp] = useState("");
   const [inputDropOff, setInputDropOff] = useState("");
   const [selectPickUp, setSelectPickUp] = useState<string>("1");
   const [selectDropOff, setSelectDropOff] = useState<string>("1");
-  const typeBuses = useAppSelector((state) => state.typeBuses.list) || [];
+  const [listPickupPoint, setListPickupPoint] = useState<IPoint[]>([]);
+  const [listDropOffPoint, setListDropOffPoint] = useState<IPoint[]>([]);
   const [selectedSeats, setSelectedSeats] = useState<string[]>([]);
-  const [selectedTypeBus, setSelectedTypeBus] = useState<TypeBus | null>(null);
-  const ticketBuyed = ["A1", "A5", "A12"];
-  const [isBedSeat, setIsBedSeat] = useState(false);
+  const debouncedInputPickUp = useDebounce(inputPickUp, 500);
+  const debouncedInputDropOff = useDebounce(inputDropOff, 500);
+  const ticketBuyed = data ? data.bookedSeats : [];
+  const isBedSeat = data
+    ? data.typeName.toLowerCase().includes("giường nằm")
+    : false;
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (typeBuses.length > 0 && !selectedTypeBus) {
-      setSelectedTypeBus(typeBuses[1]);
-      setIsBedSeat(typeBuses[1]?.name.toLowerCase().includes("giường"));
-      console.log(typeBuses[1]);
+    if (data) {
+      setListPickupPoint(data.points.startPoint);
+      setListDropOffPoint(data.points.endPoint);
+      setSelectPickUp(data.points.startPoint[0]?.id || "");
+      setSelectDropOff(data.points.endPoint[0]?.id || "");
     }
-  }, [typeBuses]);
+  }, [data]);
 
   const handleRenderSeat = (
     seatNumber: number,
     isFloor: boolean,
     isBedSeat: boolean
   ) => {
-    const numberOfRows = isFloor
-      ? Math.floor(seatNumber / (selectedTypeBus?.numberColsFloor ?? 0)) +
-        (seatNumber % (selectedTypeBus?.numberColsFloor ?? 0) === 0 ? 0 : 1)
-      : Math.floor(seatNumber / (selectedTypeBus?.numberCols ?? 0)) +
-        (seatNumber % (selectedTypeBus?.numberCols ?? 0) === 0 ? 0 : 1);
+    const numberOfRows = data?.isFloor
+      ? Math.floor(seatNumber / (data?.numberColsFloor ?? 0)) +
+        (seatNumber % (data?.numberColsFloor ?? 0) === 0 ? 0 : 1)
+      : Math.floor(seatNumber / (data?.numberCols ?? 0)) +
+        (seatNumber % (data?.numberCols ?? 0) === 0 ? 0 : 1);
 
     const numberOfCols =
       seatNumber %
-        (isFloor
-          ? selectedTypeBus?.numberColsFloor ?? 0
-          : selectedTypeBus?.numberCols ?? 0) ===
+        (data?.isFloor ? data?.numberColsFloor ?? 0 : data?.numberCols ?? 0) ===
       0
-        ? selectedTypeBus?.numberCols ?? 0
+        ? data?.numberCols ?? 0
         : seatNumber %
-          (isFloor
-            ? selectedTypeBus?.numberColsFloor ?? 0
-            : selectedTypeBus?.numberCols ?? 0);
+          (isFloor ? data?.numberColsFloor ?? 0 : data?.numberCols ?? 0);
 
-    console.log(numberOfRows, numberOfCols);
     if (numberOfCols === 1 && numberOfRows === 1) {
       return !isFloor ? (
         <img src={SteeringWheel} alt="Vô lăng" className="w-7 h-7" />
@@ -88,7 +93,7 @@ export default function SelectSeatSection({
         <div></div>
       );
     }
-    const findByRowCol = selectedTypeBus?.seats.find(
+    const findByRowCol = data?.seats.find(
       (seat) =>
         seat.indexRow === numberOfRows &&
         seat.indexCol === numberOfCols &&
@@ -119,7 +124,8 @@ export default function SelectSeatSection({
           </TooltipTrigger>
           <TooltipContent>
             <div>
-              Ghế {findByRowCol.code} giá {convertMoney(240000)}
+              Ghế {findByRowCol.code} giá{" "}
+              {convertMoney(Number(data?.price || 0))}
             </div>
           </TooltipContent>
         </Tooltip>
@@ -137,7 +143,7 @@ export default function SelectSeatSection({
         </TooltipTrigger>
         <TooltipContent>
           <div>
-            Ghế {findByRowCol.code} giá {convertMoney(240000)}
+            Ghế {findByRowCol.code} giá {convertMoney(Number(data?.price || 0))}
           </div>
         </TooltipContent>
       </Tooltip>
@@ -157,6 +163,34 @@ export default function SelectSeatSection({
     }
     setSelectedSeats(newSelectedSeats);
   };
+
+  useEffect(() => {
+    const searchPickup = async () => {
+      let result = data?.points.startPoint;
+      if (debouncedInputPickUp) {
+        result = result?.filter((point) =>
+          point.locationName
+            .toLowerCase()
+            .includes(debouncedInputPickUp.toLowerCase())
+        );
+      }
+      setListPickupPoint(result || []);
+    };
+    const searchDropOff = async () => {
+      let result = data?.points.endPoint;
+      if (debouncedInputDropOff) {
+        result = result?.filter((point) =>
+          point.locationName
+            .toLowerCase()
+            .includes(debouncedInputDropOff.toLowerCase())
+        );
+      }
+      setListDropOffPoint(result || []);
+    };
+    searchPickup();
+    searchDropOff();
+  }, [debouncedInputPickUp, debouncedInputDropOff, data]);
+
   return (
     <div className="mt-10 border-t border-gray-300 pt-4 text-sm text-gray-400 w-full flex flex-col">
       <div className="flex justify-center w-full">
@@ -203,7 +237,12 @@ export default function SelectSeatSection({
         </div>
       </div>
       <Divider className="my-6" />
-      {progress === 50 ? (
+      {status === "loading" ? (
+        <div className="w-full flex flex-col justify-center items-center h-96">
+          <Loading />
+          <div className="text-gray-500 text-xl">Đang tải sơ đồ ghế...</div>
+        </div>
+      ) : progress === 50 && data ? (
         <>
           <div className="flex w-full justify-between">
             <div className="flex items-center justify-between p-3 rounded-xl w-2/5 border border-primary/20 bg-primary/10 text-primary">
@@ -247,7 +286,9 @@ export default function SelectSeatSection({
                   alt="Ghế trống"
                   className={cn("w-6 h-10", !isBedSeat && "w-7 h-6")}
                 />{" "}
-                <div className="ml-2 font-bold">{convertMoney(240000)}</div>
+                <div className="ml-2 font-bold">
+                  {convertMoney(Number(data.price))}
+                </div>
               </div>
             </div>
 
@@ -258,15 +299,13 @@ export default function SelectSeatSection({
                   <div
                     className="w-full grid gap-3 mt-6"
                     style={{
-                      gridTemplateColumns: `repeat(${selectedTypeBus?.numberCols}, minmax(0, 1fr))`,
+                      gridTemplateColumns: `repeat(${data.numberCols}, minmax(0, 1fr))`,
                     }}
                   >
-                    {selectedTypeBus &&
+                    {data &&
                       Array.from(
                         {
-                          length:
-                            selectedTypeBus?.numberRows *
-                            selectedTypeBus?.numberCols,
+                          length: data.numberRows * data.numberCols,
                         },
                         (_, i) => i + 1
                       ).map((seatNumber) => (
@@ -280,24 +319,23 @@ export default function SelectSeatSection({
                   </div>
                 </div>
               </div>
-              {selectedTypeBus && selectedTypeBus.isFloors && (
+              {data && data.isFloor && (
                 <div className="w-1/2 flex flex-col items-center">
                   <div>Tầng trên</div>
                   <div className="flex flex-col bg-gray-100 min-h-40 min-w-40 px-3 py-4 rounded-2xl">
                     <div
                       className="w-full grid gap-3 mt-6"
                       style={{
-                        gridTemplateColumns: `repeat(${selectedTypeBus?.numberCols}, minmax(0, 1fr))`,
+                        gridTemplateColumns: `repeat(${data?.numberColsFloor}, minmax(0, 1fr))`,
                       }}
                     >
-                      {selectedTypeBus &&
-                        selectedTypeBus?.numberColsFloor &&
-                        selectedTypeBus?.numberRowsFloor &&
+                      {data &&
+                        data?.numberColsFloor &&
+                        data?.numberRowsFloor &&
                         Array.from(
                           {
                             length:
-                              selectedTypeBus?.numberColsFloor *
-                              selectedTypeBus?.numberRowsFloor,
+                              data?.numberColsFloor * data?.numberRowsFloor,
                           },
                           (_, i) => i + 1
                         ).map((seatNumber) => (
@@ -328,7 +366,9 @@ export default function SelectSeatSection({
               <div className="text-base text-primary">
                 Tổng cộng:{" "}
                 <span className="font-semibold text-lg text-secondary">
-                  {convertMoney(selectedSeats.length * 240000)}
+                  {convertMoney(
+                    selectedSeats.length * Number(data?.price || 0)
+                  )}
                 </span>
               </div>
               <Button
@@ -358,7 +398,9 @@ export default function SelectSeatSection({
                 </div>
                 <PrefixInput
                   value={inputPickUp}
-                  onChange={(e) => setInputPickUp(e.target.value)}
+                  onChange={(e) => {
+                    setInputPickUp(e.target.value);
+                  }}
                   className="rounded-lg bg-white text-primary"
                   placeholder="Tìm trong danh sách"
                   prefixIcon={<Search className="w-4 h-4" />}
@@ -371,27 +413,35 @@ export default function SelectSeatSection({
                 defaultValue={selectPickUp}
                 className="bg-white gap-0 overflow-x-scroll"
               >
-                {[1, 2, 3].map((item) => (
-                  <div
-                    onClick={() => setSelectPickUp(item.toString())}
-                    className="py-3 px-5 flex flex-col border-b border-gray-300 cursor-pointer text-base"
-                  >
-                    <div className="flex items-center gap-x-2">
-                      <RadioGroupItem
-                        checked={selectPickUp === item.toString()}
-                        value={item.toString()}
-                        id={`option-${item}`}
-                      />
-                      <div className="text-primary font-semibold">22:00</div>
+                {listPickupPoint.length > 0 ? (
+                  listPickupPoint.map((item) => (
+                    <div
+                      onClick={() => setSelectPickUp(item.id)}
+                      className="py-3 px-5 flex flex-col border-b border-gray-300 cursor-pointer text-base"
+                    >
+                      <div className="flex items-center gap-x-2">
+                        <RadioGroupItem
+                          checked={selectPickUp === item.id}
+                          value={item.id}
+                          id={`option-${item.id}`}
+                        />
+                        <div className="text-primary font-semibold">
+                          {formatTime(item.time)}
+                        </div>
+                      </div>
+                      <div className="text-primary font-semibold ml-6">
+                        {item.locationName}
+                      </div>
+                      <div className="text-sm text-gray-500 ml-6">
+                        79 Nguyễn Thị Minh Khai, Quận 1, TP. Hồ Chí Minh
+                      </div>
                     </div>
-                    <div className="text-primary font-semibold ml-6">
-                      Văn phòng Hồ Chí Minh
-                    </div>
-                    <div className="text-sm text-gray-500 ml-6">
-                      79 Nguyễn Thị Minh Khai, Quận 1, TP. Hồ Chí Minh
-                    </div>
+                  ))
+                ) : (
+                  <div className="p-5 text-gray-500 flex justify-center">
+                    Không tìm thấy điểm đón
                   </div>
-                ))}
+                )}
               </RadioGroup>
             </div>
             <div className="flex-1 flex flex-col border border-gray-400 rounded-md min-h-10 h-96">
@@ -414,27 +464,35 @@ export default function SelectSeatSection({
                 defaultValue={selectDropOff}
                 className="bg-white gap-0 overflow-x-scroll"
               >
-                {[1, 2, 3].map((item) => (
-                  <div
-                    onClick={() => setSelectDropOff(item.toString())}
-                    className="py-3 px-5 flex flex-col border-b border-gray-300 cursor-pointer text-base"
-                  >
-                    <div className="flex items-center gap-x-2">
-                      <RadioGroupItem
-                        checked={selectDropOff === item.toString()}
-                        value={item.toString()}
-                        id={`option-${item}`}
-                      />
-                      <div className="text-primary font-semibold">22:00</div>
+                {listDropOffPoint.length > 0 ? (
+                  listDropOffPoint.map((item) => (
+                    <div
+                      onClick={() => setSelectDropOff(item.id)}
+                      className="py-3 px-5 flex flex-col border-b border-gray-300 cursor-pointer text-base"
+                    >
+                      <div className="flex items-center gap-x-2">
+                        <RadioGroupItem
+                          checked={selectDropOff === item.id}
+                          value={item.id}
+                          id={`option-${item.id}`}
+                        />
+                        <div className="text-primary font-semibold">
+                          {formatTime(item.time)}
+                        </div>
+                      </div>
+                      <div className="text-primary font-semibold ml-6">
+                        {item.locationName}
+                      </div>
+                      <div className="text-sm text-gray-500 ml-6">
+                        79 Nguyễn Thị Minh Khai, Quận 1, TP. Hồ Chí Minh
+                      </div>
                     </div>
-                    <div className="text-primary font-semibold ml-6">
-                      Văn phòng Hồ Chí Minh
-                    </div>
-                    <div className="text-sm text-gray-500 ml-6">
-                      79 Nguyễn Thị Minh Khai, Quận 1, TP. Hồ Chí Minh
-                    </div>
+                  ))
+                ) : (
+                  <div className="p-5 text-gray-500 flex justify-center">
+                    Không tìm thấy điểm đón
                   </div>
-                ))}
+                )}
               </RadioGroup>
             </div>
           </div>
@@ -448,7 +506,7 @@ export default function SelectSeatSection({
               <ArrowLeft /> Quay lại
             </Button>
             <Button
-              onClick={() => navigate('/information-checkout')}
+              onClick={() => navigate("/information-checkout")}
               disabled={selectedSeats.length === 0}
               className="text-white cursor-pointer"
             >

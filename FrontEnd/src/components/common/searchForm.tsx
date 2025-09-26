@@ -102,6 +102,12 @@ export default function SearchForm({ className }: SearchFormProps) {
     setToCity(flag);
   };
 
+  const formatDate = (date: Date) => {
+    const dayString = date.toLocaleDateString().split("/");
+
+    return `${dayString[1].padStart(2, "0")}/${dayString[0].padStart(2, "0")}/${dayString[2]}`;
+  }
+
   return (
     <Card
       className={cn(
@@ -226,7 +232,7 @@ export default function SearchForm({ className }: SearchFormProps) {
                     id="date"
                     className="justify-between cursor-pointer border-none shadow-none text-base font-semibold text-primary"
                   >
-                    {date ? date.toLocaleDateString() : "Chọn ngày đi"}
+                    {date ? formatDate(date) : "Chọn ngày đi"}
                     <ChevronDownIcon />
                   </Button>
                 </PopoverTrigger>

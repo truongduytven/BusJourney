@@ -5,6 +5,7 @@ import TypeBus from '../models/TypeBus'
 import BusCompany from '../models/BusCompany'
 import Review from '../models/Reviews'
 import Coupon from '../models/Coupon'
+import { IGetListTrip, ITripDetail } from '../types/trip.interface'
 
 class TripController {
   async searchTrips(req: Request, res: Response) {
@@ -20,7 +21,8 @@ class TripController {
       }
       const convertDate = new Date(departureDate as string)
       convertDate.setHours(convertDate.getHours() - 7, convertDate.getMinutes(), 0, 0)
-
+      const lastDate = new Date(departureDate as string)
+      lastDate.setHours(23, 59, 59, 999)
       const offset = (Number(pageNumber) - 1) * Number(pageSize)
 
       // Base query cho trips
@@ -32,6 +34,7 @@ class TripController {
         .where('route:startLocation.city_id', fromCityId)
         .where('route:endLocation.city_id', toCityId)
         .whereRaw('t.departure_time >= ?', [convertDate])
+        .whereRaw('t.departure_time <= ?', [lastDate])
         .select('t.*')
         .avg('review.rating as avgRating')
         .count('review.id as numberComments')
@@ -127,15 +130,116 @@ class TripController {
           message: 'Trip ID is required'
         })
       }
-      const trip = await Trip.query().findById(id)
+      const trip = (await Trip.query()
+        .alias('t')
+        .withGraphJoined(
+          '[buses.[bus_companies, type_buses.[seat]], route.[startLocation, endLocation], review.[account]]'
+        )
+        .where('t.id', id)
+        .avg('review.rating as avgRating')
+        .count('review.id as numberComments')
+        .leftJoinRelated('review')
+        .groupBy('t.id')
+        .withGraphFetched('buses.bus_companies.coupons')
+        .withGraphFetched('[point]')
+        .first()) as unknown as ITripDetail
+
       if (!trip) {
         return res.status(404).json({
           message: 'Trip not found'
         })
       }
+      const TripResult = {
+        tripId: id,
+        coupons: trip.buses!.bus_companies.coupons.map((coupon) => ({
+          id: coupon.id,
+          discountType: coupon.discountType,
+          discountValue: coupon.discountValue,
+          description: coupon.description,
+          validFrom: coupon.validFrom,
+          validTo: coupon.validTo,
+          maxDiscountValue: coupon.maxDiscountValue,
+          maxUses: coupon.maxUses,
+          usedCount: coupon.usedCount,
+          status: coupon.status
+        })),
+        points: {
+          startPoint: trip.point.filter((p) => p.type === 'pickup'),
+          endPoint: trip.point.filter((p) => p.type === 'dropoff')
+        },
+        rating: {
+          average: trip.avgRating ? Number(trip.avgRating).toFixed(1) : 0,
+          totalReviews: Number(trip.numberComments),
+          countHaveDescription: trip.review.filter((r) => r.commenttext && r.commenttext.trim() !== '').length,
+          countHaveImage: 0,
+          typebus: trip.buses.type_buses.name,
+          route: `${trip.route.startLocation.name} - ${trip.route.endLocation.name}`,
+          list: trip.review.map((r) => ({
+            ...r,
+            account: {
+              id: r.account.id,
+              name: r.account.name,
+              avatar: r.account.avatar
+            }
+          }))
+        },
+        policy: null,
+        images: trip.buses.images,
+        extensions: trip.buses.extensions
+      }
+
       res.json({
-        message: 'Trip details',
-        data: trip
+        message: 'Lấy chi tiết chuyến xe thành công',
+        data: TripResult
+      })
+    } catch (err: any) {
+      res.status(500).json({
+        error: err.message,
+        message: 'Lỗi hệ thống'
+      })
+    }
+  }
+
+  async getTripSeatsById(req: Request, res: Response) {
+    try {
+      const { id } = req.params
+      if (!id) {
+        return res.status(400).json({
+          message: 'Trip ID is required'
+        })
+      }
+      const trip = (await Trip.query()
+        .alias('t')
+        .withGraphJoined('buses.[type_buses.[seat]]')
+        .withGraphJoined('[ticket]')
+        .withGraphFetched('[point]')
+        .where('t.id', id)
+        .first()) as unknown as IGetListTrip
+      if (!trip) {
+        return res.status(404).json({
+          message: 'Trip not found'
+        })
+      }
+      const tripResult = {
+        tripId: trip.id,
+        typeName: trip.buses.type_buses.name,
+        price: trip.price,
+        totalSeats: trip.buses.type_buses.totalSeats,
+        numberCols: trip.buses.type_buses.numberCols,
+        numberRows: trip.buses.type_buses.numberRows,
+        isFloor: trip.buses.type_buses.isFloors,
+        numberColsFloor: trip.buses.type_buses.numberColsFloor,
+        numberRowsFloor: trip.buses.type_buses.numberRowsFloor,
+        seats: trip.buses.type_buses.seat,
+        bookedSeats: trip.ticket.filter((r) => r.status === 'valid').map((t) => t.seatCode),
+        points: {
+          startPoint: trip.point.filter((p) => p.type === 'pickup'),
+          endPoint: trip.point.filter((p) => p.type === 'dropoff')
+        }
+      }
+      res.json({
+        message: 'Lấy danh sách ghế thành công',
+        data: tripResult
       })
     } catch (err: any) {
       res.status(500).json({

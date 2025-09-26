@@ -5,7 +5,7 @@ export interface IReview {
     id: string
     tripId: string
     rating: number
-    commentText: string
+    commenttext: string
     createdAt: string
     createdBy: string
     isVisible: boolean
@@ -15,7 +15,7 @@ export default class Review extends BaseModel implements IReview {
     id!: string
     tripId!: string
     rating!: number
-    commentText!: string
+    commenttext!: string
     createdAt!: string
     createdBy!: string
     isVisible!: boolean
@@ -31,7 +31,7 @@ export default class Review extends BaseModel implements IReview {
         account: {
             relation: Model.BelongsToOneRelation,
             modelClass: () => require('./Accounts').default,
-            join: { from: 'reviews.created_by', to: 'accounts.id' }
+            join: { from: 'reviews.create_by', to: 'accounts.id' }
         }
     }
 }

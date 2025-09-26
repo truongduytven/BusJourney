@@ -7,7 +7,7 @@ export interface ITypeBus {
     totalSeats: number
     numberRows: number
     numberCols: number
-    isFloor: boolean
+    isFloors: boolean
     numberRowsFloor?: number
     numberColsFloor?: number
 }
@@ -18,7 +18,7 @@ export default class TypeBus extends BaseModel implements ITypeBus {
     totalSeats!: number
     numberRows!: number
     numberCols!: number
-    isFloor!: boolean
+    isFloors!: boolean
     numberRowsFloor?: number
     numberColsFloor?: number
 

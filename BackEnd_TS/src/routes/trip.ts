@@ -81,4 +81,73 @@ import tripController from '../controllers/trip';
  */
 router.post("/search", tripController.searchTrips);
 
+
+/**
+ * @openapi
+ * /trips/{tripId}:
+ *   get:
+ *     summary: Get trip details by ID
+ *     tags:
+ *       - Trips
+ *     parameters:
+ *       - in: path
+ *         name: tripId
+ *         schema:
+ *           type: string
+ *         required: true
+ *     responses:
+ *       200:
+ *         description: Trip details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   data:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: string
+ *                       name:
+ *                         type: string
+ *
+ */
+router.get("/:id", tripController.getTripById);
+
+/**
+ * @openapi
+ * /trips/seats/{tripId}:
+ *   get:
+ *     summary: Get trip seats by trip ID
+ *     tags:
+ *       - Trips
+ *     parameters:
+ *       - in: path
+ *         name: tripId
+ *         schema:
+ *           type: string
+ *         required: true
+ *     responses:
+ *       200:
+ *         description: Trip details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   data:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: string
+ *                       name:
+ *                         type: string
+ *
+ */
+router.get("/seats/:id", tripController.getTripSeatsById);
+
 export default router;

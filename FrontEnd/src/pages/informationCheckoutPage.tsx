@@ -27,7 +27,7 @@ export default function InformationCheckoutPage() {
   return (
     <div className="w-full flex flex-1 flex-col justify-center bg-gray-background overflow-y-scroll mt-8">
       <Container className="flex flex-col p-6">
-        <div className="text-sm mb-4 font-medium cursor-pointer hover:underline">
+        <div onClick={() => navigate(-1)} className="text-sm mb-4 font-medium cursor-pointer hover:underline">
           <ArrowLeft className="inline" size={14} /> Quay lại
         </div>
         <div className="w-full flex justify-between gap-x-5">

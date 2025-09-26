@@ -6,7 +6,7 @@ export interface IPoint {
     tripId: string
     type: string
     time: Date
-    location: string
+    locationName: string
 }
 
 export default class Point extends BaseModel implements IPoint {
@@ -14,7 +14,7 @@ export default class Point extends BaseModel implements IPoint {
     tripId!: string
     type!: string
     time!: Date
-    location!: string
+    locationName!: string
 
     static tableName = 'points'
 

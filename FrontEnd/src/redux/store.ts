@@ -3,12 +3,16 @@ import { configureStore } from "@reduxjs/toolkit";
 import cityReducer from "./slices/citySlice";
 import typeBusReducer from "./slices/typeBusSlice";
 import tripReducer from "./slices/tripSlice";
+import tripDetailReducer from "./slices/tripDetailSlice";
+import tripSeatReducer from "./slices/tripSeatSlice";
 
 export const store = configureStore({
   reducer: {
     cities: cityReducer,
     typeBuses: typeBusReducer,
     trips: tripReducer,
+    tripDeatails: tripDetailReducer,
+    tripSeats: tripSeatReducer,
   },
 });
 

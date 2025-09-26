@@ -7,7 +7,7 @@ export interface IBus {
     licensePlate: string
     typeBusId: string
     images: string[]
-    extension: string[]
+    extensions: string[]
     isActive: boolean
 }
 
@@ -17,7 +17,7 @@ export default class Bus extends BaseModel implements IBus {
     licensePlate!: string
     typeBusId!: string
     images!: string[]
-    extension!: string[]
+    extensions!: string[]
     isActive!: boolean
 
     static tableName = 'buses'

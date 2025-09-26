@@ -22,9 +22,12 @@ import {
 } from "../ui/alert-dialog";
 import SelectSeatSection from "../pages/SearchPage/tripCard/selectSeatSection";
 import DetailSection from "../pages/SearchPage/tripCard/detailSection";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import type { TripResults } from "@/types/trip";
+import { useAppDispatch, useAppSelector } from "@/redux/hook";
+import { fetchTripDetail } from "@/redux/slices/tripDetailSlice";
+import { fetchTripSeat } from "@/redux/slices/tripSeatSlice";
 interface TripCardProps {
   selectedTrip: string | null;
   item: TripResults;
@@ -36,20 +39,46 @@ export default function TripCard({
   setSelectedTrip,
   item,
 }: TripCardProps) {
+  const dispatch = useAppDispatch();
+  const { list, status, listTripId } = useAppSelector((state) => state.tripDeatails);
+  const { listSeats, listSeatsTripId, statusSeats } = useAppSelector((state) => state.tripSeats);
   const [isShowDetail, setIsShowDetail] = useState(false);
   const [isShowModal, setIsShowModal] = useState(false);
   const startTimeNumber = new Date(item.departureTime);
-  startTimeNumber.setHours(new Date(item.departureTime).getHours() + 7, new Date(item.departureTime).getMinutes(), 0, 0);
-  const startTime =  startTimeNumber.toISOString().split("T")[1].slice(0, 5) || "00:00";
+  startTimeNumber.setHours(
+    new Date(item.departureTime).getHours() + 7,
+    new Date(item.departureTime).getMinutes(),
+    0,
+    0
+  );
+  const startTime =
+    startTimeNumber.toISOString().split("T")[1].slice(0, 5) || "00:00";
   const endTimeNumber = new Date(item.arrivalTime);
-  endTimeNumber.setHours(new Date(item.arrivalTime).getHours() + 7, new Date(item.arrivalTime).getMinutes(), 0, 0);
-  const endTime = endTimeNumber.toISOString().split("T")[1].slice(0, 5) || "00:00";
+  endTimeNumber.setHours(
+    new Date(item.arrivalTime).getHours() + 7,
+    new Date(item.arrivalTime).getMinutes(),
+    0,
+    0
+  );
+  const endTime =
+    endTimeNumber.toISOString().split("T")[1].slice(0, 5) || "00:00";
   // calculate duration
   const duration =
     new Date(item.arrivalTime).getTime() -
     new Date(item.departureTime).getTime();
   const hours = Math.floor(duration / (1000 * 60 * 60));
   const minutes = Math.floor((duration % (1000 * 60 * 60)) / (1000 * 60));
+
+  //fetch trip detail 
+  useEffect(() => {
+    if (isShowDetail && !listTripId.includes(item.id)) {
+      dispatch(fetchTripDetail(item.id));
+    }
+    if (isShowModal && selectedTrip && !listSeatsTripId.includes(item.id)) {
+      dispatch(fetchTripSeat(item.id));
+    }
+  }, [dispatch, isShowDetail, isShowModal]);
+
   const ticketPrice = () => {
     if (item.buses.bus_companies.coupons[0].discountType === "percent") {
       const discountMoney =
@@ -170,14 +199,25 @@ export default function TripCard({
                 <div className="flex flex-end items-center p-1 border border-l w-fit border-dashed rounded-r-lg shadow bg-accent text-accent-foreground border-primary/50">
                   <div className="text-xs font-medium text-primary/50">
                     Giảm{" "}
-                    {item.buses.bus_companies.coupons[0].discountType === "percent"
-                      ? `${item.buses.bus_companies.coupons[0].discountValue.split(".")[0]} %`
+                    {item.buses.bus_companies.coupons[0].discountType ===
+                    "percent"
+                      ? `${
+                          item.buses.bus_companies.coupons[0].discountValue.split(
+                            "."
+                          )[0]
+                        } %`
                       : convertMoney(
-                          Number.parseInt(item.buses.bus_companies.coupons[0].discountValue) || 0
+                          Number.parseInt(
+                            item.buses.bus_companies.coupons[0].discountValue
+                          ) || 0
                         )}{" "}
-                    {item.buses.bus_companies.coupons[0].discountType === "percent"
+                    {item.buses.bus_companies.coupons[0].discountType ===
+                    "percent"
                       ? `tối đa ${convertMoney(
-                          Number.parseInt(item.buses.bus_companies.coupons[0].maxDiscountValue || "0") || 0
+                          Number.parseInt(
+                            item.buses.bus_companies.coupons[0]
+                              .maxDiscountValue || "0"
+                          ) || 0
                         )}`
                       : ""}
                   </div>
@@ -222,9 +262,9 @@ export default function TripCard({
             </div>
           </div>
         </div>
-        {isShowDetail && <DetailSection />}
+        {isShowDetail && <DetailSection data={list.find((data) => data.tripId === item.id)} status={status} />}
         {selectedTrip && selectedTrip === item.id && (
-          <SelectSeatSection setIsShowModal={setIsShowModal} />
+          <SelectSeatSection data={listSeats.find((seat) => seat.tripId === item.id)} status={statusSeats} setIsShowModal={setIsShowModal} />
         )}
       </div>
       {isShowModal && (
