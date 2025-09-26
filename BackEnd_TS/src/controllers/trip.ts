@@ -103,7 +103,7 @@ class TripController {
           trips.map((t) => t.id)
         )
         .groupBy('bus_companies.id')
-      res.json({
+      res.status(200).json({
         message: 'Danh sách chuyến xe',
         page: Number(pageNumber),
         pageSize: Number(pageSize),

@@ -6,7 +6,8 @@ export interface IAccount {
   name: string
   email: string
   phone: string
-  gender: string
+  avatar: string
+  type: string
   address: string
   password: string
   roleId: string
@@ -22,7 +23,8 @@ export default class Account extends BaseModel implements IAccount {
   name!: string
   email!: string
   phone!: string
-  gender!: string
+  avatar!: string
+  type!: string
   address!: string
   password!: string
   roleId!: string

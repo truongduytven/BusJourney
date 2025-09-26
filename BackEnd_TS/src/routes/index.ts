@@ -2,8 +2,9 @@ import express from 'express';
 const router = express.Router();
 import cityRouter from './city';
 import tripRouter from './trip';
+import authRouter from './auth';
 
-// router.use('/auth', authRouter);
+router.use('/auth', authRouter);
 // router.use('/user', userRouter);
 router.use('/cities', cityRouter);
 // router.use('/locations', localRouter);
