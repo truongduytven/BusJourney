@@ -25,7 +25,6 @@ import QuestionForm from "@/components/forms/questionForm";
 import FadeInSection from "@/components/common/faeInSection";
 
 export default function Home() {
-
   return (
     <div className="flex-col justify-center items-center mb-20">
       <div className="relative">

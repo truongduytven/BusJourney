@@ -25,6 +25,7 @@ import { vi } from "date-fns/locale/vi";
 import { useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { fetchTrips } from "@/redux/slices/tripSlice";
+import { fetchCities } from "@/redux/slices/citySlice";
 
 interface SearchFormProps {
   className?: string;
@@ -43,6 +44,10 @@ export default function SearchForm({ className }: SearchFormProps) {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    dispatch(fetchCities());
+  }, [dispatch]);
 
   useEffect(() => {
     fromCity && localStorage.setItem("fromCity", fromCity);

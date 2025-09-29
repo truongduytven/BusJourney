@@ -18,10 +18,11 @@ export const searchTicket = z.object({
 
 // Schema for sign in
 export const signInSchema = z.object({
-  username: z
+  email: z
     .string()
-    .min(1, "Username là bắt buộc")
-    .max(40, "Username ít hơn 40 kí tự"),
+    .min(1, "Email là bắt buộc")
+    .max(40, "Email ít hơn 40 kí tự")
+    .email("Email không hợp lệ"),
   password: z
     .string()
     .min(6, "Mật khẩu phải dài ít nhất 6 kí tự")

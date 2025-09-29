@@ -3,20 +3,21 @@ import Home from "./pages/home";
 import UserLayout from "./layouts/userLayout";
 import ErrorPage from "./pages/errorPage";
 import SearchPage from "./pages/searchPage";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import IntroScreen from "./pages/introPage";
 import SearchTicket from "./pages/searchTicket";
 import SignPage from "./pages/auth/signPage";
-import { useAppDispatch } from "./redux/hook";
-import { fetchCities } from "./redux/slices/citySlice";
 import InformationCheckoutPage from "./pages/informationCheckoutPage";
 import MethodCheckoutPage from "./pages/methodCheckoutPage";
 import PaymentSuccess from "./pages/paymentSucces";
 import BecomePartnerPage from "./pages/partner";
+import { useAuthInitialize } from "./hooks/useAuthInitialize";
 
 function App() {
   const location = useLocation();
-  const dispatch = useAppDispatch();
+  
+  // Initialize auth state và auto-fetch user profile nếu có token
+  useAuthInitialize();
 
   const [showIntro, setShowIntro] = useState(
     localStorage.getItem("hasVisited") !== "true" && location.pathname === "/"
@@ -25,10 +26,6 @@ function App() {
   if (showIntro && location.pathname === "/") {
     localStorage.setItem("hasVisited", "true");
   }
-
-  useEffect(() => {
-    dispatch(fetchCities());
-  }, [dispatch]);
 
   return (
     <div className="relative">
