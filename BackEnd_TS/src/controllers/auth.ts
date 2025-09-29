@@ -1,16 +1,26 @@
 import { Request, Response } from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import Account from '../models/Accounts';
+import { OAuth2Client } from 'google-auth-library';
+import Account, { IAccount } from '../models/Accounts';
 import { IResetPasswordRequest } from '../types/auth.interface';
 import Role from '../models/Role';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 const SALT_ROUNDS = 10;
+
+// Google OAuth Client
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+const client = new OAuth2Client(GOOGLE_CLIENT_ID);
+
 // Interface cho request body
 interface SignInRequest {
   email: string;
   password: string;
+}
+
+interface GoogleSignInRequest {
+  credential: string; // Google JWT token
 }
 
 interface ChangePasswordRequest {
@@ -42,6 +52,15 @@ export const signIn = async (req: Request<{}, {}, SignInRequest>, res: Response)
       return res.status(401).json({
         success: false,
         message: 'Email hoặc mật khẩu không đúng'
+      });
+    }
+
+    // Kiểm tra nếu account đã đăng ký bằng Google
+    if (account.type === 'google') {
+      return res.status(400).json({
+        success: false,
+        message: 'Email này đã được đăng ký bằng Google. Vui lòng sử dụng "Đăng nhập với Google".',
+        code: 'GOOGLE_ACCOUNT_EXISTS'
       });
     }
 
@@ -468,6 +487,111 @@ export const resendOTP = async (req: Request, res: Response) => {
       success: false,
       message: 'Lỗi server',
       error: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+};
+
+// Google OAuth Sign In
+export const googleSignIn = async (req: Request<{}, {}, GoogleSignInRequest>, res: Response) => {
+  try {
+    const { credential } = req.body;
+
+    if (!credential) {
+      return res.status(400).json({
+        success: false,
+        message: 'Google credential là bắt buộc'
+      });
+    }
+
+    // Verify Google token
+    const ticket = await client.verifyIdToken({
+      idToken: credential,
+      audience: GOOGLE_CLIENT_ID,
+    });
+
+    const payload = ticket.getPayload();
+    if (!payload) {
+      return res.status(401).json({
+        success: false,
+        message: 'Token Google không hợp lệ'
+      });
+    }
+
+    const { email, name, picture, sub: googleId } = payload;
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: 'Không thể lấy email từ Google'
+      });
+    }
+
+    // Tìm role customer
+    const customerRole = await Role.query().where('name', 'customer').first();
+    if (!customerRole) {
+      return res.status(500).json({
+        success: false,
+        message: 'Không tìm thấy role customer'
+      });
+    }
+
+    // Kiểm tra account đã tồn tại chưa
+    let account = await Account.query()
+      .where('email', email)
+      .first();
+
+    if (account) {
+      // Account đã tồn tại, cập nhật thông tin Google nếu cần
+      if (account.type !== 'google') {
+        // Account tồn tại nhưng không phải Google account
+        return res.status(409).json({
+          success: false,
+          message: 'Email này đã được đăng ký bằng phương thức khác'
+        });
+      }
+    } else {
+      // Tạo account mới với Google
+      account = await Account.query().insertAndFetch({
+        email,
+        name: name || email,
+        phone: '', // Google không cung cấp phone
+        avatar: picture || null,
+        type: 'google',
+        address: '',
+        password: '', // Google account không cần password
+        roleId: customerRole.id,
+        otpCode: '',
+        isVerified: true, // Google account không cần verify OTP
+        isActive: true,
+        createAt: new Date()
+      } as Partial<IAccount>);
+    }
+
+    // Tạo JWT token
+    const token = jwt.sign(
+      { 
+        accountId: account.id, 
+        email: account.email, 
+        roleId: account.roleId 
+      },
+      JWT_SECRET,
+      { expiresIn: '24h' }
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: 'Đăng nhập Google thành công',
+      data: {
+        token,
+        expiresIn: '24h'
+      }
+    });
+
+  } catch (error) {
+    console.error('Google sign in error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Lỗi server khi đăng nhập Google'
     });
   }
 };

@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
-import googleIcon from "@/assets/google.svg";
+
 import { useEffect, useState } from "react";
 import { PasswordInput } from "../ui/password-input";
 import { useAppSelector, useAppDispatch } from "@/redux/hook";
@@ -21,6 +21,7 @@ import {
   verifyOTP,
   resendOTP,
   clearRegistrationState,
+  googleSignIn
 } from "@/redux/slices/authSlice";
 import {
   InputOTP,
@@ -30,7 +31,8 @@ import {
 } from "@/components/ui/input-otp";
 import { Loader } from "lucide-react";
 import { toast } from "sonner";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
+import { GoogleLogin } from "@react-oauth/google";
 
 interface SignupFormProps {
   reset: boolean;
@@ -39,11 +41,40 @@ interface SignupFormProps {
 
 export default function SignupForm({ reset, setType }: SignupFormProps) {
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { loading, awaitingOTPVerification, registrationEmail } =
     useAppSelector((state) => state.auth);
 
   const [countdown, setCountdown] = useState(0);
+
+  // Handle Google Sign Up Success
+  const handleGoogleSuccess = async (credentialResponse: any) => {
+    try {
+      if (credentialResponse?.credential) {
+        const result = await dispatch(googleSignIn({ 
+          credential: credentialResponse.credential 
+        }));
+        
+        if (googleSignIn.fulfilled.match(result)) {
+          toast.success("Đăng ký Google thành công!");
+          const returnUrl = searchParams.get('returnUrl') || '/';
+          navigate(returnUrl);
+        } else {
+          throw new Error(result.payload as string || 'Google sign up failed');
+        }
+      }
+    } catch (error) {
+      console.error("Google sign up error:", error);
+      toast.error("Đăng ký Google thất bại!");
+    }
+  };
+
+  // Handle Google Sign Up Error
+  const handleGoogleError = () => {
+    console.error("Google sign up failed");
+    toast.error("Đăng ký Google thất bại!");
+  };
 
   const signUpForm = useForm<z.infer<typeof signUpSchema>>({
     resolver: zodResolver(signUpSchema),
@@ -382,7 +413,7 @@ export default function SignupForm({ reset, setType }: SignupFormProps) {
 
         <div className="relative w-full md:w-1/2 my-2 text-gray-400">
           <div className="absolute inset-0 flex items-center">
-            <span className="w-full border-t border-gray-400" />
+            <span className="w-full border-t border-gray-300" />
           </div>
           <div className="relative flex justify-center text-xs uppercase">
             <span className="px-2 bg-white text-muted-foreground">
@@ -391,15 +422,18 @@ export default function SignupForm({ reset, setType }: SignupFormProps) {
           </div>
         </div>
 
-        <Button
-          className="w-full md:w-1/2 border-gray-300 cursor-pointer transition-transform duration-300 hover:scale-105"
-          onClick={() => {}}
-          variant="outline"
-          type="button"
-        >
-          <img className="mr-2 w-7 h-7" alt="google" src={googleIcon} />
-          Đăng ký bằng Google
-        </Button>
+        <div className="w-full md:w-1/2 transition-transform duration-300 hover:scale-105">
+          <GoogleLogin
+            onSuccess={handleGoogleSuccess}
+            onError={handleGoogleError}
+            text="signup_with"
+            theme="outline"
+            size="large"
+            shape="rectangular"
+            width="100%"
+            locale="vi"
+          />
+        </div>
       </form>
     </Form>
   );

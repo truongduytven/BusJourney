@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { signIn, resetPasswordByAccountId, getProfile, changePassword, signUp, verifyOtp, resendOTP } from '../controllers/auth'
+import { signIn, resetPasswordByAccountId, getProfile, changePassword, signUp, verifyOtp, resendOTP, googleSignIn } from '../controllers/auth'
 import { authenticateToken, requireOwnerOrAdmin } from '../middlewares/authMiddleware'
 const router = Router()
 
@@ -157,6 +157,54 @@ router.post('/resend-otp', resendOTP)
  *                           type: string
  */
 router.post('/signin', signIn)
+
+/**
+ * @openapi
+ * /auth/google-signin:
+ *   post:
+ *     summary: Đăng nhập bằng Google OAuth
+ *     tags:
+ *       - Auth
+ *     requestBody:
+ *       description: Google credential token
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               credential:
+ *                 type: string
+ *                 description: Google JWT credential token
+ *     responses:
+ *       '200':
+ *         description: Đăng nhập Google thành công
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     token:
+ *                       type: string
+ *                     expiresIn:
+ *                       type: string
+ *       '400':
+ *         description: Thiếu credential hoặc không thể lấy email từ Google
+ *       '401':
+ *         description: Token Google không hợp lệ
+ *       '409':
+ *         description: Email đã được đăng ký bằng phương thức khác
+ *       '500':
+ *         description: Lỗi server
+ */
+router.post('/google-signin', googleSignIn)
 
 /**
  * @openapi

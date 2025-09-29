@@ -9,6 +9,7 @@ import SigninForm from "@/components/forms/signinForm";
 import SignupForm from "@/components/forms/signupForm";
 import { useAppDispatch } from "@/redux/hook";
 import { fetchCities } from "@/redux/slices/citySlice";
+import { House } from "lucide-react";
 
 export default function SignPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -29,6 +30,9 @@ export default function SignPage() {
   return (
     <div className="w-screen h-screen relative flex justify-center items-center">
       <div className="absolute inset-0 bg-[url('@/assets/banner_sign.png')] bg-no-repeat bg-center md:bg-cover opacity-85"></div>
+      <div className="flex absolute top-4 left-4 md:top-8 md:left-8 text-white bg-black/30 rounded-full py-2 px-4 items-center hover:bg-black/50 transition cursor-pointer" onClick={() => window.location.href = "/"}>
+         Về trang chủ <House size={20} className="ml-2" />
+      </div>
       <div
         className={`relative bg-white w-[95%] md:w-3/4 h-full md:h-3/4 rounded-2xl shadow-lg flex flex-col md:flex-row ${
           type === "signin" ? "justify-center md:justify-end" : "justify-center md:justify-start"

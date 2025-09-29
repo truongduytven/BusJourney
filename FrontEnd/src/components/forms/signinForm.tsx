@@ -12,14 +12,15 @@ import {
 } from "@/components/ui/form";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
-import googleIcon from "@/assets/google.svg";
+
 import { useEffect } from "react";
 import { PasswordInput } from "../ui/password-input";
 import { useAppDispatch, useAppSelector } from "@/redux/hook";
-import { signIn, getProfile } from "@/redux/slices/authSlice";
-import { useNavigate } from "react-router-dom";
+import { signIn, getProfile, googleSignIn } from "@/redux/slices/authSlice";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Loader } from "lucide-react";
 import { toast } from "sonner";
+import { GoogleLogin } from "@react-oauth/google";
 
 interface SigninFormProps {
   reset: boolean;
@@ -28,7 +29,41 @@ interface SigninFormProps {
 export default function SigninForm({ reset }: SigninFormProps) {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { loading } = useAppSelector((state) => state.auth);
+
+  // Handle Google Sign In Success
+  const handleGoogleSuccess = async (credentialResponse: any) => {
+    if (credentialResponse?.credential) {
+      try {
+        const result = await dispatch(googleSignIn({ 
+          credential: credentialResponse.credential 
+        }));
+        
+        if (googleSignIn.fulfilled.match(result)) {
+          toast.success("Đăng nhập Google thành công!");
+          await dispatch(getProfile());
+          
+          // Kiểm tra returnUrl để redirect về trang trước đó
+          const returnUrl = searchParams.get("returnUrl");
+          if (returnUrl) {
+            navigate(decodeURIComponent(returnUrl), { replace: true });
+          } else {
+            navigate("/", { replace: true });
+          }
+        }
+      } catch (error) {
+        console.error("Google sign in error:", error);
+        toast.error("Đăng nhập Google thất bại!");
+      }
+    }
+  };
+
+  // Handle Google Sign In Error
+  const handleGoogleError = () => {
+    console.error("Google sign in failed");
+    toast.error("Đăng nhập Google thất bại!");
+  };
 
   const searchTicketForm = useForm<z.infer<typeof signInSchema>>({
     resolver: zodResolver(signInSchema),
@@ -51,10 +86,22 @@ export default function SigninForm({ reset }: SigninFormProps) {
       if (signIn.fulfilled.match(result)) {
         toast.success("Đăng nhập thành công!");
         await dispatch(getProfile());
-        navigate(-1);
+        const returnUrl = searchParams.get('returnUrl') || '/';
+        navigate(returnUrl);
+      } else {
+        // Xử lý lỗi từ backend
+        const errorPayload = result.payload as any;
+        if (errorPayload?.code === 'GOOGLE_ACCOUNT_EXISTS') {
+          toast.error("Email này đã được đăng ký bằng Google. Vui lòng sử dụng nút 'Đăng nhập với Google' bên dưới.", {
+            duration: 5000,
+          });
+        } else {
+          toast.error(errorPayload?.message || "Đăng nhập thất bại!");
+        }
       }
     } catch (error) {
       console.error("Login error:", error);
+      toast.error("Có lỗi xảy ra khi đăng nhập!");
     }
   };
   return (
@@ -106,7 +153,7 @@ export default function SigninForm({ reset }: SigninFormProps) {
         </Button>
         <div className="relative w-full md:w-1/2 my-2 text-gray-400">
           <div className="absolute inset-0 flex items-center">
-            <span className="w-full border-t border-gray-400" />
+            <span className="w-full border-t border-gray-300" />
           </div>
           <div className="relative flex justify-center text-xs uppercase">
             <span className="px-2 bg-white text-muted-foreground">
@@ -114,15 +161,18 @@ export default function SigninForm({ reset }: SigninFormProps) {
             </span>
           </div>
         </div>
-        <Button
-          className="w-full md:w-1/2 border-gray-300 cursor-pointer transition-transform duration-300 hover:scale-105"
-          onClick={() => {}}
-          variant="outline"
-          type="button"
-        >
-          <img className="mr-2 w-7 h-7" alt="google" src={googleIcon} />
-          Đăng nhập bằng Google
-        </Button>
+        <div className="w-full md:w-1/2 transition-transform duration-300 hover:scale-105">
+          <GoogleLogin
+            onSuccess={handleGoogleSuccess}
+            onError={handleGoogleError}
+            text="signin_with"
+            theme="outline"
+            size="large"
+            shape="rectangular"
+            width="100%"
+            locale="vi"
+          />
+        </div>
       </form>
     </Form>
   );

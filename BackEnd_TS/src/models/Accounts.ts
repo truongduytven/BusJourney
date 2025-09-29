@@ -11,8 +11,10 @@ export interface IAccount {
   address: string
   password: string
   roleId: string
-  companyId: string
+  companyId?: string
   otpCode: string
+  googleId?: string
+  otpExpiredAt?: Date
   isVerified: boolean
   isActive: boolean
   createAt: Date
@@ -28,8 +30,10 @@ export default class Account extends BaseModel implements IAccount {
   address!: string
   password!: string
   roleId!: string
-  companyId!: string
+  companyId?: string
   otpCode!: string
+  googleId?: string
+  otpExpiredAt?: Date
   isVerified!: boolean
   isActive!: boolean
   createAt!: Date

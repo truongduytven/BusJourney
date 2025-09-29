@@ -48,6 +48,20 @@ export interface VerifyOTPResponse {
   error?: string;
 }
 
+export interface GoogleSignInRequest {
+  credential: string;
+}
+
+export interface GoogleSignInResponse {
+  success: boolean;
+  message: string;
+  data?: {
+    token: string;
+    expiresIn: string;
+  };
+  error?: string;
+}
+
 export interface AuthState {
   isAuthenticated: boolean;
   token: string | null;
@@ -104,7 +118,7 @@ export const signIn = createAsyncThunk<
       const data = await response.json();
 
       if (!response.ok) {
-        return rejectWithValue(data.message || `HTTP error! status: ${response.status}`);
+        return rejectWithValue(data || { message: `HTTP error! status: ${response.status}` });
       }
 
       if (data.success && data.data?.token) {
@@ -252,6 +266,41 @@ export const resendOTP = createAsyncThunk<
   }
 );
 
+// Async thunk for Google sign in
+export const googleSignIn = createAsyncThunk<
+  GoogleSignInResponse,
+  GoogleSignInRequest,
+  { rejectValue: string }
+>(
+  'auth/googleSignIn',
+  async (request, { rejectWithValue }) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/google-signin`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(request),
+      });
+
+      const data: GoogleSignInResponse = await response.json();
+
+      if (!response.ok || !data.success) {
+        return rejectWithValue(data.message || 'Google sign in failed');
+      }
+
+      // Lưu token vào localStorage
+      if (data.data?.token) {
+        saveToken(data.data.token);
+      }
+
+      return data;
+    } catch (error) {
+      return rejectWithValue(error instanceof Error ? error.message : 'Google sign in failed');
+    }
+  }
+);
+
 const authSlice = createSlice({
   name: 'auth',
   initialState,
@@ -388,6 +437,24 @@ const authSlice = createSlice({
       .addCase(resendOTP.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || 'Gửi lại OTP thất bại';
+      })
+      // Google Sign In
+      .addCase(googleSignIn.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(googleSignIn.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = null;
+        
+        if (action.payload.success && action.payload.data) {
+          state.isAuthenticated = true;
+          state.token = action.payload.data.token;
+        }
+      })
+      .addCase(googleSignIn.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || 'Đăng nhập Google thất bại';
       });
   },
 });
