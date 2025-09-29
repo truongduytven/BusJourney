@@ -9,11 +9,22 @@ import {
   SheetFooter,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { setUserInformation } from "@/redux/slices/selectedTripSlice";
+import { updatePhone, getProfile } from "@/redux/slices/authSlice";
 import type { RootState } from "@/redux/store";
 import { informationCheckoutSchema } from "@/schemas";
 import { convertMoney, formatDate, formatTime } from "@/utils";
-import { useAppSelector } from "@/redux/hook";
+import { useAppSelector, useAppDispatch } from "@/redux/hook";
 import {
   Armchair,
   ArrowLeft,
@@ -25,18 +36,25 @@ import {
   ShieldCheck,
   User2Icon,
 } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import type z from "zod";
+import { toast } from "sonner";
 
 export default function InformationCheckoutPage() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const appDispatch = useAppDispatch();
   const selectedTicket = useSelector(
     (state: RootState) => state.selectedTicket
   );
   const { user } = useAppSelector((state) => state.auth);
+
+  // States for phone update dialog
+  const [showPhoneDialog, setShowPhoneDialog] = useState(false);
+  const [pendingPhoneData, setPendingPhoneData] = useState<string>("");
+  const [pendingFormData, setPendingFormData] = useState<z.infer<typeof informationCheckoutSchema> | null>(null);
 
   // Kiểm tra có ghế được chọn không
   useEffect(() => {
@@ -88,12 +106,70 @@ export default function InformationCheckoutPage() {
   };
 
   const handleSubmit = (data: z.infer<typeof informationCheckoutSchema>) => {
+    // Check if user is Google account without phone and entered valid phone
+    const isGoogleAccount = user?.type === 'google';
+    const hasNoPhone = !user?.phone || user?.phone === '';
+    const phoneChanged = user?.phone !== data.numberPhone;
+    const phoneValid = /^0[0-9]{9}$/.test(data.numberPhone);
+
+    if (isGoogleAccount && hasNoPhone && phoneChanged && phoneValid) {
+      // Show dialog to ask if user wants to update phone
+      setPendingPhoneData(data.numberPhone);
+      setPendingFormData(data);
+      setShowPhoneDialog(true);
+      return;
+    }
+
+    // Normal flow - proceed to checkout
     dispatch(setUserInformation({
       name: data.fullName,
       email: data.email,
       phone: data.numberPhone
     }));
     navigate("/method-checkout");
+  };
+
+  const handlePhoneUpdate = async () => {
+    try {
+      await appDispatch(updatePhone({ phone: pendingPhoneData })).unwrap();
+      
+      // Update user profile to reflect the new phone
+      await appDispatch(getProfile()).unwrap();
+      
+      toast.success("Cập nhật số điện thoại thành công!");
+      
+      // Continue with checkout
+      if (pendingFormData) {
+        dispatch(setUserInformation({
+          name: pendingFormData.fullName,
+          email: pendingFormData.email,
+          phone: pendingFormData.numberPhone
+        }));
+        navigate("/method-checkout");
+      }
+    } catch (error) {
+      toast.error(error as string || "Cập nhật số điện thoại thất bại");
+    } finally {
+      setShowPhoneDialog(false);
+      setPendingPhoneData("");
+      setPendingFormData(null);
+    }
+  };
+
+  const handleSkipPhoneUpdate = () => {
+    // Skip phone update and continue checkout
+    if (pendingFormData) {
+      dispatch(setUserInformation({
+        name: pendingFormData.fullName,
+        email: pendingFormData.email,
+        phone: pendingFormData.numberPhone
+      }));
+      navigate("/method-checkout");
+    }
+    
+    setShowPhoneDialog(false);
+    setPendingPhoneData("");
+    setPendingFormData(null);
   };
 
   return (
@@ -373,6 +449,27 @@ export default function InformationCheckoutPage() {
         </Container>
       </div>
       <div className="h-32"></div>
+
+      {/* Phone Update Dialog */}
+      <AlertDialog open={showPhoneDialog} onOpenChange={setShowPhoneDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Cập nhật số điện thoại</AlertDialogTitle>
+            <AlertDialogDescription>
+              Chúng tôi nhận thấy bạn đăng nhập bằng Google và chưa có số điện thoại trong tài khoản. 
+              Bạn có muốn thêm số điện thoại <strong>{pendingPhoneData}</strong> vào tài khoản để dễ dàng quản lý đơn hàng không?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={handleSkipPhoneUpdate}>
+              Bỏ qua
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={handlePhoneUpdate}>
+              Cập nhật
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

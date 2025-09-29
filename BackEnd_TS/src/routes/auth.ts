@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { signIn, resetPasswordByAccountId, getProfile, changePassword, signUp, verifyOtp, resendOTP, googleSignIn } from '../controllers/auth'
+import { signIn, resetPasswordByAccountId, getProfile, changePassword, signUp, verifyOtp, resendOTP, googleSignIn, updatePhone } from '../controllers/auth'
 import { authenticateToken, requireOwnerOrAdmin } from '../middlewares/authMiddleware'
 const router = Router()
 
@@ -318,5 +318,37 @@ router.put('/reset-password', resetPasswordByAccountId)
  *                           type: string
  */
 router.get('/me', authenticateToken, getProfile)
+
+/**
+ * @openapi
+ * /auth/update-phone:
+ *   put:
+ *     summary: Cập nhật số điện thoại
+ *     tags:
+ *       - Auth
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               phone:
+ *                 type: string
+ *                 pattern: '^0[0-9]{9}$'
+ *                 example: '0123456789'
+ *     responses:
+ *       200:
+ *         description: Cập nhật số điện thoại thành công
+ *       400:
+ *         description: Số điện thoại không hợp lệ
+ *       401:
+ *         description: Token không hợp lệ
+ *       409:
+ *         description: Số điện thoại đã được sử dụng
+ */
+router.put('/update-phone', authenticateToken, updatePhone)
 
 export default router

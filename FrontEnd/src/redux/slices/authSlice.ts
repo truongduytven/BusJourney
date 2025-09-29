@@ -301,6 +301,42 @@ export const googleSignIn = createAsyncThunk<
   }
 );
 
+// Update phone async thunk
+export const updatePhone = createAsyncThunk<
+  { success: boolean; message: string },
+  { phone: string },
+  { rejectValue: string }
+>(
+  'auth/updatePhone',
+  async (request, { rejectWithValue }) => {
+    try {
+      const token = getStoredToken();
+      if (!token) {
+        return rejectWithValue('Không tìm thấy token xác thực');
+      }
+
+      const response = await fetch(`${API_BASE_URL}/auth/update-phone`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(request),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        return rejectWithValue(data.message || 'Cập nhật số điện thoại thất bại');
+      }
+
+      return data;
+    } catch (error) {
+      return rejectWithValue(error instanceof Error ? error.message : 'Cập nhật số điện thoại thất bại');
+    }
+  }
+);
+
 const authSlice = createSlice({
   name: 'auth',
   initialState,
@@ -455,6 +491,21 @@ const authSlice = createSlice({
       .addCase(googleSignIn.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || 'Đăng nhập Google thất bại';
+      })
+      // Update phone cases
+      .addCase(updatePhone.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updatePhone.fulfilled, (state) => {
+        state.loading = false;
+        state.error = null;
+        // Optionally update user phone in state if we have user data
+        // state.user.phone = action.meta.arg.phone;
+      })
+      .addCase(updatePhone.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || 'Cập nhật số điện thoại thất bại';
       });
   },
 });

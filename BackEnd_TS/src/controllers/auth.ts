@@ -595,3 +595,69 @@ export const googleSignIn = async (req: Request<{}, {}, GoogleSignInRequest>, re
     });
   }
 };
+
+// Update phone number for user
+export const updatePhone = async (req: Request, res: Response) => {
+  try {
+    const { phone } = req.body;
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader?.startsWith('Bearer ')) {
+      return res.status(401).json({
+        success: false,
+        message: 'Token không hợp lệ'
+      });
+    }
+
+    const token = authHeader.substring(7);
+
+    // Verify JWT token
+    let decoded: any;
+    try {
+      decoded = jwt.verify(token, JWT_SECRET);
+    } catch (error) {
+      return res.status(401).json({
+        success: false,
+        message: 'Token không hợp lệ hoặc đã hết hạn'
+      });
+    }
+
+    // Validate phone format
+    if (!phone || !/^0[0-9]{9}$/.test(phone)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Số điện thoại không hợp lệ. Phải có 10 số và bắt đầu bằng 0'
+      });
+    }
+
+    // Check if phone already exists for another user
+    const existingAccount = await Account.query()
+      .where('phone', phone)
+      .whereNot('id', decoded.accountId)
+      .first();
+
+    if (existingAccount) {
+      return res.status(409).json({
+        success: false,
+        message: 'Số điện thoại này đã được sử dụng bởi tài khoản khác'
+      });
+    }
+
+    // Update user phone
+    await Account.query()
+      .findById(decoded.accountId)
+      .patch({ phone });
+
+    return res.status(200).json({
+      success: true,
+      message: 'Cập nhật số điện thoại thành công'
+    });
+
+  } catch (error) {
+    console.error('Update phone error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Lỗi server khi cập nhật số điện thoại'
+    });
+  }
+};
