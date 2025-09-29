@@ -13,6 +13,7 @@ import { setUserInformation } from "@/redux/slices/selectedTripSlice";
 import type { RootState } from "@/redux/store";
 import { informationCheckoutSchema } from "@/schemas";
 import { convertMoney, formatDate, formatTime } from "@/utils";
+import { useAppSelector } from "@/redux/hook";
 import {
   Armchair,
   ArrowLeft,
@@ -35,12 +36,14 @@ export default function InformationCheckoutPage() {
   const selectedTicket = useSelector(
     (state: RootState) => state.selectedTicket
   );
+  const { user } = useAppSelector((state) => state.auth);
 
+  // Kiểm tra có ghế được chọn không
   useEffect(() => {
     if (selectedTicket.selectedSeats.length === 0) {
       navigate("/search", { replace: true });
     }
-  }, []);
+  }, [selectedTicket.selectedSeats.length, navigate]);
 
   const calculateRefundPercentage = (departureTime: string | Date): { percentage: number; color: string } => {
     const now = new Date();
@@ -105,14 +108,10 @@ export default function InformationCheckoutPage() {
         <div className="w-full flex justify-between gap-x-5">
           <div className="flex-5 flex flex-col ">
             <div className="flex flex-col bg-white p-5 border-[0.5px] border-gray-300 rounded-md">
-              <div className="flex text-primary/70 justify-between border border-primary rounded-md items-center text-lg font-semibold mb-4 p-3">
-                <div>Đăng nhập để tự điền thông tin khi đặt vé</div>
-                <Button className="text-white">Đăng nhập</Button>
-              </div>
               <div className="font-bold text-primary text-lg text-center">
                 Thông tin liên hệ
               </div>
-              <InformationCheckoutForm onSubmit={handleSubmit} />
+              <InformationCheckoutForm onSubmit={handleSubmit} user={user} />
               <div className="mt-6 w-full bg-green-200 flex p-2 gap-x-2 rounded-lg border border-green-600 text-green-700 text-sm items-center">
                 <ShieldCheck size={16} />
                 <div>

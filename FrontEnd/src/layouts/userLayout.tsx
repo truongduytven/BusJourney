@@ -11,7 +11,7 @@ export default function UserLayout() {
       <div className="flex min-h-[70%] pt-10">
         <Outlet />
       </div>
-      {pathname !== "/information-checkout" && <Footer />}
+      {pathname !== "/information-checkout" && pathname !== "/method-checkout" && <Footer />}
     </div>
   );
 }

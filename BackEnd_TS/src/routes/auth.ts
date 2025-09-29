@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { signIn, resetPasswordByAccountId, getProfile, changePassword, signUp, verifyOtp } from '../controllers/auth'
+import { signIn, resetPasswordByAccountId, getProfile, changePassword, signUp, verifyOtp, resendOTP } from '../controllers/auth'
 import { authenticateToken, requireOwnerOrAdmin } from '../middlewares/authMiddleware'
 const router = Router()
 
@@ -93,7 +93,28 @@ router.post('/signup', signUp)
  */
 router.post('/verify-otp', verifyOtp)
 
-
+/**
+ * @openapi
+ * /auth/resend-otp:
+ *   post:
+ *     summary: Gửi lại mã OTP
+ *     tags:
+ *       - Auth
+ *     requestBody:
+ *       description: Email để gửi lại OTP
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Gửi lại OTP thành công
+ */
+router.post('/resend-otp', resendOTP)
 
 /**
  * @openapi

@@ -12,10 +12,11 @@ import MethodCheckoutPage from "./pages/methodCheckoutPage";
 import PaymentSuccess from "./pages/paymentSucces";
 import BecomePartnerPage from "./pages/partner";
 import { useAuthInitialize } from "./hooks/useAuthInitialize";
+import { RequireAuth, RequireGuest } from "./components/common/ProtectedRoute";
 
 function App() {
   const location = useLocation();
-  
+
   // Initialize auth state và auto-fetch user profile nếu có token
   useAuthInitialize();
 
@@ -35,15 +36,43 @@ function App() {
           <Route path="/search" element={<SearchPage />} />
           <Route path="/search-ticket" element={<SearchTicket />} />
           <Route path="/become-partner" element={<BecomePartnerPage />} />
+          
+          {/* Protected routes - Yêu cầu đăng nhập */}
           <Route
             path="/information-checkout"
-            element={<InformationCheckoutPage />}
+            element={
+              <RequireAuth>
+                <InformationCheckoutPage />
+              </RequireAuth>
+            }
+          />
+          <Route 
+            path="/method-checkout" 
+            element={
+              <RequireAuth>
+                <MethodCheckoutPage />
+              </RequireAuth>
+            } 
+          />
+          <Route 
+            path="/payment-success" 
+            element={
+              <RequireAuth>
+                <PaymentSuccess />
+              </RequireAuth>
+            } 
           />
         </Route>
-        <Route path="/method-checkout" element={<MethodCheckoutPage />} />
-        <Route path="/payment-success" element={<PaymentSuccess />} />
 
-        <Route path="/sign" element={<SignPage />} />
+        {/* Guest-only route - Không cho phép truy cập khi đã đăng nhập */}
+        <Route 
+          path="/sign" 
+          element={
+            <RequireGuest>
+              <SignPage />
+            </RequireGuest>
+          } 
+        />
 
         <Route path="*" element={<ErrorPage />} />
       </Routes>

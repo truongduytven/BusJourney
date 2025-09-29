@@ -11,23 +11,33 @@ import { informationCheckoutSchema } from "@/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import type z from "zod";
+import { useEffect } from "react";
 
 interface InformationCheckoutFormProps {
     onSubmit: (data: z.infer<typeof informationCheckoutSchema>) => void;
+    user?: any; // User data để auto-fill form
 }
 
-export default function InformationCheckoutForm({ onSubmit }: InformationCheckoutFormProps) {
-    const infomationCheckout = localStorage.getItem("checkoutInfo");
+export default function InformationCheckoutForm({ onSubmit, user }: InformationCheckoutFormProps) {
   const infomationCheckoutForm = useForm<
     z.infer<typeof informationCheckoutSchema>
   >({
     resolver: zodResolver(informationCheckoutSchema),
     defaultValues: {
-      fullName: infomationCheckout ? JSON.parse(infomationCheckout).fullName : "",
-      numberPhone: infomationCheckout ? JSON.parse(infomationCheckout).numberPhone : "",
-      email: infomationCheckout ? JSON.parse(infomationCheckout).email : "",
+      fullName: user?.name || "",
+      numberPhone: user?.phone || "",
+      email: user?.email || "",
     },
   });
+
+  // Auto-fill form khi user data được load
+  useEffect(() => {
+    if (user) {
+      infomationCheckoutForm.setValue("fullName", user.name || "");
+      infomationCheckoutForm.setValue("numberPhone", user.phone || "");
+      infomationCheckoutForm.setValue("email", user.email || "");
+    }
+  }, [user, infomationCheckoutForm]);
 
   return (
     <Form {...infomationCheckoutForm}>

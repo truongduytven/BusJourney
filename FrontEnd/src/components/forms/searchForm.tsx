@@ -14,6 +14,7 @@ import {
   ArrowRightLeft,
   CalendarFold,
   ChevronDownIcon,
+  Loader,
   MapPin,
   MapPinHouse,
   Search,
@@ -39,6 +40,7 @@ export default function SearchForm({ className }: SearchFormProps) {
   
   const cities = useAppSelector((state) => state.cities.list) || [];
   const status = useAppSelector((state) => state.cities.status);
+  const statusSearch = useAppSelector((state) => state.trips.status);
   const [fromCity, setFromCity] = useState<string | null>(null);
   const [toCity, setToCity] = useState<string | null>(null);
   const { pathname } = useLocation();
@@ -254,10 +256,10 @@ export default function SearchForm({ className }: SearchFormProps) {
         <div className="flex-1 text-center mt-6 md:mt-0">
           <Button
             onClick={handleSearch}
-            disabled={!fromCity || !toCity || !date}
+            disabled={!fromCity || !toCity || !date || statusSearch === "loading"}
             className="text-white text-lg py-3 w-34 h-auto rounded-4xl cursor-pointer transition-transform duration-300 hover:scale-110"
           >
-            <Search /> Tìm vé
+            {statusSearch === "loading" ? <Loader className="animate-spin" /> : <Search />} Tìm vé
           </Button>
         </div>
       </CardContent>

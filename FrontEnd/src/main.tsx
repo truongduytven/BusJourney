@@ -11,7 +11,10 @@ createRoot(document.getElementById('root')!).render(
     <Provider store={store}>
       <BrowserRouter>
         <App />
-        <Toaster richColors visibleToasts={1}/>
+        <Toaster richColors visibleToasts={1} position='top-right' toastOptions={{
+          duration: 3000,
+          style: { fontSize: '14px'},
+        }}/>
       </BrowserRouter>
     </Provider>
   </StrictMode>,

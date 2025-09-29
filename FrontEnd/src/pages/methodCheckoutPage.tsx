@@ -32,25 +32,18 @@ import {
   MapPin,
   MapPinCheck,
   MapPinCheckInside,
-  MessageCircleQuestionIcon,
   RefreshCcw,
   User2Icon,
   X,
 } from "lucide-react";
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import LogoFull from "@/assets/logo_full.png";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import type z from "zod";
 import { useDispatch, useSelector } from "react-redux";
 import type { RootState } from "@/redux/store";
 import { setUserInformation } from "@/redux/slices/selectedTripSlice";
 import type { CouponData } from "@/types/trip";
-
-interface UserInfo {
-  fullName: string;
-  email: string;
-  numberPhone: string;
-}
+import { useAppSelector } from "@/redux/hook";
 
 export default function MethodCheckoutPage() {
   const [selectedVoucher, setSelectedVoucher] = useState<CouponData | null>(
@@ -62,18 +55,29 @@ export default function MethodCheckoutPage() {
   const selectedTicket = useSelector(
     (state: RootState) => state.selectedTicket
   );
-  const [userInfo, setUserInfo] = useState<UserInfo>(
-    localStorage.getItem("checkoutInfo")
-      ? {
-          fullName: selectedTicket.userInformation.name,
-          email: selectedTicket.userInformation.email,
-          numberPhone: selectedTicket.userInformation.phone,
-        }
-      : { fullName: "", email: "", numberPhone: "" }
-  );
   const navigate = useNavigate();
+  const { user } = useAppSelector((state) => state.auth);
+  
+  // Kiểm tra thông tin có thay đổi so với thông tin đăng nhập không
+  const isUserInfoModified = () => {
+    if (!user || !selectedTicket.userInformation.name) return false;
+    
+    return (
+      selectedTicket.userInformation.name !== user.name ||
+      selectedTicket.userInformation.email !== user.email ||
+      selectedTicket.userInformation.phone !== user.phone
+    );
+  };
+
+  // Kiểm tra có ghế được chọn không
+  useEffect(() => {
+    if (selectedTicket.selectedSeats.length === 0) {
+      navigate("/search", { replace: true });
+    }
+  }, [selectedTicket.selectedSeats.length, navigate]);
 
   const handleSubmit = (data: z.infer<typeof informationCheckoutSchema>) => {
+    // Lưu vào Redux state
     dispatch(
       setUserInformation({
         name: data.fullName,
@@ -81,7 +85,6 @@ export default function MethodCheckoutPage() {
         phone: data.numberPhone,
       })
     );
-    setUserInfo(data);
   };
 
   const calculateRefundPercentage = (
@@ -120,21 +123,6 @@ export default function MethodCheckoutPage() {
 
   return (
     <div className="w-full flex flex-1 flex-col justify-center bg-gray-background overflow-y-scroll pt-18">
-      <div className="fixed top-0 left-0 z-10 w-full flex justify-center bg-white border-t border-gray-300">
-        <Container className="flex justify-between items-center">
-          <div className="text-lg flex-1 font-medium">
-            {" "}
-            Thông tin thanh toán{" "}
-          </div>
-          <Link to="/" className="px-5 py-2 md:flex-1 flex justify-center">
-            <img src={LogoFull} alt="Logo" className="h-10 md:h-14 w-auto" />
-          </Link>
-          <div className="flex-1 flex justify-end text-blue-500 underline text-sm items-center cursor-pointer">
-            Liên hệ hỗ trợ{" "}
-            <MessageCircleQuestionIcon className="ml-1" size={16} />
-          </div>
-        </Container>
-      </div>
       <Container className="flex flex-col p-6">
         <div
           onClick={() => navigate(-1)}
@@ -238,7 +226,7 @@ export default function MethodCheckoutPage() {
                     <div className="text-lg text-center font-bold">
                       Chỉnh sửa thông tin liên hệ
                     </div>
-                    <InformationCheckoutForm onSubmit={handleSubmit} />
+                    <InformationCheckoutForm onSubmit={handleSubmit} user={selectedTicket.userInformation}/>
                     <SheetFooter>
                       <SheetClose asChild>
                         <Button
@@ -253,17 +241,33 @@ export default function MethodCheckoutPage() {
                   </SheetContent>
                 </Sheet>
               </div>
+              
+              {/* Hiển thị trạng thái thay đổi thông tin */}
+              {isUserInfoModified() && (
+                <div className="bg-yellow-50 border border-yellow-200 rounded-md p-3">
+                  <div className="flex items-center gap-2 text-yellow-800">
+                    <InfoIcon size={16} />
+                    <span className="text-sm font-medium">
+                      Thông tin đã được chỉnh sửa khác với thông tin tài khoản
+                    </span>
+                  </div>
+                  <div className="text-xs text-yellow-700 mt-1">
+                    Thông tin gốc: {user?.name} - {user?.email} - {user?.phone}
+                  </div>
+                </div>
+              )}
+              
               <div className="flex justify-between">
                 <div>Tên người đi</div>
-                <div className="font-medium">{userInfo.fullName}</div>
+                <div className="font-medium">{selectedTicket.userInformation.name}</div>
               </div>
               <div className="flex justify-between">
                 <div>Số điện thoại</div>
-                <div className="font-medium">{userInfo.numberPhone}</div>
+                <div className="font-medium">{selectedTicket.userInformation.phone}</div>
               </div>
               <div className="flex justify-between items-center">
                 <div>Email</div>
-                <div className="font-medium">{userInfo.email}</div>
+                <div className="font-medium">{selectedTicket.userInformation.email}</div>
               </div>
             </div>
           </div>

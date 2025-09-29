@@ -70,7 +70,7 @@ export default function SignPage() {
                   Đăng ký
                 </div>
               </div>
-              <SignupForm reset={false} />
+              <SignupForm reset={false} setType={setType} />
             </div>
           </motion.div>
         )}

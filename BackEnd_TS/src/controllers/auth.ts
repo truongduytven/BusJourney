@@ -94,13 +94,13 @@ export const signIn = async (req: Request<{}, {}, SignInRequest>, res: Response)
 
 export const signUp = async (req: Request, res: Response) => {
   try {
-    const { name, email, phone, address, password, role } = req.body;
+    const { name, email, phone, password, role } = req.body;
 
     // Validation
-    if (!name || !email || !phone || !address || !password) {
+    if (!name || !email || !phone || !password) {
       return res.status(400).json({
         success: false,
-        message: 'Tên người dùng, email, số điện thoại, địa chỉ và mật khẩu là bắt buộc'
+        message: 'Tên người dùng, email, số điện thoại và mật khẩu là bắt buộc'
       });
     }
 
@@ -108,10 +108,35 @@ export const signUp = async (req: Request, res: Response) => {
     const existingAccount = await Account.query()
       .where('email', email)
       .first();
+    
     if (existingAccount) {
-      return res.status(409).json({
+      // Nếu tài khoản đã được xác thực
+      if (existingAccount.isVerified) {
+        return res.status(409).json({
+          success: false,
+          message: 'Email đã được sử dụng'
+        });
+      }
+      
+      // Nếu tài khoản chưa được xác thực, tạo OTP mới
+      const newOtpCode = Math.floor(100000 + Math.random() * 900000).toString();
+      
+      await Account.query()
+        .findById(existingAccount.id)
+        .patch({
+          otpCode: newOtpCode
+        });
+
+      // TODO: Gửi OTP mới qua email
+      console.log(`OTP mới cho email ${email}: ${newOtpCode}`);
+
+      return res.status(400).json({
         success: false,
-        message: 'Email đã được sử dụng'
+        message: 'Tài khoản đã đăng ký nhưng chưa xác thực. Mã OTP mới đã được gửi.',
+        code: 'ACCOUNT_NOT_VERIFIED',
+        data: {
+          email: existingAccount.email
+        }
       });
     }
 
@@ -134,7 +159,7 @@ export const signUp = async (req: Request, res: Response) => {
       name,
       email,
       phone,
-      address,
+      address: '',
       avatar: avatarUrl,
       password: hashedPassword,
       type: 'normal',
@@ -380,6 +405,65 @@ export const getProfile = async (req: Request, res: Response) => {
 
   } catch (error) {
     console.error('GetProfile error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Lỗi server',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+};
+
+export const resendOTP = async (req: Request, res: Response) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email là bắt buộc'
+      });
+    }
+
+    // Tìm account theo email
+    const account = await Account.query()
+      .where('email', email)
+      .where('isActive', true)
+      .first();
+
+    if (!account) {
+      return res.status(404).json({
+        success: false,
+        message: 'Không tìm thấy tài khoản'
+      });
+    }
+
+    if (account.isVerified) {
+      return res.status(400).json({
+        success: false,
+        message: 'Tài khoản đã được xác thực'
+      });
+    }
+
+    // Tạo OTP mới
+    const newOtpCode = Math.floor(100000 + Math.random() * 900000).toString();
+
+    // Cập nhật OTP
+    await Account.query()
+      .findById(account.id)
+      .patch({
+        otpCode: newOtpCode
+      });
+
+    // TODO: Gửi OTP qua email
+    console.log(`OTP mới cho email ${email}: ${newOtpCode}`);
+
+    return res.status(200).json({
+      success: true,
+      message: 'Đã gửi lại mã OTP. Vui lòng kiểm tra email.',
+    });
+
+  } catch (error) {
+    console.error('ResendOTP error:', error);
     return res.status(500).json({
       success: false,
       message: 'Lỗi server',

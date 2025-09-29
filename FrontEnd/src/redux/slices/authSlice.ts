@@ -9,6 +9,19 @@ export interface SignInRequest {
   password: string;
 }
 
+export interface SignUpRequest {
+  name: string;
+  email: string;
+  phone: string;
+  password: string;
+  role?: string;
+}
+
+export interface VerifyOTPRequest {
+  email: string;
+  otp: string;
+}
+
 export interface SignInResponse {
   success: boolean;
   message: string;
@@ -19,12 +32,32 @@ export interface SignInResponse {
   error?: string;
 }
 
+export interface SignUpResponse {
+  success: boolean;
+  message: string;
+  data?: {
+    accountId: string;
+    email: string;
+  };
+  error?: string;
+}
+
+export interface VerifyOTPResponse {
+  success: boolean;
+  message: string;
+  error?: string;
+}
+
 export interface AuthState {
   isAuthenticated: boolean;
   token: string | null;
   loading: boolean;
   error: string | null;
   user: any | null;
+  // States for registration process
+  isRegistering: boolean;
+  registrationEmail: string | null;
+  awaitingOTPVerification: boolean;
 }
 
 // Helper functions
@@ -46,6 +79,9 @@ const initialState: AuthState = {
   loading: false,
   error: null,
   user: null,
+  isRegistering: false,
+  registrationEmail: null,
+  awaitingOTPVerification: false,
 };
 
 // Async thunk for sign in
@@ -119,6 +155,103 @@ export const getProfile = createAsyncThunk<
   }
 );
 
+// Async thunk for sign up
+export const signUp = createAsyncThunk<
+  SignUpResponse,
+  SignUpRequest,
+  { rejectValue: string }
+>(
+  'auth/signUp',
+  async (userData, { rejectWithValue }) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/signup`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(userData),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        // Trả về object với thông tin đầy đủ để xử lý trường hợp đặc biệt
+        return rejectWithValue(JSON.stringify({
+          message: data.message || `HTTP error! status: ${response.status}`,
+          code: data.code,
+          data: data.data
+        }));
+      }
+
+      return data;
+    } catch (error) {
+      return rejectWithValue(JSON.stringify({
+        message: error instanceof Error ? error.message : 'Đăng ký thất bại'
+      }));
+    }
+  }
+);
+
+// Async thunk for OTP verification
+export const verifyOTP = createAsyncThunk<
+  VerifyOTPResponse,
+  VerifyOTPRequest,
+  { rejectValue: string }
+>(
+  'auth/verifyOTP',
+  async (otpData, { rejectWithValue }) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/verify-otp`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(otpData),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        return rejectWithValue(data.message || `HTTP error! status: ${response.status}`);
+      }
+
+      return data;
+    } catch (error) {
+      return rejectWithValue(error instanceof Error ? error.message : 'Xác thực OTP thất bại');
+    }
+  }
+);
+
+// Async thunk for resending OTP
+export const resendOTP = createAsyncThunk<
+  any,
+  { email: string },
+  { rejectValue: string }
+>(
+  'auth/resendOTP',
+  async (emailData, { rejectWithValue }) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/resend-otp`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(emailData),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        return rejectWithValue(data.message || `HTTP error! status: ${response.status}`);
+      }
+
+      return data;
+    } catch (error) {
+      return rejectWithValue(error instanceof Error ? error.message : 'Gửi lại OTP thất bại');
+    }
+  }
+);
+
 const authSlice = createSlice({
   name: 'auth',
   initialState,
@@ -128,6 +261,9 @@ const authSlice = createSlice({
       state.token = null;
       state.error = null;
       state.user = null;
+      state.isRegistering = false;
+      state.registrationEmail = null;
+      state.awaitingOTPVerification = false;
       removeToken();
     },
     clearError: (state) => {
@@ -138,6 +274,12 @@ const authSlice = createSlice({
       state.isAuthenticated = true;
       saveToken(action.payload);
     },
+    clearRegistrationState: (state) => {
+      state.isRegistering = false;
+      state.registrationEmail = null;
+      state.awaitingOTPVerification = false;
+      state.error = null;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -147,13 +289,12 @@ const authSlice = createSlice({
         state.error = null;
       })
       .addCase(signIn.fulfilled, (state, action) => {
-        state.loading = false;
         state.error = null;
-        
         if (action.payload.success && action.payload.data?.token) {
           state.isAuthenticated = true;
           state.token = action.payload.data.token;
         }
+        state.loading = false;
       })
       .addCase(signIn.rejected, (state, action) => {
         state.loading = false;
@@ -181,9 +322,75 @@ const authSlice = createSlice({
           state.user = null;
           removeToken();
         }
+      })
+      // Sign Up
+      .addCase(signUp.pending, (state) => {
+        state.isRegistering = true;
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(signUp.fulfilled, (state, action) => {
+        state.isRegistering = false;
+        state.loading = false;
+        state.error = null;
+        
+        if (action.payload.success && action.payload.data?.email) {
+          state.registrationEmail = action.payload.data.email;
+          state.awaitingOTPVerification = true;
+        }
+      })
+      .addCase(signUp.rejected, (state, action) => {
+        state.isRegistering = false;
+        state.loading = false;
+        
+        try {
+          const errorData = JSON.parse(action.payload || '{}');
+          
+          // Trường hợp tài khoản đã đăng ký nhưng chưa xác thực
+          if (errorData.code === 'ACCOUNT_NOT_VERIFIED' && errorData.data?.email) {
+            state.registrationEmail = errorData.data.email;
+            state.awaitingOTPVerification = true;
+            state.error = null; // Không hiển thị lỗi vì sẽ chuyển sang form OTP
+          } else {
+            state.error = errorData.message || action.payload || 'Đăng ký thất bại';
+          }
+        } catch {
+          state.error = action.payload || 'Đăng ký thất bại';
+        }
+      })
+      // Verify OTP
+      .addCase(verifyOTP.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(verifyOTP.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = null;
+        
+        if (action.payload.success) {
+          state.awaitingOTPVerification = false;
+          state.registrationEmail = null;
+        }
+      })
+      .addCase(verifyOTP.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || 'Xác thực OTP thất bại';
+      })
+      // Resend OTP
+      .addCase(resendOTP.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(resendOTP.fulfilled, (state) => {
+        state.loading = false;
+        state.error = null;
+      })
+      .addCase(resendOTP.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || 'Gửi lại OTP thất bại';
       });
   },
 });
 
-export const { logout, clearError, setToken } = authSlice.actions;
+export const { logout, clearError, setToken, clearRegistrationState } = authSlice.actions;
 export default authSlice.reducer;
