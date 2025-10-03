@@ -22,7 +22,7 @@ export default function PaymentSuccess() {
   }
 
   return hasError ? (
-    <div className="w-screen h-screen flex flex-col justify-center items-center gap-10">
+    <div className="w-screen h-screen flex flex-col justify-center items-center gap-10 pt-10">
       <img
         src={PaymentFailureImage}
         alt="Payment Failure"
@@ -36,7 +36,7 @@ export default function PaymentSuccess() {
       </Button>
     </div>
   ) : (
-    <div className="w-screen h-screen flex flex-col justify-center items-center gap-10">
+    <div className="w-screen h-screen flex flex-col justify-center items-center gap-10 pt-10">
       <img
         src={PaymentSuccessImage}
         alt="Payment Success"

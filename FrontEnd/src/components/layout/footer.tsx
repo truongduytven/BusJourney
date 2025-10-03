@@ -18,17 +18,20 @@ export default function Footer() {
                 dàng tìm và đặt mua vé xe khách.
               </p>
               <div className="flex gap-5 mt-2 items-center">
-                <a style={{ width: 24, height: 24 }} href="https://www.facebook.com/thebusjourney">
-                  <img src="https://cdn.simpleicons.org/zalo/0000ff" alt="Zalo Logo" />
+                <a style={{ width: 24, height: 24 }} href="https://www.zalo.com/thebusjourney" target="_blank">
+                  <img src="https://img.icons8.com/color/48/zalo.png" alt="Zalo Logo" />
                 </a>
-                <a style={{ width: 24, height: 24 }} href="https://www.tiktok.com/@thebusjourney">
-                  <img src="https://cdn.simpleicons.org/tiktok/000000" alt="TikTok Logo" />
+                <a style={{ width: 24, height: 24 }} href="https://www.tiktok.com/@thebusjourney" target="_blank">
+                  <img src="https://cdn-icons-png.flaticon.com/512/3046/3046120.png" alt="TikTok Logo" />
                 </a>
-                <a style={{ width: 24, height: 24 }} href="https://www.instagram.com/thebusjourney/">
-                  <img src="https://cdn.simpleicons.org/instagram/ff3300" alt="Instagram Logo" />
+                <a style={{ width: 24, height: 24 }} href="https://www.instagram.com/thebusjourney/" target="_blank">
+                  <img src="https://cdn-icons-png.flaticon.com/512/733/733558.png" alt="Instagram Logo" />
                 </a>
-                <a style={{ width: 24, height: 24 }} href="https://www.facebook.com/thebusjourney">
-                  <img src="https://cdn.simpleicons.org/facebook/0000ff" alt="Facebook Logo" />
+                <a style={{ width: 24, height: 24 }} href="https://www.facebook.com/thebusjourney" target="_blank">
+                  <img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" alt="Facebook Logo" />
+                </a>
+                <a style={{ width: 24, height: 24 }} href="https://youtube.com/@yourchannel" target="_blank">
+                  <img src="https://cdn-icons-png.flaticon.com/512/1384/1384060.png" alt="YouTube" />
                 </a>
               </div>
             </div>

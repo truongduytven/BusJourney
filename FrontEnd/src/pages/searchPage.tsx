@@ -192,7 +192,7 @@ export default function SearchPage() {
   };
 
   return (
-    <div className="bg-gray-100 w-full">
+    <div className="bg-gray-100 w-full pt-10">
       <Container>
         <div className="flex flex-col w-full items-center justify-center">
           <div className="w-full flex justify-center mb-6 mt-16">

@@ -26,7 +26,7 @@ import FadeInSection from "@/components/common/faeInSection";
 
 export default function Home() {
   return (
-    <div className="flex-col justify-center items-center mb-20">
+    <div className="flex-col justify-center items-center mb-20 pt-10">
       <div className="relative">
         <img
           src={Banner}

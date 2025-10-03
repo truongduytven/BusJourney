@@ -257,7 +257,7 @@ export default function SearchForm({ className }: SearchFormProps) {
           <Button
             onClick={handleSearch}
             disabled={!fromCity || !toCity || !date || statusSearch === "loading"}
-            className="text-white text-lg py-3 w-34 h-auto rounded-4xl cursor-pointer transition-transform duration-300 hover:scale-110"
+            className="text-white text-lg py-3 w-34 h-auto rounded-4xl cursor-pointer transition-transform duration-300 hover:scale-110 bg-gradient-to-br from-primary to-[#7c3aed]"
           >
             {statusSearch === "loading" ? <Loader className="animate-spin" /> : <Search />} Tìm vé
           </Button>

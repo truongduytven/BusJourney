@@ -7,6 +7,7 @@ import tripDetailReducer from "./slices/tripDetailSlice";
 import tripSeatReducer from "./slices/tripSeatSlice";
 import selectedTicketReducer from "./slices/selectedTripSlice";
 import authReducer from "./slices/authSlice";
+import ticketReducer from "./slices/ticketSlice";
 
 export const store = configureStore({
   reducer: {
@@ -17,6 +18,7 @@ export const store = configureStore({
     tripSeats: tripSeatReducer,
     selectedTicket: selectedTicketReducer,
     auth: authReducer,
+    ticket: ticketReducer,
   },
 });
 

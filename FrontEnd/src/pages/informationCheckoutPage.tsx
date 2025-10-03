@@ -173,7 +173,7 @@ export default function InformationCheckoutPage() {
   };
 
   return (
-    <div className="w-full flex flex-1 flex-col justify-center bg-gray-background overflow-y-scroll mt-8">
+    <div className="w-full flex flex-1 flex-col justify-center bg-gray-background overflow-y-scroll mt-8 pt-10">
       <Container className="flex flex-col p-6">
         <div
           onClick={() => navigate(-1)}

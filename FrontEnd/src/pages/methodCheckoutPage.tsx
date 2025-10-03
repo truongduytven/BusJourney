@@ -122,7 +122,7 @@ export default function MethodCheckoutPage() {
   };
 
   return (
-    <div className="w-full flex flex-1 flex-col justify-center bg-gray-background overflow-y-scroll pt-18">
+    <div className="w-full flex flex-1 flex-col justify-center bg-gray-background overflow-y-scroll pt-28">
       <Container className="flex flex-col p-6">
         <div
           onClick={() => navigate(-1)}

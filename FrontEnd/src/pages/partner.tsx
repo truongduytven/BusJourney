@@ -24,25 +24,32 @@ import { partnerSchema } from "@/schemas";
 import { useRef } from "react";
 import ContactImage from "@/assets/partner.png";
 import { Form } from "@/components/ui/form";
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 
 type PartnerForm = z.infer<typeof partnerSchema>;
 
 export default function BecomePartnerPage() {
   const form = useForm<PartnerForm>({
-      resolver: zodResolver(partnerSchema),
-      defaultValues: {
-        fullName: "",
-        company: "",
-        email: "",
-        phone: "",
-        message: "",
-      },
-    })
-  const formRef = useRef<HTMLDivElement | null>(null); // ref cho form
+    resolver: zodResolver(partnerSchema),
+    defaultValues: {
+      fullName: "",
+      company: "",
+      email: "",
+      phone: "",
+      message: "",
+    },
+  });
+  const divRef = useRef<HTMLDivElement | null>(null);
+  const divRef1 = useRef<HTMLDivElement | null>(null);
 
   const handleScrollToForm = () => {
-    formRef.current?.scrollIntoView({ behavior: "smooth" });
+    divRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
   const onSubmit = (data: PartnerForm) => {
@@ -51,101 +58,137 @@ export default function BecomePartnerPage() {
   };
 
   return (
-    <div className="w-full flex flex-col">
-      {/* Banner */}
-      <div className="relative w-full h-[60vh] bg-gradient-to-r from-primary to-secondary flex items-center justify-center text-center">
-        <div className="text-white space-y-6">
-          <h1 className="text-4xl md:text-6xl font-extrabold">
-            Trở thành đối tác của BusJourney
-          </h1>
-          <p className="text-lg md:text-xl max-w-2xl mx-auto">
-            Cùng chúng tôi mở rộng mạng lưới vận tải, mang lại trải nghiệm hành
-            khách tốt hơn. Kết nối - Hợp tác - Thành công.
-          </p>
-          <Button
-            onClick={handleScrollToForm}
-            size="lg"
-            variant="secondary"
-            className="font-semibold"
-          >
-            Đăng ký ngay
-          </Button>
+    <div className="h-screen w-screen overflow-y-scroll snap-y snap-mandatory">
+      {/* Section 1: Hero Banner */}
+      <section className="h-screen w-full snap-start flex items-center justify-center relative bg-gradient-to-br from-blue-500 via-indigo-700 to-purple-800">
+        {/* Background Pattern */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-20 left-20 w-32 h-32 border border-white rounded-full"></div>
+          <div className="absolute top-40 right-32 w-24 h-24 border border-white rounded-full"></div>
+          <div className="absolute bottom-32 left-40 w-20 h-20 border border-white rounded-full"></div>
+          <div className="absolute bottom-20 right-20 w-36 h-36 border border-white rounded-full"></div>
         </div>
-      </div>
+        
+        <div className="container mx-auto px-6 text-center text-white z-10">
+          <div className="animate-in fade-in slide-in-from-bottom-8 duration-1000">
+            <Building2 className="w-20 h-20 mx-auto mb-8 text-blue-200" />
+            <h1 className="text-5xl md:text-7xl font-extrabold mb-6 bg-gradient-to-r from-white to-blue-200 bg-clip-text text-transparent">
+              Trở thành đối tác
+            </h1>
+            <h2 className="text-4xl md:text-6xl font-bold mb-8 text-blue-100">
+              của BusJourney
+            </h2>
+            <p className="text-xl md:text-2xl max-w-4xl mx-auto mb-12 leading-relaxed text-blue-100">
+              Cùng chúng tôi mở rộng mạng lưới vận tải, mang lại trải nghiệm hành khách tốt nhất. 
+              <span className="block mt-2 font-semibold text-white">Kết nối • Hợp tác • Thành công</span>
+            </p>
+            
+            <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
+              <Button
+                onClick={() => divRef1.current?.scrollIntoView({ behavior: "smooth" })}
+                size="lg"
+                className="bg-white text-blue-800 hover:bg-blue-50 px-8 py-4 text-lg font-semibold rounded-full shadow-xl transform transition-all duration-300 hover:scale-105"
+              >
+                Khám phá ngay
+              </Button>
+              <Button
+                onClick={handleScrollToForm}
+                size="lg"
+                variant="outline"
+                className="border-white text-white hover:text-white px-8 py-4 text-lg font-semibold rounded-full backdrop-blur-sm bg-white/10 transform transition-all duration-300 hover:scale-105"
+              >
+                Đăng ký đối tác
+              </Button>
+            </div>
+          </div>
+        </div>
+        
+        {/* Scroll Indicator */}
+        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
+          <div className="w-6 h-10 border-2 border-white rounded-full flex justify-center">
+            <div className="w-1 h-3 bg-white rounded-full mt-2 animate-pulse"></div>
+          </div>
+        </div>
+      </section>
 
-      {/* Giới thiệu */}
-      <div className="max-w-6xl mx-auto pt-40 pb-4 px-6 space-y-10 text-center">
-        <h2 className="text-3xl font-bold text-primary text-center mb-10">
-          Tại sao nên hợp tác với BusJourney?
-        </h2>
-        <p className="text-lg text-gray-600">
-          Với hệ thống đặt vé thông minh, mạng lưới khách hàng rộng khắp và nền
-          tảng thanh toán an toàn, BusJourney giúp bạn gia tăng doanh thu, tiết
-          kiệm chi phí quản lý và nâng cao thương hiệu.
-        </p>
-      </div>
+      {/* Section 2: Why Partner */}
+      <section ref={divRef1} className="h-screen w-full snap-start flex items-center bg-gradient-to-br from-gray-50 to-blue-50">
+        <div className="container mx-auto px-6">
+          <div className="text-center mb-16 animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-800 mb-6">
+              Tại sao hợp tác với
+              <span className="text-blue-800 block mt-2">BusJourney?</span>
+            </h2>
+          </div>
 
-      {/* Quyền lợi */}
-      <div className="bg-gray-50 pt-10 pb-40">
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
             {[
               {
-                icon: <Building2 className="w-10 h-10 text-primary" />,
+                icon: <Building2 className="w-6 h-6 text-primary" />,
                 title: "Mạng lưới khách hàng rộng khắp",
                 desc: "BusJourney đã có hàng trăm nghìn người dùng hoạt động hàng ngày. Hợp tác với chúng tôi giúp doanh nghiệp tiếp cận ngay một tập khách hàng lớn, không cần đầu tư thêm vào quảng cáo.",
               },
               {
-                icon: <Users className="w-10 h-10 text-primary" />,
+                icon: <Users className="w-6 h-6 text-primary" />,
                 title: "Quản lý chuyến đi chuyên nghiệp",
                 desc: "Hệ thống quản lý vé, chuyến đi, ghế ngồi và doanh thu trực tuyến. Giảm thiểu sai sót, tiết kiệm thời gian cho nhân viên và tăng trải nghiệm khách hàng.",
               },
               {
-                icon: <Star className="w-10 h-10 text-primary" />,
+                icon: <Star className="w-6 h-6 text-primary" />,
                 title: "Thương hiệu uy tín",
                 desc: "Hợp tác cùng BusJourney giúp doanh nghiệp nâng cao uy tín nhờ vào nền tảng minh bạch, dịch vụ chất lượng và chính sách hỗ trợ đối tác toàn diện.",
               },
               {
-                icon: <ShieldCheck className="w-10 h-10 text-primary" />,
+                icon: <ShieldCheck className="w-6 h-6 text-primary" />,
                 title: "Hệ thống an toàn, minh bạch",
                 desc: "Mọi giao dịch, dữ liệu vé, và doanh thu đều minh bạch. Đối tác được báo cáo chi tiết, rõ ràng giúp dễ dàng kiểm soát hoạt động kinh doanh.",
               },
               {
-                icon: <Phone className="w-10 h-10 text-primary" />,
+                icon: <Phone className="w-6 h-6 text-primary" />,
                 title: "Đội ngũ hỗ trợ 24/7",
                 desc: "Chúng tôi có đội ngũ chăm sóc đối tác sẵn sàng hỗ trợ bất cứ lúc nào, đảm bảo doanh nghiệp của bạn luôn hoạt động suôn sẻ.",
               },
               {
-                icon: <HandCoins className="w-10 h-10 text-primary" />,
+                icon: <HandCoins className="w-6 h-6 text-primary" />,
                 title: "Chia sẻ lợi nhuận công bằng",
                 desc: "BusJourney cam kết chính sách chia sẻ lợi nhuận minh bạch, đối tác nhận đúng giá trị công sức bỏ ra, cùng nhau phát triển bền vững.",
               },
             ].map((item, i) => (
               <Card
                 key={i}
-                className="shadow-md border-gray-300 hover:shadow-xl transition-transform hover:scale-105"
+                className="group bg-white shadow-lg border-0 hover:shadow-2xl transition-all duration-300 hover:scale-105 hover:-translate-y-2"
               >
-                <CardHeader className="flex flex-col items-center space-y-3">
-                  {item.icon}
-                  <CardTitle className="text-lg text-center">
+                <CardHeader className="flex flex-col items-center space-y-4">
+                  <div className="p-4 bg-blue-50 rounded-full group-hover:bg-blue-100 transition-colors duration-300">
+                    {item.icon}
+                  </div>
+                  <CardTitle className="text-base font-bold text-center text-gray-800 group-hover:text-blue-800 transition-colors duration-300">
                     {item.title}
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="text-center text-gray-600">
+                <CardContent className="text-center text-gray-600 px-6 leading-relaxed">
                   {item.desc}
                 </CardContent>
               </Card>
             ))}
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* Lợi ích */}
-      <div className="max-w-6xl mx-auto pt-20 pb-40 px-6">
-        <h2 className="text-3xl font-bold text-primary text-center mb-10">
-          5 Lợi ích khi hợp tác cùng chúng tôi
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 text-center">
+      {/* Section 3: Benefits */}
+      <section className="h-screen w-full snap-start flex items-center bg-white">
+        <div className="container mx-auto px-6">
+          <div className="text-center mb-16 animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-800 mb-6">
+              5 Lợi ích 
+              <span className="text-blue-800 block mt-2">khi hợp tác cùng chúng tôi</span>
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Những giá trị thiết thực mà BusJourney mang lại cho đối tác
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
           {[
             {
               icon: <TrendingUp className="w-10 h-10 text-blue-500" />,
@@ -180,22 +223,37 @@ export default function BecomePartnerPage() {
           ].map((item, i) => (
             <div
               key={i}
-              className="flex flex-col items-center space-y-3 bg-gray-50 p-6 rounded-lg shadow hover:shadow-lg transition"
+              className="group flex flex-col items-center space-y-4 bg-gradient-to-br from-gray-50 to-blue-50 p-8 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 border-2 border-transparent hover:border-blue-200"
             >
-              {item.icon}
-              <p className="font-semibold text-primary">{item.title}</p>
-              <p className="text-sm text-gray-600">{item.desc}</p>
+              <div className="p-3 bg-white rounded-full shadow-md group-hover:shadow-lg transition-shadow duration-300">
+                {item.icon}
+              </div>
+              <h3 className="font-bold text-lg text-gray-800 text-center group-hover:text-blue-800 transition-colors duration-300">
+                {item.title}
+              </h3>
+              <p className="text-gray-600 text-center leading-relaxed">
+                {item.desc}
+              </p>
             </div>
           ))}
+          </div>
         </div>
-      </div>
+      </section>
 
-      <section className="bg-gray-800 py-20 text-white">
-        <div className="max-w-6xl mx-auto px-6 flex flex-col items-center">
-          <h2 className="text-3xl font-bold mb-20 text-center">
-            Đăng ký mở bán theo 4 bước đơn giản
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 w-full">
+      {/* Section 4: Steps */}
+      <section className="h-screen w-full snap-start flex items-center bg-gradient-to-br from-gray-800 via-gray-900 to-black">
+        <div className="container mx-auto px-6">
+          <div className="text-center mb-28 animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+              Đăng ký mở bán theo 
+              <span className="text-blue-400 block mt-2">4 bước đơn giản</span>
+            </h2>
+            <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+              Quy trình đối tác minh bạch và nhanh chóng
+            </p>
+          </div>
+
+          <div className="steps-container group/container grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto">
             {[
               {
                 number: 1,
@@ -220,162 +278,193 @@ export default function BecomePartnerPage() {
             ].map((step) => (
               <Card
                 key={step.number}
-                className="rounded-xl p-6 flex flex-col items-center text-center shadow-md bg-white text-gray-800"
+                className="step-card bg-white rounded-2xl p-8 flex flex-col items-center text-center shadow-xl border-0 cursor-pointer relative overflow-hidden"
               >
-                <div className="w-10 h-10 flex items-center justify-center rounded-full bg-primary text-white font-bold">
+                <div className="step-number w-16 h-16 flex items-center justify-center rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-xl mb-6 transition-all duration-500 hover:from-blue-700 hover:to-indigo-700 relative z-10">
                   {step.number}
                 </div>
-                <CardContent className="flex flex-col items-center gap-2">
-                  <h3 className="font-semibold text-lg">{step.title}</h3>
-                  <p className="text-sm text-gray-600">{step.desc}</p>
+                
+                <CardContent className="step-content flex flex-col items-center gap-4 p-0 transition-all duration-300 relative z-10">
+                  <h3 className="font-bold text-xl text-gray-800 hover:text-blue-600 transition-colors duration-300">
+                    {step.title}
+                  </h3>
+                  <p className="text-gray-600 leading-relaxed text-sm hover:text-gray-800 transition-colors duration-300">
+                    {step.desc}
+                  </p>
                 </CardContent>
+                
+                {/* Decorative elements */}
+                <div className="step-decorative absolute top-4 right-4 w-3 h-3 bg-gradient-to-r from-blue-400 to-indigo-400 rounded-full opacity-30"></div>
+                <div className="step-decorative absolute bottom-4 left-4 w-2 h-2 bg-gradient-to-r from-indigo-400 to-purple-400 rounded-full opacity-30"></div>
+                <div className="step-decorative absolute top-1/2 right-2 w-1 h-1 bg-blue-300 rounded-full opacity-40"></div>
+                
+                {/* Progress indicator */}
+                {step.number < 4 && (
+                  <div className="absolute -right-4 top-1/2 transform -translate-y-1/2 hidden lg:block">
+                    <div className="w-8 h-0.5 bg-gradient-to-r from-blue-300 to-transparent opacity-50"></div>
+                  </div>
+                )}
               </Card>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Form liên hệ */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center max-w-6xl mx-auto mt-20 mb-40">
-        {/* Bên trái: hình ảnh */}
-        <div className="hidden md:flex justify-center">
-          <img
-            src={ContactImage}
-            alt="Hỗ trợ khách hàng"
-            className="rounded-xl shadow-lg object-cover w-5/6"
-          />
-        </div>
+      {/* Section 5: Contact Form */}
+      <section ref={divRef} className="min-h-screen w-full snap-start flex items-center bg-gradient-to-br from-blue-50 to-indigo-100">
+        <div className="container mx-auto px-6">
+          <div className="text-center mb-6 mt-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-800 mb-6">
+              Đăng ký {" "}<span className="text-blue-800 inline mt-2">trở thành đối tác</span>
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Để lại thông tin và chúng tôi sẽ liên hệ tư vấn trong thời gian sớm nhất
+            </p>
+          </div>
 
-        {/* Bên phải: Form */}
-        <Card className="shadow-xl rounded-2xl border-none">
-          <CardContent className="p-6">
-            <h3 className="text-xl font-bold text-primary mb-6 text-center">
-              Đăng ký ngay cho chúng tôi
-            </h3>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center max-w-6xl mx-auto">
+            {/* Bên trái: hình ảnh */}
+            <div className="hidden lg:flex justify-center animate-in fade-in slide-in-from-left-8 duration-1000">
+              <img
+                src={ContactImage}
+                alt="Hỗ trợ khách hàng"
+                className="rounded-3xl shadow-2xl object-cover w-full max-w-md transform transition-all duration-300 hover:scale-105"
+              />
+            </div>
 
-            <Form {...form}>
-              <form
-                onSubmit={form.handleSubmit(onSubmit)}
-                className="space-y-6"
-              >
-                {/* Họ tên */}
-                <FormField
-                  control={form.control}
-                  name="fullName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-base font-semibold">
-                        Họ và tên
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Nhập họ và tên của bạn"
-                          className="text-lg py-3 border-gray-300 focus:border-primary focus:ring-0 outline-0 focus:ring-primary focus:border-none"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+            {/* Bên phải: Form */}
+            <Card className="shadow-2xl rounded-3xl border-0 bg-white/90 backdrop-blur-sm animate-in fade-in slide-in-from-right-8 duration-1000">
+              <CardContent>
+              <h3 className="text-2xl font-bold text-blue-800 mb-8 text-center">
+                Thông tin liên hệ
+              </h3>
 
-                <FormField
-                  control={form.control}
-                  name="company"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-base font-semibold">
-                        Tên công ty
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Nhập tên công ty của bạn"
-                          className="text-lg py-3 border-gray-300 focus:border-primary focus:ring-0 outline-0 focus:ring-primary focus:border-none"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                {/* Email */}
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-base font-semibold">
-                        Email
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          type="email"
-                          placeholder="Nhập email của bạn"
-                          className="text-lg py-3 border-gray-300 focus:border-primary focus:ring-0 outline-0 focus:ring-primary focus:border-none"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                {/* Số điện thoại */}
-                <FormField
-                  control={form.control}
-                  name="phone"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-base font-semibold">
-                        Số điện thoại
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          type="tel"
-                          placeholder="Nhập số điện thoại của bạn"
-                          className="text-lg py-3 border-gray-300 focus:border-primary focus:ring-0 outline-0 focus:ring-primary focus:border-none"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                {/* Nội dung */}
-                <FormField
-                  control={form.control}
-                  name="message"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-base font-semibold">
-                        Nội dung bạn đang thắc mắc
-                      </FormLabel>
-                      <FormControl>
-                        <Textarea
-                          placeholder="Nhập nội dung..."
-                          draggable={false}
-                          rows={10}
-                          className="text-lg py-3 min-h-[120px] border-gray-300 focus:border-primary focus:ring-0 outline-0 focus:ring-primary focus:border-none resize-none"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <Button
-                  disabled={!form.formState.isValid}
-                  type="submit"
-                  className="w-full rounded-xl text-lg py-6 text-white"
+              <Form {...form}>
+                <form
+                  onSubmit={form.handleSubmit(onSubmit)}
+                  className="space-y-6"
                 >
-                  Gửi ngay <Send     />
-                </Button>
-              </form>
-            </Form>
-          </CardContent>
-        </Card>
-      </div>
+                  {/* Họ tên */}
+                  <FormField
+                    control={form.control}
+                    name="fullName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-base font-semibold">
+                          Họ và tên
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="Nhập họ và tên của bạn"
+                            className="text-lg py-3 border-gray-300 focus:border-primary focus:ring-0 outline-0 focus:ring-primary focus:border-none"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="company"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-base font-semibold">
+                          Tên công ty
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="Nhập tên công ty của bạn"
+                            className="text-lg py-3 border-gray-300 focus:border-primary focus:ring-0 outline-0 focus:ring-primary focus:border-none"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  {/* Email */}
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-base font-semibold">
+                          Email
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            type="email"
+                            placeholder="Nhập email của bạn"
+                            className="text-lg py-3 border-gray-300 focus:border-primary focus:ring-0 outline-0 focus:ring-primary focus:border-none"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  {/* Số điện thoại */}
+                  <FormField
+                    control={form.control}
+                    name="phone"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-base font-semibold">
+                          Số điện thoại
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            type="tel"
+                            placeholder="Nhập số điện thoại của bạn"
+                            className="text-lg py-3 border-gray-300 focus:border-primary focus:ring-0 outline-0 focus:ring-primary focus:border-none"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  {/* Nội dung */}
+                  <FormField
+                    control={form.control}
+                    name="message"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-base font-semibold">
+                          Nội dung bạn đang thắc mắc
+                        </FormLabel>
+                        <FormControl>
+                          <Textarea
+                            placeholder="Nhập nội dung..."
+                            draggable={false}
+                            rows={10}
+                            className="text-lg py-3 min-h-[120px] border-gray-300 focus:border-primary focus:ring-0 outline-0 focus:ring-primary focus:border-none resize-none"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <Button
+                    disabled={!form.formState.isValid}
+                    type="submit"
+                    className="w-full rounded-xl text-lg py-6 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white transform transition-all duration-300 hover:scale-105 shadow-lg"
+                  >
+                    <Send className="mr-2" />
+                    Gửi thông tin đăng ký
+                  </Button>
+                </form>
+              </Form>
+            </CardContent>
+          </Card>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

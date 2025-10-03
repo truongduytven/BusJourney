@@ -3,6 +3,16 @@
 
 @custom-variant dark (&:is(.dark *));
 
+* {
+  caret-color: transparent; 
+  user-select: none;
+}
+
+input, textarea, select {
+  caret-color: auto;
+  user-select: text;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -27,7 +37,7 @@
     --ring: 24.6 95% 53.1%;
     --radius: 0.5rem;
   }
- 
+
   .dark {
     --background: 20 14.3% 4.1%;
     --foreground: 60 9.1% 97.8%;
@@ -65,6 +75,12 @@
   --color-tertiary: #FFC107;
   --color-popover: #FFFFFF;
   --color-gray-background: #F2F2F2;
+
+  /* Gradient Colors following Primary & Secondary theme */
+  /* Purple-based gradients (from primary #190044) */
+  --color-primary-light: linear-gradient(135deg, #190044 0%, #4c1d95 50%, #7c3aed 100%);
+  --color-primary-dark: linear-gradient(135deg, #0f0027 0%, #190044 50%, #2d1b69 100%);
+  --color-primary-vibrant: linear-gradient(135deg, #190044 0%, #6366f1 50%, #8b5cf6 100%);
 
   @keyframes spin {
     to {
@@ -106,9 +122,11 @@
   * {
     @apply border-black font-Roboto;
   }
+
   body {
     @apply bg-white text-[#0c0a09];
   }
+
   ::-webkit-scrollbar {
     width: 10px;
     height: 10px;
@@ -134,4 +152,102 @@
   .dark ::-webkit-scrollbar-thumb:hover {
     background-color: #333;
   }
+}
+
+/* Partner Page Styles */
+.steps-container .step-card {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: center center;
+  position: relative;
+}
+
+.steps-container:hover .step-card:not(:hover) {
+  transform: scale(0.85) translateY(10px);
+  opacity: 0.5;
+  filter: blur(2px) grayscale(0.3);
+}
+
+.steps-container:hover .step-card:hover {
+  transform: scale(1.2) translateY(-25px);
+  z-index: 20;
+  opacity: 1;
+  filter: blur(0px) grayscale(0);
+  box-shadow: 0 25px 50px -12px rgba(59, 130, 246, 0.4),
+    0 0 0 1px rgba(59, 130, 246, 0.2),
+    0 0 40px rgba(59, 130, 246, 0.2);
+}
+
+.step-card:hover .step-number {
+  transform: rotate(360deg) scale(1.2);
+  box-shadow: 0 10px 25px rgba(59, 130, 246, 0.5);
+}
+
+.step-card:hover .step-content {
+  transform: translateY(-8px);
+}
+
+.step-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg,
+      rgba(59, 130, 246, 0.08),
+      rgba(147, 51, 234, 0.08),
+      rgba(59, 130, 246, 0.12));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  border-radius: 1rem;
+  z-index: 1;
+}
+
+.step-card:hover::before {
+  opacity: 1;
+}
+
+.step-card::after {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg,
+      transparent,
+      rgba(59, 130, 246, 0.1),
+      transparent,
+      rgba(147, 51, 234, 0.1),
+      transparent);
+  border-radius: 1rem;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: -1;
+}
+
+.step-card:hover::after {
+  opacity: 1;
+  animation: borderGlow 2s infinite;
+}
+
+@keyframes borderGlow {
+
+  0%,
+  100% {
+    opacity: 0.3;
+  }
+
+  50% {
+    opacity: 0.8;
+  }
+}
+
+.step-card .step-decorative {
+  transition: all 0.3s ease;
+}
+
+.step-card:hover .step-decorative {
+  transform: scale(1.5) rotate(180deg);
+  opacity: 0.8;
 }
