@@ -42,6 +42,11 @@ export default class Coupon extends BaseModel implements ICoupon {
             relation: Model.HasManyRelation,
             modelClass: () => require('./Order').default,
             join: { from: 'coupons.id', to: 'orders.coupon_id' }
+        },
+        usages: {
+            relation: Model.HasManyRelation,
+            modelClass: () => require('./CouponUsage').default,
+            join: { from: 'coupons.id', to: 'coupon_usages.coupon_id' }
         }
     }
 }

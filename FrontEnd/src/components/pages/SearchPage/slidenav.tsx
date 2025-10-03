@@ -165,7 +165,7 @@ export default function Slidenav({
             <Input placeholder="Tìm nhà xe" className="mb-3 border-gray-300" />
             <div className="flex flex-col gap-y-3 max-h-60 overflow-y-auto pr-2">
               {listCompany &&
-                listCompany.length > 0 &&
+                listCompany.length > 0 ?
                 listCompany.map((company) => (
                   <div key={company.id} className="flex items-center space-x-2">
                     <Checkbox
@@ -180,7 +180,9 @@ export default function Slidenav({
                       {company.name} ({company.quantity})
                     </Label>
                   </div>
-                ))}
+                )) : (
+                  <div className="text-gray-500 text-center">Không có nhà xe nào</div>
+                )}
             </div>
           </CollapsibleContent>
         </Collapsible>
@@ -192,7 +194,7 @@ export default function Slidenav({
           </CollapsibleTrigger>
           <CollapsibleContent className="flex flex-col gap-y-3">
             {listTypebus &&
-              listTypebus.length > 0 &&
+              listTypebus.length > 0 ?
               listTypebus.map((type) => (
                 <div key={type.id} className="flex items-center space-x-2">
                   <Checkbox
@@ -207,7 +209,9 @@ export default function Slidenav({
                     {type.name} ({type.quantity})
                   </Label>
                 </div>
-              ))}
+              )) : (
+                <div className="text-gray-500 text-center">Không có loại xe nào</div>
+              )}
           </CollapsibleContent>
         </Collapsible>
         <Divider />

@@ -15,10 +15,12 @@ export async function seed(knex: Knex): Promise<void> {
   await knex("type_buses").del();
   await knex("locations").del();
   await knex("cities").del();
+  await knex("coupons").del();
+  await knex("cancellation_rules").del();
+  await knex("company_policies").del();
   await knex("bus_companies").del();
   await knex("accounts").del();
   await knex("roles").del();
-  await knex("coupons").del();
 
   // Roles
   const roles = await knex("roles").insert([
@@ -39,6 +41,146 @@ export async function seed(knex: Knex): Promise<void> {
     { name: "Mai Linh", address: "Hà Nội", phone: "0123456789" },
     { name: "Phương Trang", address: "Hồ Chí Minh", phone: "0987654321" },
   ]).returning("*");
+
+  // Company Policies
+  await knex("company_policies").insert([
+    // Mai Linh - Chính sách hủy vé
+    {
+      company_id: companies[0].id,
+      policy_type: "CANCELLATION",
+      title: "Chính sách hủy do nhà xe quy định",
+      content: `**Thời gian hủy - Phí hủy:**
+• Trước 9:30 - 12/09/2025: Miễn phí
+• 9:30 - 12/09/2025: 50%
+• 12:30 - 12/09/2025: 100%
+
+⚠️ **Lưu ý:** Vé áp dụng giá khuyến mãi không được phép hủy, hoàn tiền.`
+    },
+    {
+      company_id: companies[0].id,
+      policy_type: "GENERAL",
+      title: "Các quy định khác",
+      content: `**Yêu cầu khi lên xe:**
+• Có mặt tại văn phòng/quầy vé/bến xe trước 30 phút để làm thủ tục lên xe
+• Đối vé giấy trước khi lên xe
+• Xuất trình SMS/Email đặt vé trước khi lên xe
+• Không mang đồ ăn, thức ăn có mùi lên xe
+• Không hút thuốc, uống rượu, sử dụng chất kích thích trên xe
+• Không mang các vật dễ cháy nổ lên xe
+• Không vứt rác trên xe
+• Không làm ồn, gây mất trật tự trên xe
+• Không mang giày, dép trên xe
+• Không mang giày, dép trên xe`
+    },
+    {
+      company_id: companies[0].id,
+      policy_type: "BAGGAGE",
+      title: "Hành lý xách tay",
+      content: `• Tổng trọng lượng hành lý không vượt quá 20 kg
+• Không vận chuyển hàng hóa công kênh
+• Không hoàn tiền trong trường hợp hủy đơn hàng do vi phạm các quy định về hành lý`
+    },
+    {
+      company_id: companies[0].id,
+      policy_type: "CHILD_PREGNANT",
+      title: "Trẻ em và phụ nữ có thai",
+      content: `• Phụ nữ có thai cần đảm bảo sức khỏe trong suốt quá trình di chuyển
+• Nhà xe có quyền từ chối phục vụ nếu hành khách không tuân thủ quy định an toàn`
+    },
+    
+    // Phương Trang - Similar policies with slight variations
+    {
+      company_id: companies[1].id,
+      policy_type: "CANCELLATION",
+      title: "Chính sách hủy do nhà xe quy định",
+      content: `**Thời gian hủy - Phí hủy:**
+• Trước 8:00 - 12/09/2025: Miễn phí
+• 8:00 - 12/09/2025: 30%
+• 10:30 - 12/09/2025: 70%
+• 12:00 - 12/09/2025: 100%
+
+⚠️ **Lưu ý:** Vé áp dụng giá khuyến mãi không được phép hủy, hoàn tiền.`
+    },
+    {
+      company_id: companies[1].id,
+      policy_type: "GENERAL",
+      title: "Các quy định khác",
+      content: `**Yêu cầu khi lên xe:**
+• Có mặt tại văn phòng/quầy vé/bến xe trước 15 phút để làm thủ tục lên xe
+• Đối vé giấy trước khi lên xe
+• Xuất trình SMS/Email đặt vé trước khi lên xe
+• Không mang đồ ăn, thức ăn có mùi lên xe
+• Không hút thuốc, uống rượu, sử dụng chất kích thích trên xe
+• Không mang các vật dễ cháy nổ lên xe
+• Không vứt rác trên xe
+• Không làm ồn, gây mất trật tự trên xe
+• Không mang giày, dép trên xe`
+    },
+    {
+      company_id: companies[1].id,
+      policy_type: "BAGGAGE",
+      title: "Hành lý xách tay",
+      content: `• Tổng trọng lượng hành lý không vượt quá 25 kg
+• Không vận chuyển hàng hóa công kênh
+• Miễn phí hành lý dưới 15 kg
+• Không hoàn tiền trong trường hợp hủy đơn hàng do vi phạm các quy định về hành lý`
+    },
+    {
+      company_id: companies[1].id,
+      policy_type: "CHILD_PREGNANT",
+      title: "Trẻ em và phụ nữ có thai",
+      content: `• Phụ nữ có thai cần đảm bảo sức khỏe trong suốt quá trình di chuyển
+• Trẻ em dưới 6 tuổi cần có người lớn đi cùng
+• Nhà xe có quyền từ chối phục vụ nếu hành khách không tuân thủ quy định an toàn`
+    }
+  ]);
+
+  // Cancellation Rules (structured data for Mai Linh)
+  await knex("cancellation_rules").insert([
+    {
+      company_id: companies[0].id,
+      time_before_departure: 72, // More than 72 hours
+      refund_percentage: 100,
+      fee_amount: 0
+    },
+    {
+      company_id: companies[0].id,
+      time_before_departure: 24, // 24-72 hours
+      refund_percentage: 50,
+      fee_amount: 0
+    },
+    {
+      company_id: companies[0].id,
+      time_before_departure: 0, // Less than 24 hours
+      refund_percentage: 0,
+      fee_amount: 0
+    },
+    // Phương Trang rules
+    {
+      company_id: companies[1].id,
+      time_before_departure: 48, // More than 48 hours
+      refund_percentage: 100,
+      fee_amount: 0
+    },
+    {
+      company_id: companies[1].id,
+      time_before_departure: 24, // 24-48 hours
+      refund_percentage: 70,
+      fee_amount: 0
+    },
+    {
+      company_id: companies[1].id,
+      time_before_departure: 6, // 6-24 hours
+      refund_percentage: 30,
+      fee_amount: 0
+    },
+    {
+      company_id: companies[1].id,
+      time_before_departure: 0, // Less than 6 hours
+      refund_percentage: 0,
+      fee_amount: 0
+    }
+  ]);
 
   // Cities
   const cities = await knex("cities").insert([

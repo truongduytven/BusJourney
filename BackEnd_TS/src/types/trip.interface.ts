@@ -1,5 +1,6 @@
 import type { ICoupon } from "../models/Coupon";
 import type { IBusCompany } from "../models/BusCompany";
+import type { ICompanyPolicy, ICancellationRule } from "../models/CompanyPolicy";
 import { IBus } from "../models/Bus";
 import { IPoint } from "../models/Point";
 import { IReview } from "../models/Reviews";
@@ -27,6 +28,8 @@ interface IBusTrip extends IBus {
 
 interface IBusCompanyTrip extends IBusCompany {
     coupons: ICoupon[];
+    policies?: ICompanyPolicy[];
+    cancellationRules?: ICancellationRule[];
 }
 
 interface IReviewAccount extends IReview {

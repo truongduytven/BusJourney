@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import * as z from "zod"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
+import * as z from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
 import {
   Form,
   FormControl,
@@ -10,20 +10,20 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import ContactImage from "@/assets/Contact.png";
-import { toast } from "sonner"
-import { Send } from "lucide-react"
+import { toast } from "sonner";
+import { Send } from "lucide-react";
 
 const formSchema = z.object({
   name: z.string().min(2, "Tên quá ngắn"),
   email: z.string().email("Email không hợp lệ"),
   message: z.string().min(5, "Nội dung quá ngắn"),
-})
+});
 
 export default function QuestionForm() {
   const form = useForm<z.infer<typeof formSchema>>({
@@ -33,13 +33,15 @@ export default function QuestionForm() {
       email: "",
       message: "",
     },
-  })
+  });
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
-    console.log(values)
-    toast.success("Cảm ơn bạn đã liên hệ! Chúng tôi sẽ phản hồi sớm nhất có thể.")
-    form.reset()
-  }
+    console.log(values);
+    toast.success(
+      "Cảm ơn bạn đã liên hệ! Chúng tôi sẽ phản hồi sớm nhất có thể."
+    );
+    form.reset();
+  };
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center w-5/6 mx-auto mb-20">
@@ -126,13 +128,17 @@ export default function QuestionForm() {
                   </FormItem>
                 )}
               />
-              <Button disabled={!form.formState.isValid} type="submit" className="w-full rounded-xl text-lg py-6 text-white">
-                Gửi ngay <Send /> 
+              <Button
+                disabled={!form.formState.isValid}
+                type="submit"
+                className="w-full rounded-xl text-lg py-6 text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 disabled:cursor-not-allowed"
+              >
+                Gửi ngay <Send />
               </Button>
             </form>
           </Form>
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

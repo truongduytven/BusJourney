@@ -14,12 +14,25 @@ export interface TripDetail {
   coupons: ICoupon[];
   points: ITripPoint;
   rating: IListRating;
-  policy: null;
+  companyPolicies: ICompanyPolicy[];
+  cancellationRules: ICancellationRule[];
   images: string[];
   extensions:string[];
 }
 
+export interface ICompanyPolicy {
+  id: string;
+  policyType: string;
+  title: string;
+  content: string;
+}
 
+export interface ICancellationRule {
+  id: string;
+  timeBeforeDeparture: number;
+  refundPercentage: number;
+  feeAmount: number;
+}
 export interface IListRating {
   average: string;
   totalReviews: number;
@@ -52,7 +65,6 @@ interface ITripPoint {
 
 export interface IPoint {
   id: string;
-  tripId: string;
   type: string;
   time: Date;
   locationName: string;
@@ -66,8 +78,6 @@ export interface ICoupon {
   validFrom: Date;
   validTo: Date;
   maxDiscountValue?: string;
-  maxUses: number;
-  usedCount: number;
   status: string;
 }
 

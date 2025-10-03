@@ -28,11 +28,12 @@ class TripController {
       // Base query cho trips
       let tripQuery = Trip.query()
         .alias('t')
-        .withGraphJoined('[buses.[bus_companies, type_buses.[seat]], route.[startLocation, endLocation]]')
+        .withGraphJoined('[buses.[bus_companies.[policies, cancellationRules], type_buses.[seat]], route.[startLocation, endLocation]]')
         .joinRelated('route.startLocation')
         .joinRelated('route.endLocation')
         .where('route:startLocation.city_id', fromCityId)
         .where('route:endLocation.city_id', toCityId)
+        .where('t.status', 'scheduled') // Chỉ lấy trip có status là scheduled
         .whereRaw('t.departure_time >= ?', [convertDate])
         .whereRaw('t.departure_time <= ?', [lastDate])
         .select('t.*')
@@ -40,7 +41,12 @@ class TripController {
         .count('review.id as numberComments')
         .leftJoinRelated('review')
         .groupBy('t.id')
-        .withGraphFetched('buses.bus_companies.coupons')
+        .withGraphFetched('buses.bus_companies.coupons(activeCoupons)')
+        .modifiers({
+          activeCoupons(builder) {
+            builder.where('status', 'active') // Chỉ lấy coupon có status là active
+          }
+        })
 
       // Filters
       if (companiesId && companiesId.length > 0) {
@@ -133,15 +139,21 @@ class TripController {
       const trip = (await Trip.query()
         .alias('t')
         .withGraphJoined(
-          '[buses.[bus_companies, type_buses.[seat]], route.[startLocation, endLocation], review.[account]]'
+          '[buses.[bus_companies.[policies, cancellationRules], type_buses.[seat]], route.[startLocation, endLocation], review.[account]]'
         )
         .where('t.id', id)
+        .where('t.status', 'scheduled') // Chỉ lấy trip có status là scheduled
         .avg('review.rating as avgRating')
         .count('review.id as numberComments')
         .leftJoinRelated('review')
         .groupBy('t.id')
-        .withGraphFetched('buses.bus_companies.coupons')
+        .withGraphFetched('buses.bus_companies.coupons(activeCoupons)')
         .withGraphFetched('[point]')
+        .modifiers({
+          activeCoupons(builder) {
+            builder.where('status', 'active').where('valid_to', '>=', new Date()).where('valid_from', '<=', new Date())
+          }
+        })
         .first()) as unknown as ITripDetail
 
       if (!trip) {
@@ -159,13 +171,21 @@ class TripController {
           validFrom: coupon.validFrom,
           validTo: coupon.validTo,
           maxDiscountValue: coupon.maxDiscountValue,
-          maxUses: coupon.maxUses,
-          usedCount: coupon.usedCount,
           status: coupon.status
         })),
         points: {
-          startPoint: trip.point.filter((p) => p.type === 'pickup'),
-          endPoint: trip.point.filter((p) => p.type === 'dropoff')
+          startPoint: trip.point.filter((p) => p.type === 'pickup').map((p) => ({
+            id: p.id,
+            time: p.time,
+            type: p.type,
+            locationName: p.locationName
+          })),
+          endPoint: trip.point.filter((p) => p.type === 'dropoff').map((p) => ({
+            id: p.id,
+            time: p.time,
+            type: p.type,
+            locationName: p.locationName
+          }))
         },
         rating: {
           average: trip.avgRating ? Number(trip.avgRating).toFixed(1) : 0,
@@ -183,7 +203,18 @@ class TripController {
             }
           }))
         },
-        policy: null,
+        companyPolicies: trip.buses!.bus_companies.policies!.filter((p) => p.isActive).map((p) => ({
+          id: p.id,
+          policyType: p.policyType,
+          title: p.title,
+          content: p.content,
+        })),
+        cancellationRules: trip.buses!.bus_companies.cancellationRules!.filter((r) => r.isActive).map((r) => ({
+          id: r.id,
+          timeBeforeDeparture: r.timeBeforeDeparture,
+          refundPercentage: r.refundPercentage,
+          feeAmount: r.feeAmount,
+        })),
         images: trip.buses.images,
         extensions: trip.buses.extensions
       }
@@ -214,6 +245,7 @@ class TripController {
         .withGraphJoined('[ticket]')
         .withGraphFetched('[point]')
         .where('t.id', id)
+        .where('t.status', 'scheduled') // Chỉ lấy trip có status là scheduled
         .first()) as unknown as IGetListTrip
       if (!trip) {
         return res.status(404).json({

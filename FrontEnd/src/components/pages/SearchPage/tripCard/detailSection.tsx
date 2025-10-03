@@ -108,7 +108,7 @@ export default function DetailSection({ data, status }: DetailSectionProps) {
           <TabsContent value="policy" className="min-h-96">
             <div className="w-full flex justify-center">
               <div className="w-[70%] flex flex-col gap-y-4">
-                <PolicySection />
+                <PolicySection cancellationRules={data?.cancellationRules} companyPolicies={data?.companyPolicies} />
               </div>
             </div>
           </TabsContent>

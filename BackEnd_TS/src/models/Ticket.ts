@@ -58,12 +58,12 @@ export default class Ticket extends BaseModel implements ITicket {
         pickUpPoint: {
             relation: Model.BelongsToOneRelation,
             modelClass: () => require('./Point').default,
-            join: { from: 'tickets.pick_up_point_id', to: 'points.id' }
+            join: { from: 'tickets.pickup_point_id', to: 'points.id' }
         },
         dropOffPoint: {
             relation: Model.BelongsToOneRelation,
             modelClass: () => require('./Point').default,
-            join: { from: 'tickets.drop_off_point_id', to: 'points.id' }
+            join: { from: 'tickets.dropoff_point_id', to: 'points.id' }
         }
     }
 }

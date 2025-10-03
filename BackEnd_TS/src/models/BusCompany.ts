@@ -35,6 +35,16 @@ export default class BusCompany extends BaseModel implements IBusCompany {
             relation: Model.HasManyRelation,
             modelClass: () => require('./Coupon').default,
             join: { from: 'bus_companies.id', to: 'coupons.company_id' }
+        },
+        policies: {
+            relation: Model.HasManyRelation,
+            modelClass: () => require('./CompanyPolicy').default,
+            join: { from: 'bus_companies.id', to: 'company_policies.company_id' }
+        },
+        cancellationRules: {
+            relation: Model.HasManyRelation,
+            modelClass: () => require('./CompanyPolicy').CancellationRule,
+            join: { from: 'bus_companies.id', to: 'cancellation_rules.company_id' }
         }
     }
 }
