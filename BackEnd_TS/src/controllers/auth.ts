@@ -146,9 +146,6 @@ export const signUp = async (req: Request, res: Response) => {
           otpCode: newOtpCode
         });
 
-      // TODO: Gửi OTP mới qua email
-      console.log(`OTP mới cho email ${email}: ${newOtpCode}`);
-
       return res.status(400).json({
         success: false,
         message: 'Tài khoản đã đăng ký nhưng chưa xác thực. Mã OTP mới đã được gửi.',
@@ -404,6 +401,8 @@ export const getProfile = async (req: Request, res: Response) => {
     }
 
     const account = await Account.query()
+      .alias('account')
+      .withGraphJoined('[roles]')
       .findById(accountId)
       .where('isActive', true);
 
@@ -472,9 +471,6 @@ export const resendOTP = async (req: Request, res: Response) => {
       .patch({
         otpCode: newOtpCode
       });
-
-    // TODO: Gửi OTP qua email
-    console.log(`OTP mới cho email ${email}: ${newOtpCode}`);
 
     return res.status(200).json({
       success: true,

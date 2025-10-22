@@ -11,6 +11,7 @@
     "seed": "knex seed:run --knexfile ./src/knexfile.ts --env development"
   },
   "dependencies": {
+    "@types/uuid": "^10.0.0",
     "bcrypt": "^6.0.0",
     "cloudinary": "^1.41.3",
     "cookie-parser": "~1.4.4",
@@ -25,14 +26,17 @@
     "jade": "~1.11.0",
     "jsonwebtoken": "^9.0.2",
     "knex": "^2.5.1",
+    "moment": "^2.30.1",
     "morgan": "~1.9.1",
     "multer": "^2.0.2",
     "multer-storage-cloudinary": "^4.0.0",
     "nodemon": "^3.1.10",
     "objection": "^3.1.5",
     "pg": "^8.16.3",
+    "qs": "^6.14.0",
     "swagger-jsdoc": "^6.2.8",
-    "swagger-ui-express": "^5.0.1"
+    "swagger-ui-express": "^5.0.1",
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",

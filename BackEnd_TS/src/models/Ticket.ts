@@ -5,32 +5,32 @@ export interface ITicket {
     id: string
     ticketCode: string
     orderId: string
-    userId: number
+    userId: string
     tripId: string
     seatCode: string
     qrCode: string | null
     status: string
-    purchasedDate: Date
+    purchaseDate: Date
     checkedDate: Date | null
     checkedBy: string | null
-    pickUpPointId: string | null
-    dropOffPointId: string | null
+    pickupPointId: string | null
+    dropoffPointId: string | null
 } 
 
 export default class Ticket extends BaseModel implements ITicket {
     id!: string
     ticketCode!: string
     orderId!: string
-    userId!: number
+    userId!: string
     tripId!: string
     seatCode!: string
     qrCode!: string | null
     status!: string
-    purchasedDate!: Date
+    purchaseDate!: Date
     checkedDate!: Date | null
     checkedBy!: string | null
-    pickUpPointId!: string | null
-    dropOffPointId!: string | null
+    pickupPointId!: string | null
+    dropoffPointId!: string | null
 
     static tableName = 'tickets'
 

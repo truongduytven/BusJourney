@@ -88,7 +88,7 @@ export const lookupTicket = async (req: Request<{}, {}, TicketLookupRequest>, re
         seatCode: ticket.seatCode,
         status: ticket.status,
         qrCode: ticket.qrCode,
-        purchasedDate: ticket.purchasedDate,
+        purchaseDate: ticket.purchaseDate,
         checkedDate: ticket.checkedDate,
         checkedBy: ticket.checkedBy
       },

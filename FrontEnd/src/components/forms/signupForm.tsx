@@ -235,7 +235,6 @@ export default function SignupForm({ reset, setType }: SignupFormProps) {
             control={otpForm.control}
             name="otp"
             render={({ field }) => {
-              console.log(field);
               return (
                 <FormItem className="flex flex-col items-center space-y-4">
                   <FormLabel>Nhập mã OTP</FormLabel>

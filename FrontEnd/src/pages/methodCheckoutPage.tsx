@@ -41,7 +41,7 @@ import { useNavigate } from "react-router-dom";
 import type z from "zod";
 import { useDispatch, useSelector } from "react-redux";
 import type { RootState } from "@/redux/store";
-import { setUserInformation } from "@/redux/slices/selectedTripSlice";
+import { setPaymentMethod, setUserInformation } from "@/redux/slices/selectedTripSlice";
 import type { CouponData } from "@/types/trip";
 import { useAppSelector } from "@/redux/hook";
 
@@ -49,16 +49,15 @@ export default function MethodCheckoutPage() {
   const [selectedVoucher, setSelectedVoucher] = useState<CouponData | null>(
     null
   );
-  const [selectedMethod, setSelectedMethod] = useState<string>("VNPAY");
-  const { list } = useSelector((state: RootState) => state.trips);
-  const dispatch = useDispatch();
   const selectedTicket = useSelector(
     (state: RootState) => state.selectedTicket
   );
+  const [selectedMethod, setSelectedMethod] = useState<string>(selectedTicket.paymentMethod || "vnpay");
+  const { list } = useSelector((state: RootState) => state.trips);
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const { user } = useAppSelector((state) => state.auth);
   
-  // Kiểm tra thông tin có thay đổi so với thông tin đăng nhập không
   const isUserInfoModified = () => {
     if (!user || !selectedTicket.userInformation.name) return false;
     
@@ -77,7 +76,6 @@ export default function MethodCheckoutPage() {
   }, [selectedTicket.selectedSeats.length, navigate]);
 
   const handleSubmit = (data: z.infer<typeof informationCheckoutSchema>) => {
-    // Lưu vào Redux state
     dispatch(
       setUserInformation({
         name: data.fullName,
@@ -121,6 +119,14 @@ export default function MethodCheckoutPage() {
     }
   };
 
+  const handleCheckout = async () => {
+    await dispatch(setPaymentMethod({
+      paymentMethod: selectedMethod,
+      voucherId: selectedVoucher?.id || null,
+    }))
+    navigate("/checkout-progress");
+  }
+
   return (
     <div className="w-full flex flex-1 flex-col justify-center bg-gray-background overflow-y-scroll pt-28">
       <Container className="flex flex-col p-6">
@@ -137,7 +143,7 @@ export default function MethodCheckoutPage() {
                 Chọn phương thức thanh toán
               </div>
               <RadioGroup
-                defaultValue="VNPAY"
+                defaultValue={selectedMethod}
                 onValueChange={setSelectedMethod}
               >
                 <div
@@ -166,12 +172,12 @@ export default function MethodCheckoutPage() {
                 <Divider />
                 <div
                   className="flex space-x-2 py-4"
-                  onClick={() => setSelectedMethod("VNPAY")}
+                  onClick={() => setSelectedMethod("vnpay")}
                 >
                   <RadioGroupItem
-                    checked={selectedMethod === "VNPAY"}
+                    checked={selectedMethod === "vnpay"}
                     className="size-5 mt-2"
-                    value="VNPAY"
+                    value="vnpay"
                     id="option-one"
                   />
                   <div className="flex flex-col ml-2 gap-2">
@@ -319,7 +325,7 @@ export default function MethodCheckoutPage() {
                       Chọn voucher
                     </Button>
                   </AlertDialogTrigger>
-                  <AlertDialogContent>
+                  <AlertDialogContent className="md:max-w-xl">
                     <AlertDialogHeader className="w-full sm:text-center font-semibold text-lg">
                       Chọn voucher
                     </AlertDialogHeader>
@@ -335,7 +341,7 @@ export default function MethodCheckoutPage() {
                               >
                                 <VoucherTicket
                                   data={item}
-                                  className="hover:scale-100 w-3/4"
+                                  className="hover:scale-100 w-4/5 scale-95"
                                 />
                                 <Button
                                   onClick={() => setSelectedVoucher(item)}
@@ -655,7 +661,7 @@ export default function MethodCheckoutPage() {
             </div>
             <Button
               className="w-3/8 text-lg h-auto py-3 rounded-xl"
-              onClick={() => navigate("/payment-success")}
+              onClick={() => handleCheckout()}
             >
               Tiếp tục
             </Button>

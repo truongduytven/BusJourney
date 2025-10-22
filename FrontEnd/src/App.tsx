@@ -12,7 +12,12 @@ import MethodCheckoutPage from "./pages/methodCheckoutPage";
 import PaymentSuccess from "./pages/paymentSucces";
 import BecomePartnerPage from "./pages/partner";
 import { useAuthInitialize } from "./hooks/useAuthInitialize";
-import { RequireAuth, RequireGuest } from "./components/common/ProtectedRoute";
+import { RequireGuest } from "./components/common/ProtectedRoute";
+import RequireUser from "./components/common/RequireUser";
+import RequireAdmin from "./components/common/RequireAdmin";
+import AdminLayout from "./components/admin/AdminLayout";
+import AdminHome from "./components/admin/AdminHome";
+import CheckoutPage from "./pages/CheckoutPage";
 
 function App() {
   const location = useLocation();
@@ -31,40 +36,57 @@ function App() {
   return (
     <div className="relative">
       <Routes>
+        {/* Admin routes */}
+        <Route
+          path="/admin"
+          element={
+            <RequireAdmin>
+              <AdminLayout />
+            </RequireAdmin>
+          }>
+          <Route index element={<AdminHome />} />
+        </Route>
+
         <Route element={<UserLayout />}>
           <Route path="/" element={<Home />} />
           <Route path="/search" element={<SearchPage />} />
           <Route path="/search-ticket" element={<SearchTicket />} />
           <Route path="/become-partner" element={<BecomePartnerPage />} />
-          
-          {/* Protected routes - Yêu cầu đăng nhập */}
+
           <Route
             path="/information-checkout"
             element={
-              <RequireAuth>
+              <RequireUser>
                 <InformationCheckoutPage />
-              </RequireAuth>
+              </RequireUser>
             }
           />
           <Route 
             path="/method-checkout" 
             element={
-              <RequireAuth>
+              <RequireUser>
                 <MethodCheckoutPage />
-              </RequireAuth>
+              </RequireUser>
+            } 
+          />
+          <Route 
+            path="/checkout-progress" 
+            element={
+              <RequireUser>
+                <CheckoutPage />
+              </RequireUser>
             } 
           />
           <Route 
             path="/payment-success" 
             element={
-              <RequireAuth>
+              <RequireUser>
                 <PaymentSuccess />
-              </RequireAuth>
+              </RequireUser>
             } 
           />
         </Route>
 
-        {/* Guest-only route - Không cho phép truy cập khi đã đăng nhập */}
         <Route 
           path="/sign" 
           element={

@@ -17,12 +17,8 @@ export interface CouponApplicationData {
 }
 
 class CouponService {
-    /**
-     * Validate if a coupon can be used by a specific user
-     */
     async validateCoupon(couponId: string, userId: string): Promise<CouponValidationResult> {
         try {
-            // Check if coupon exists and is active
             const coupon = await Coupon.query()
                 .findById(couponId)
                 .where('status', 'active')
@@ -36,16 +32,12 @@ class CouponService {
                     message: 'Mã giảm giá không tồn tại hoặc đã hết hạn'
                 }
             }
-
-            // Check if coupon has reached max usage limit
             if (coupon.usedCount >= coupon.maxUses) {
                 return {
                     isValid: false,
                     message: 'Mã giảm giá đã hết lượt sử dụng'
                 }
             }
-
-            // Check if user has already used this coupon
             const existingUsage = await CouponUsage.query()
                 .where('user_id', userId)
                 .where('coupon_id', couponId)
@@ -72,9 +64,6 @@ class CouponService {
         }
     }
 
-    /**
-     * Calculate discount amount based on coupon type
-     */
     calculateDiscount(coupon: Coupon, originalAmount: number): number {
         let discountAmount = 0
 
@@ -97,9 +86,6 @@ class CouponService {
         return Math.round(discountAmount)
     }
 
-    /**
-     * Apply coupon and create usage record
-     */
     async applyCoupon(data: CouponApplicationData): Promise<CouponValidationResult> {
         const { couponId, userId, originalAmount } = data
 
@@ -144,9 +130,6 @@ class CouponService {
         }
     }
 
-    /**
-     * Record coupon usage after successful order creation
-     */
     async recordCouponUsage(userId: string, couponId: string, orderId: string): Promise<void> {
         try {
             await CouponUsage.query().insert({
@@ -178,9 +161,6 @@ class CouponService {
         }
     }
 
-    /**
-     * Get available coupons for a user (excluding already used ones)
-     */
     async getAvailableCouponsForUser(userId: string, companyId?: string): Promise<Coupon[]> {
         try {
             let query = Coupon.query()
@@ -193,7 +173,6 @@ class CouponService {
                 query = query.where('company_id', companyId)
             }
 
-            // Get coupons that the user hasn't used yet
             const usedCouponIds = await CouponUsage.query()
                 .select('coupon_id')
                 .where('user_id', userId)
@@ -210,25 +189,21 @@ class CouponService {
         }
     }
 
-    /**
-     * Deactivate coupon usage (for order cancellation)
-     */
     async deactivateCouponUsage(orderId: string): Promise<void> {
         try {
             await transaction(CouponUsage.knex(), async (trx) => {
-                // Find the coupon usage record
                 const usage = await CouponUsage.query(trx)
                     .where('order_id', orderId)
                     .where('is_active', true)
                     .first()
 
                 if (usage) {
-                    // Deactivate the usage record
+
                     await CouponUsage.query(trx)
                         .findById(usage.id)
                         .patch({ isActive: false })
 
-                    // Decrease coupon used count
+
                     const coupon = await Coupon.query(trx).findById(usage.couponId)
                     if (coupon && coupon.usedCount > 0) {
                         await Coupon.query(trx)

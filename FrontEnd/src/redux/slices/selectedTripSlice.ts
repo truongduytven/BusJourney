@@ -19,8 +19,8 @@ const initialState: InformationCheckout = {
     email: "",
     phone: "",
   },
-  paymentMethod: "cash",
-  voucherId: "",
+  paymentMethod: "vnpay",
+  voucherId: null,
   isReadyForBooking: false,
 };
 
@@ -66,7 +66,7 @@ const selectedTripSlice = createSlice({
       state,
       action: PayloadAction<{
         paymentMethod: string;
-        voucherId: string;
+        voucherId: string | null;
       }>
     ) => {
       state.paymentMethod = action.payload.paymentMethod;
@@ -75,11 +75,16 @@ const selectedTripSlice = createSlice({
 
     toggleChangeIsReadyForBooking: (state, action: PayloadAction<boolean>) => {
         state.isReadyForBooking = action.payload;
+    },
+
+    // Reset selected trip data sau khi thanh toán thành công
+    resetSelectedTrip: () => {
+      return initialState;
     }
   },
 });
 
-export const { setSelectedTrip, setUserInformation, setPaymentMethod, toggleChangeIsReadyForBooking } =
+export const { setSelectedTrip, setUserInformation, setPaymentMethod, toggleChangeIsReadyForBooking, resetSelectedTrip } =
   selectedTripSlice.actions;
 
 export default selectedTripSlice.reducer;

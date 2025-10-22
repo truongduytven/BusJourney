@@ -42,14 +42,16 @@ export default function SigninForm({ reset }: SigninFormProps) {
         
         if (googleSignIn.fulfilled.match(result)) {
           toast.success("Đăng nhập Google thành công!");
-          await dispatch(getProfile());
-          
-          // Kiểm tra returnUrl để redirect về trang trước đó
+          // Lấy profile và redirect theo role
+          const profile = await dispatch(getProfile()).unwrap();
           const returnUrl = searchParams.get("returnUrl");
-          if (returnUrl) {
+          const isAdmin = profile && (profile.role === 'admin' || profile.roleId === '1' || profile.roles?.some((r: any) => r.name === 'admin'));
+          if (isAdmin) {
+            navigate('/admin', { replace: true });
+          } else if (returnUrl) {
             navigate(decodeURIComponent(returnUrl), { replace: true });
           } else {
-            navigate("/", { replace: true });
+            navigate('/', { replace: true });
           }
         }
       } catch (error) {
@@ -85,9 +87,15 @@ export default function SigninForm({ reset }: SigninFormProps) {
       
       if (signIn.fulfilled.match(result)) {
         toast.success("Đăng nhập thành công!");
-        await dispatch(getProfile());
-        const returnUrl = searchParams.get('returnUrl') || '/';
-        navigate(returnUrl);
+        // Lấy profile để biết role và redirect hợp lý
+        const profile = await dispatch(getProfile()).unwrap();
+        const returnUrl = searchParams.get('returnUrl');
+        const isAdmin = profile && (profile.roles.name === 'admin');
+        if (isAdmin) {
+          navigate('/admin', { replace: true });
+        } else {
+          navigate(returnUrl || '/', { replace: true });
+        }
       } else {
         // Xử lý lỗi từ backend
         const errorPayload = result.payload as any;

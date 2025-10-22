@@ -3,7 +3,7 @@ import type { IPoint, ISeat } from "./trip";
 export interface InformationCheckout extends ITripPayload {
   userInformation: IUserInformation;
   paymentMethod: string;
-  voucherId: string;
+  voucherId: string | null;
   isReadyForBooking: boolean;
 }
 
