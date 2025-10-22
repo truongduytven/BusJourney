@@ -26,7 +26,7 @@ import {
   Type,
   X,
 } from "lucide-react";
-import type { TicketWithRelations } from "@/redux/slices/ticketSlice";
+import type { TicketWithRelations } from "@/redux/thunks/ticketThunks";
 import { formatTime, formatDate, convertMoney } from "@/utils";
 import { Tabs, TabsList, TabsTrigger } from "../ui/tabs";
 import { TabsContent } from "@radix-ui/react-tabs";

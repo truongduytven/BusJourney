@@ -1,7 +1,7 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
+import { createSlice } from "@reduxjs/toolkit";
 import type { TypeBus } from "@/types/typeBus";
 import { toast } from "sonner";
+import { fetchTypeBuses } from "@/redux/thunks/typeBusThunks";
 
 interface TypeBusState {
   list: TypeBus[];
@@ -14,19 +14,6 @@ const initialState: TypeBusState = {
   status: "idle",
   error: null,
 };
-
-interface responseData {
-    message: string;
-    data: TypeBus[];
-}
-
-export const fetchTypeBuses = createAsyncThunk<TypeBus[]>(
-  "typeBuses/fetch",
-  async () => {
-    const res = await axios.get<responseData>(`${import.meta.env.VITE_API_URL}/types-bus`);
-    return res.data.data;
-  }
-);
 
 const typeBusSlice = createSlice({
   name: "typeBuses",

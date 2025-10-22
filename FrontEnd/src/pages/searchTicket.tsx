@@ -14,8 +14,8 @@ import { UserRoundSearch, AlertCircle, Loader, RefreshCw } from "lucide-react";
 import { useForm } from "react-hook-form";
 import type z from "zod";
 import { useAppDispatch, useAppSelector } from "@/redux/hook";
+import { lookupTicket } from "@/redux/thunks/ticketThunks";
 import {
-  lookupTicket,
   clearError,
   clearTicketInfo,
 } from "@/redux/slices/ticketSlice";

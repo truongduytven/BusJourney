@@ -20,7 +20,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { setUserInformation } from "@/redux/slices/selectedTripSlice";
-import { updatePhone, getProfile } from "@/redux/slices/authSlice";
+import { updatePhone, getProfile } from "@/redux/thunks/authThunks";
 import type { RootState } from "@/redux/store";
 import { informationCheckoutSchema } from "@/schemas";
 import { convertMoney, formatDate, formatTime } from "@/utils";

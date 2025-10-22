@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '@/redux/hook';
-import { getProfile } from '@/redux/slices/authSlice';
+import { getProfile } from '@/redux/thunks/authThunks';
 
 export const useAuthInitialize = () => {
   const dispatch = useAppDispatch();

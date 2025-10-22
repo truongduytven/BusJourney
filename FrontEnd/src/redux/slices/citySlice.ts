@@ -1,7 +1,7 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
+import { createSlice } from "@reduxjs/toolkit";
 import type { City } from "@/types/city";
 import { toast } from "sonner";
+import { fetchCities } from "@/redux/thunks/cityThunks";
 
 interface CityState {
   list: City[];
@@ -14,19 +14,6 @@ const initialState: CityState = {
   status: "idle",
   error: null,
 };
-
-interface responseData {
-    message: string;
-    data: City[];
-}
-
-export const fetchCities = createAsyncThunk<City[]>(
-  "cities/fetch",
-  async () => {
-    const res = await axios.get<responseData>(`${import.meta.env.VITE_API_URL}/cities`);
-    return res.data.data;
-  }
-);
 
 const citySlice = createSlice({
   name: "cities",

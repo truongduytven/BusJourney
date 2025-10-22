@@ -16,7 +16,7 @@ import { Button } from "../ui/button";
 import { useEffect } from "react";
 import { PasswordInput } from "../ui/password-input";
 import { useAppDispatch, useAppSelector } from "@/redux/hook";
-import { signIn, getProfile, googleSignIn } from "@/redux/slices/authSlice";
+import { signIn, getProfile, googleSignIn } from "@/redux/thunks/authThunks";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Loader } from "lucide-react";
 import { toast } from "sonner";

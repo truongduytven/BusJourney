@@ -8,7 +8,7 @@ import { motion } from "framer-motion";
 import SigninForm from "@/components/forms/signinForm";
 import SignupForm from "@/components/forms/signupForm";
 import { useAppDispatch } from "@/redux/hook";
-import { fetchCities } from "@/redux/slices/citySlice";
+import { fetchCities } from "@/redux/thunks/cityThunks";
 import { House } from "lucide-react";
 
 export default function SignPage() {

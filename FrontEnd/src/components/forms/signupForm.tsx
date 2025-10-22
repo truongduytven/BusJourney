@@ -20,9 +20,9 @@ import {
   signUp,
   verifyOTP,
   resendOTP,
-  clearRegistrationState,
   googleSignIn
-} from "@/redux/slices/authSlice";
+} from "@/redux/thunks/authThunks";
+import { clearRegistrationState } from "@/redux/slices/authSlice";
 import {
   InputOTP,
   InputOTPGroup,
