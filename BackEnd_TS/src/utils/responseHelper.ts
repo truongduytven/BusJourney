@@ -23,13 +23,23 @@ export const sendError = (
   res: Response,
   message: string,
   statusCode: number = 400,
-  error?: any
+  errorOrCode?: any
 ) => {
-  return res.status(statusCode).json({
+  const response: any = {
     success: false,
     message,
-    ...(error && { error })
-  });
+  };
+  
+  // If errorOrCode is a string, treat it as a code, otherwise as error
+  if (errorOrCode) {
+    if (typeof errorOrCode === 'string') {
+      response.code = errorOrCode;
+    } else {
+      response.error = errorOrCode;
+    }
+  }
+  
+  return res.status(statusCode).json(response);
 };
 
 /**

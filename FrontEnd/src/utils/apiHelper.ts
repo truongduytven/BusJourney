@@ -38,6 +38,18 @@ export async function apiFetch<T = any>(
 
   try {
     const response = await fetch(url, config);
+    
+    // Check if response is ok and contains JSON
+    if (!response.ok || !response.headers.get('content-type')?.includes('application/json')) {
+      // For non-JSON responses, try to get text
+      const text = await response.text();
+      return {
+        success: false,
+        message: text || `HTTP error! status: ${response.status}`,
+        error: text || 'Unknown error',
+      } as T;
+    }
+    
     const data = await response.json();
 
     // Return the data as-is since the API already has the proper structure
