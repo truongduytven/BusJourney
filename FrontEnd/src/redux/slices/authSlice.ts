@@ -1,7 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
-
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+import { apiPost, apiAuthGet, apiAuthFetch } from '../../utils/apiHelper';
 
 // Types
 export interface SignInRequest {
@@ -107,25 +106,17 @@ export const signIn = createAsyncThunk<
   'auth/signIn',
   async (credentials, { rejectWithValue }) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/signin`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(credentials),
-      });
+      const data = await apiPost<SignInResponse>('/auth/signin', credentials);
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        return rejectWithValue(data || { message: `HTTP error! status: ${response.status}` });
+      if (!data.success) {
+        return rejectWithValue(JSON.stringify(data));
       }
 
-      if (data.success && data.data?.token) {
+      if (data.data?.token) {
         saveToken(data.data.token);
       }
 
-      return data;
+      return data as SignInResponse;
     } catch (error) {
       return rejectWithValue(error instanceof Error ? error.message : 'Đăng nhập thất bại');
     }
@@ -148,18 +139,10 @@ export const getProfile = createAsyncThunk<
         return rejectWithValue('Không có token xác thực');
       }
 
-      const response = await fetch(`${API_BASE_URL}/auth/me`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-      });
+      const data = await apiAuthGet('/auth/me', token);
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        return rejectWithValue(data.message || `HTTP error! status: ${response.status}`);
+      if (!data.success) {
+        return rejectWithValue(data.message || 'Failed to get profile');
       }
 
       return data.data;
@@ -178,26 +161,18 @@ export const signUp = createAsyncThunk<
   'auth/signUp',
   async (userData, { rejectWithValue }) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/signup`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(userData),
-      });
+      const data = await apiPost<SignUpResponse>('/auth/signup', userData);
 
-      const data = await response.json();
-
-      if (!response.ok) {
+      if (!data.success) {
         // Trả về object với thông tin đầy đủ để xử lý trường hợp đặc biệt
         return rejectWithValue(JSON.stringify({
-          message: data.message || `HTTP error! status: ${response.status}`,
-          code: data.code,
+          message: data.message || 'Sign up failed',
+          code: (data as any).code,
           data: data.data
         }));
       }
 
-      return data;
+      return data as SignUpResponse;
     } catch (error) {
       return rejectWithValue(JSON.stringify({
         message: error instanceof Error ? error.message : 'Đăng ký thất bại'
@@ -215,21 +190,13 @@ export const verifyOTP = createAsyncThunk<
   'auth/verifyOTP',
   async (otpData, { rejectWithValue }) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/verify-otp`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(otpData),
-      });
+      const data = await apiPost<VerifyOTPResponse>('/auth/verify-otp', otpData);
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        return rejectWithValue(data.message || `HTTP error! status: ${response.status}`);
+      if (!data.success) {
+        return rejectWithValue(data.message || 'OTP verification failed');
       }
 
-      return data;
+      return data as VerifyOTPResponse;
     } catch (error) {
       return rejectWithValue(error instanceof Error ? error.message : 'Xác thực OTP thất bại');
     }
@@ -245,18 +212,10 @@ export const resendOTP = createAsyncThunk<
   'auth/resendOTP',
   async (emailData, { rejectWithValue }) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/resend-otp`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(emailData),
-      });
+      const data = await apiPost('/auth/resend-otp', emailData);
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        return rejectWithValue(data.message || `HTTP error! status: ${response.status}`);
+      if (!data.success) {
+        return rejectWithValue(data.message || 'Resend OTP failed');
       }
 
       return data;
@@ -275,17 +234,9 @@ export const googleSignIn = createAsyncThunk<
   'auth/googleSignIn',
   async (request, { rejectWithValue }) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/google-signin`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(request),
-      });
+      const data = await apiPost<GoogleSignInResponse>('/auth/google-signin', request);
 
-      const data: GoogleSignInResponse = await response.json();
-
-      if (!response.ok || !data.success) {
+      if (!data.success) {
         return rejectWithValue(data.message || 'Google sign in failed');
       }
 
@@ -294,7 +245,7 @@ export const googleSignIn = createAsyncThunk<
         saveToken(data.data.token);
       }
 
-      return data;
+      return data as GoogleSignInResponse;
     } catch (error) {
       return rejectWithValue(error instanceof Error ? error.message : 'Google sign in failed');
     }
@@ -315,18 +266,15 @@ export const updatePhone = createAsyncThunk<
         return rejectWithValue('Không tìm thấy token xác thực');
       }
 
-      const response = await fetch(`${API_BASE_URL}/auth/update-phone`, {
+      const data = await apiAuthFetch('/auth/update-phone', token, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify(request),
       });
 
-      const data = await response.json();
-
-      if (!response.ok || !data.success) {
+      if (!data.success) {
         return rejectWithValue(data.message || 'Cập nhật số điện thoại thất bại');
       }
 
