@@ -1,6 +1,8 @@
 import { Request, Response } from 'express'
 import CouponService from '../services/CouponService'
 import Coupon from '../models/Coupon'
+import { sendSuccess, sendValidationError, sendNotFoundError, handleControllerError } from '../utils/responseHelper'
+import { validateRequiredFields } from '../utils/validationHelper'
 
 class CouponController {
     /**
@@ -39,11 +41,9 @@ class CouponController {
         try {
             const { couponId, userId } = req.body
 
-            if (!couponId || !userId) {
-                return res.status(400).json({
-                    success: false,
-                    message: 'Thiếu thông tin couponId hoặc userId'
-                })
+            const validation = validateRequiredFields({ couponId, userId }, ['couponId', 'userId']);
+            if (!validation.isValid) {
+                return sendValidationError(res, 'Thiếu thông tin couponId hoặc userId');
             }
 
             const result = await CouponService.validateCoupon(couponId, userId)
@@ -54,12 +54,7 @@ class CouponController {
                 data: result
             })
         } catch (error: any) {
-            console.error('Error validating coupon:', error)
-            res.status(500).json({
-                success: false,
-                message: 'Lỗi hệ thống khi kiểm tra coupon',
-                error: error.message
-            })
+            return handleControllerError(res, error, 'Error validating coupon');
         }
     }
 
@@ -103,11 +98,12 @@ class CouponController {
         try {
             const { couponId, userId, originalAmount } = req.body
 
-            if (!couponId || !userId || !originalAmount) {
-                return res.status(400).json({
-                    success: false,
-                    message: 'Thiếu thông tin bắt buộc (couponId, userId, originalAmount)'
-                })
+            const validation = validateRequiredFields(
+                { couponId, userId, originalAmount },
+                ['couponId', 'userId', 'originalAmount']
+            );
+            if (!validation.isValid) {
+                return sendValidationError(res, 'Thiếu thông tin bắt buộc (couponId, userId, originalAmount)');
             }
 
             const result = await CouponService.applyCoupon({
@@ -126,12 +122,7 @@ class CouponController {
                 }
             })
         } catch (error: any) {
-            console.error('Error applying coupon:', error)
-            res.status(500).json({
-                success: false,
-                message: 'Lỗi hệ thống khi áp dụng coupon',
-                error: error.message
-            })
+            return handleControllerError(res, error, 'Error applying coupon');
         }
     }
 
@@ -169,10 +160,7 @@ class CouponController {
             const { companyId } = req.query
 
             if (!userId) {
-                return res.status(400).json({
-                    success: false,
-                    message: 'Thiếu userId'
-                })
+                return sendValidationError(res, 'Thiếu userId');
             }
 
             const coupons = await CouponService.getAvailableCouponsForUser(
@@ -180,18 +168,9 @@ class CouponController {
                 companyId as string
             )
 
-            res.json({
-                success: true,
-                message: 'Lấy danh sách coupon khả dụng thành công',
-                data: coupons
-            })
+            return sendSuccess(res, 'Lấy danh sách coupon khả dụng thành công', coupons);
         } catch (error: any) {
-            console.error('Error getting available coupons:', error)
-            res.status(500).json({
-                success: false,
-                message: 'Lỗi hệ thống khi lấy danh sách coupon',
-                error: error.message
-            })
+            return handleControllerError(res, error, 'Error getting available coupons');
         }
     }
 
@@ -223,26 +202,14 @@ class CouponController {
             const { userId } = req.params
 
             if (!userId) {
-                return res.status(400).json({
-                    success: false,
-                    message: 'Thiếu userId'
-                })
+                return sendValidationError(res, 'Thiếu userId');
             }
 
             const usageHistory = await CouponService.getUserCouponUsages(userId)
 
-            res.json({
-                success: true,
-                message: 'Lấy lịch sử sử dụng coupon thành công',
-                data: usageHistory
-            })
+            return sendSuccess(res, 'Lấy lịch sử sử dụng coupon thành công', usageHistory);
         } catch (error: any) {
-            console.error('Error getting coupon usage history:', error)
-            res.status(500).json({
-                success: false,
-                message: 'Lỗi hệ thống khi lấy lịch sử coupon',
-                error: error.message
-            })
+            return handleControllerError(res, error, 'Error getting coupon usage history');
         }
     }
 
@@ -280,10 +247,7 @@ class CouponController {
                 .first()
 
             if (!coupon) {
-                return res.status(404).json({
-                    success: false,
-                    message: 'Không tìm thấy coupon'
-                })
+                return sendNotFoundError(res, 'Không tìm thấy coupon');
             }
 
             // Don't expose sensitive information
@@ -300,18 +264,9 @@ class CouponController {
                 remainingUses: coupon.maxUses - coupon.usedCount
             }
 
-            res.json({
-                success: true,
-                message: 'Lấy thông tin coupon thành công',
-                data: coupon
-            })
+            return sendSuccess(res, 'Lấy thông tin coupon thành công', coupon);
         } catch (error: any) {
-            console.error('Error getting coupon by code:', error)
-            res.status(500).json({
-                success: false,
-                message: 'Lỗi hệ thống khi lấy thông tin coupon',
-                error: error.message
-            })
+            return handleControllerError(res, error, 'Error getting coupon by code');
         }
     }
 }

@@ -1,5 +1,7 @@
 import { Request, Response } from 'express';
 import Ticket from '../models/Ticket';
+import { sendValidationError, sendNotFoundError, sendUnauthorizedError, sendSuccess, handleControllerError } from '../utils/responseHelper';
+import { validateRequiredFields } from '../utils/validationHelper';
 
 // Type definitions for relations
 interface TicketWithRelations extends Ticket {
@@ -22,11 +24,9 @@ export const lookupTicket = async (req: Request<{}, {}, TicketLookupRequest>, re
     const { email, phone, ticketCode } = req.body;
 
     // Validation input
-    if (!email || !phone || !ticketCode) {
-      return res.status(400).json({
-        success: false,
-        message: 'Email, số điện thoại và mã vé là bắt buộc'
-      });
+    const validation = validateRequiredFields({ email, phone, ticketCode }, ['email', 'phone', 'ticketCode']);
+    if (!validation.isValid) {
+      return sendValidationError(res, 'Email, số điện thoại và mã vé là bắt buộc');
     }
 
     // Tìm vé với đầy đủ thông tin liên quan
@@ -56,27 +56,18 @@ export const lookupTicket = async (req: Request<{}, {}, TicketLookupRequest>, re
     const ticket = ticketResult as TicketWithRelations;
 
     if (!ticket) {
-      return res.status(404).json({
-        success: false,
-        message: 'Không tìm thấy vé với mã vé này'
-      });
+      return sendNotFoundError(res, 'Không tìm thấy vé với mã vé này');
     }
 
     // Kiểm tra email và phone có khớp với thông tin đặt vé không
     const ticketAccount = ticket.account;
     if (!ticketAccount) {
-      return res.status(404).json({
-        success: false,
-        message: 'Không tìm thấy thông tin tài khoản đặt vé'
-      });
+      return sendNotFoundError(res, 'Không tìm thấy thông tin tài khoản đặt vé');
     }
 
     // Validate email và phone khớp với account
     if (ticketAccount.email !== email || ticketAccount.phone !== phone) {
-      return res.status(401).json({
-        success: false,
-        message: 'Email hoặc số điện thoại không khớp với thông tin đặt vé'
-      });
+      return sendUnauthorizedError(res, 'Email hoặc số điện thoại không khớp với thông tin đặt vé');
     }
 
     // Chuẩn bị response data với đầy đủ thông tin
@@ -184,18 +175,9 @@ export const lookupTicket = async (req: Request<{}, {}, TicketLookupRequest>, re
       } : null
     };
 
-    return res.status(200).json({
-      success: true,
-      message: 'Tra cứu vé thành công',
-      data: ticketInfo
-    });
+    return sendSuccess(res, 'Tra cứu vé thành công', ticketInfo);
 
   } catch (error) {
-    console.error('Ticket lookup error:', error);
-    return res.status(500).json({
-      success: false,
-      message: 'Lỗi server khi tra cứu vé',
-      error: error instanceof Error ? error.message : 'Unknown error'
-    });
+    return handleControllerError(res, error, 'Ticket lookup');
   }
 };

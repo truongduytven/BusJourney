@@ -5,6 +5,15 @@ import { OAuth2Client } from 'google-auth-library';
 import Account, { IAccount } from '../models/Accounts';
 import { IResetPasswordRequest } from '../types/auth.interface';
 import Role from '../models/Role';
+import { 
+  sendSuccess, 
+  sendValidationError, 
+  sendUnauthorizedError, 
+  sendNotFoundError, 
+  handleControllerError,
+  sendError 
+} from '../utils/responseHelper';
+import { validateRequiredFields, isValidPassword, isValidPhone } from '../utils/validationHelper';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 const SALT_ROUNDS = 10;
@@ -35,11 +44,9 @@ export const signIn = async (req: Request<{}, {}, SignInRequest>, res: Response)
     const { email, password } = req.body;
 
     // Validation
-    if (!email || !password) {
-      return res.status(400).json({
-        success: false,
-        message: 'Email và mật khẩu là bắt buộc'
-      });
+    const validation = validateRequiredFields({ email, password }, ['email', 'password']);
+    if (!validation.isValid) {
+      return sendValidationError(res, 'Email và mật khẩu là bắt buộc');
     }
 
     // Tìm account theo email
@@ -49,35 +56,22 @@ export const signIn = async (req: Request<{}, {}, SignInRequest>, res: Response)
       .first();
 
     if (!account) {
-      return res.status(401).json({
-        success: false,
-        message: 'Email hoặc mật khẩu không đúng'
-      });
+      return sendUnauthorizedError(res, 'Email hoặc mật khẩu không đúng');
     }
 
     // Kiểm tra nếu account đã đăng ký bằng Google
     if (account.type === 'google') {
-      return res.status(400).json({
-        success: false,
-        message: 'Email này đã được đăng ký bằng Google. Vui lòng sử dụng "Đăng nhập với Google".',
-        code: 'GOOGLE_ACCOUNT_EXISTS'
-      });
+      return sendError(res, 'Email này đã được đăng ký bằng Google. Vui lòng sử dụng "Đăng nhập với Google".', 400, 'GOOGLE_ACCOUNT_EXISTS');
     }
 
     const isPasswordValid = await bcrypt.compare(password, account.password);
     
     if (!isPasswordValid) {
-      return res.status(401).json({
-        success: false,
-        message: 'Email hoặc mật khẩu không đúng'
-      });
+      return sendUnauthorizedError(res, 'Email hoặc mật khẩu không đúng');
     }
 
     if (!account.isVerified) {
-      return res.status(401).json({
-        success: false,
-        message: 'Tài khoản chưa được xác thực. Vui lòng kiểm tra email.'
-      });
+      return sendUnauthorizedError(res, 'Tài khoản chưa được xác thực. Vui lòng kiểm tra email.');
     }
 
     // Tạo JWT token
@@ -92,22 +86,13 @@ export const signIn = async (req: Request<{}, {}, SignInRequest>, res: Response)
       { expiresIn: '24h' }
     );
 
-    return res.status(200).json({
-      success: true,
-      message: 'Đăng nhập thành công',
-      data: {
-        token,
-        expiresIn: '24h'
-      }
+    return sendSuccess(res, 'Đăng nhập thành công', {
+      token,
+      expiresIn: '24h'
     });
 
   } catch (error) {
-    console.error('SignIn error:', error);
-    return res.status(500).json({
-      success: false,
-      message: 'Lỗi server',
-      error: error instanceof Error ? error.message : 'Unknown error'
-    });
+    return handleControllerError(res, error, 'SignIn');
   }
 };
 
@@ -116,11 +101,12 @@ export const signUp = async (req: Request, res: Response) => {
     const { name, email, phone, password, role } = req.body;
 
     // Validation
-    if (!name || !email || !phone || !password) {
-      return res.status(400).json({
-        success: false,
-        message: 'Tên người dùng, email, số điện thoại và mật khẩu là bắt buộc'
-      });
+    const validation = validateRequiredFields(
+      { name, email, phone, password }, 
+      ['name', 'email', 'phone', 'password']
+    );
+    if (!validation.isValid) {
+      return sendValidationError(res, 'Tên người dùng, email, số điện thoại và mật khẩu là bắt buộc');
     }
 
     // Kiểm tra email đã tồn tại
@@ -163,10 +149,7 @@ export const signUp = async (req: Request, res: Response) => {
       .where('name', role || 'user')
       .first();
     if (!existingRole) {
-      return res.status(400).json({
-        success: false,
-        message: 'Vai trò không hợp lệ'
-      });
+      return sendValidationError(res, 'Vai trò không hợp lệ');
     }
 
     // Hash mật khẩu
@@ -189,33 +172,22 @@ export const signUp = async (req: Request, res: Response) => {
       createAt: new Date()
     });
 
-    return res.status(201).json({
-      success: true,
-      message: 'Tạo tài khoản thành công. Vui lòng kiểm tra email để xác thực OTP.',
-      data: {
-        accountId: newAccount.id,
-        email: newAccount.email,
-      }
-    });
+    return sendSuccess(res, 'Tạo tài khoản thành công. Vui lòng kiểm tra email để xác thực OTP.', {
+      accountId: newAccount.id,
+      email: newAccount.email,
+    }, 201);
 
   } catch (error) {
-    console.error('SignUp error:', error);
-    return res.status(500).json({
-      success: false,
-      message: 'Lỗi server',
-      error: error instanceof Error ? error.message : 'Unknown error'
-    });
+    return handleControllerError(res, error, 'SignUp');
   }
 }
 
 export const verifyOtp = async (req: Request, res: Response) => {
   try {
     const { email, otp } = req.body;
-    if (!email || !otp) {
-      return res.status(400).json({
-        success: false,
-        message: 'Email và mã OTP là bắt buộc'
-      });
+    const validation = validateRequiredFields({ email, otp }, ['email', 'otp']);
+    if (!validation.isValid) {
+      return sendValidationError(res, 'Email và mã OTP là bắt buộc');
     }
     const account = await Account.query()
       .where('email', email)
@@ -223,24 +195,15 @@ export const verifyOtp = async (req: Request, res: Response) => {
       .first();
 
     if (!account) {
-      return res.status(404).json({
-        success: false,
-        message: 'Không tìm thấy tài khoản'
-      });
+      return sendNotFoundError(res, 'Không tìm thấy tài khoản');
     }
 
     if (account.isVerified) {
-      return res.status(400).json({
-        success: false,
-        message: 'Tài khoản đã được xác thực'
-      });
+      return sendValidationError(res, 'Tài khoản đã được xác thực');
     }
 
     if (account.otpCode !== otp) {
-      return res.status(400).json({
-        success: false,
-        message: 'Mã OTP không đúng'
-      });
+      return sendValidationError(res, 'Mã OTP không đúng');
     }
 
     await Account.query()
@@ -250,17 +213,9 @@ export const verifyOtp = async (req: Request, res: Response) => {
         otpCode: ''
       });
 
-    return res.status(200).json({
-      success: true,
-      message: 'Xác thực OTP thành công. Bạn có thể đăng nhập ngay bây giờ.'
-    }); 
+    return sendSuccess(res, 'Xác thực OTP thành công. Bạn có thể đăng nhập ngay bây giờ.');
   } catch (error) {
-    console.error('VerifyOtp error:', error);
-    return res.status(500).json({
-      success: false,
-      message: 'Lỗi server',
-      error: error instanceof Error ? error.message : 'Unknown error'
-    });
+    return handleControllerError(res, error, 'VerifyOtp');
   }
 }
 
@@ -269,19 +224,17 @@ export const changePassword = async (req: Request<{}, {}, ChangePasswordRequest>
     const { accountId, currentPassword, newPassword } = req.body;
 
     // Validation
-    if (!accountId || !currentPassword || !newPassword) {
-      return res.status(400).json({
-        success: false,
-        message: 'AccountId, mật khẩu hiện tại và mật khẩu mới là bắt buộc'
-      });
+    const validation = validateRequiredFields(
+      { accountId, currentPassword, newPassword }, 
+      ['accountId', 'currentPassword', 'newPassword']
+    );
+    if (!validation.isValid) {
+      return sendValidationError(res, 'AccountId, mật khẩu hiện tại và mật khẩu mới là bắt buộc');
     }
 
     // Validation mật khẩu mới
-    if (newPassword.length < 6) {
-      return res.status(400).json({
-        success: false,
-        message: 'Mật khẩu mới phải có ít nhất 6 ký tự'
-      });
+    if (!isValidPassword(newPassword, 6)) {
+      return sendValidationError(res, 'Mật khẩu mới phải có ít nhất 6 ký tự');
     }
 
     // Tìm account theo ID
@@ -290,30 +243,21 @@ export const changePassword = async (req: Request<{}, {}, ChangePasswordRequest>
       .where('isActive', true);
 
     if (!account) {
-      return res.status(404).json({
-        success: false,
-        message: 'Không tìm thấy tài khoản'
-      });
+      return sendNotFoundError(res, 'Không tìm thấy tài khoản');
     }
 
     // Kiểm tra mật khẩu hiện tại
     const isCurrentPasswordValid = await bcrypt.compare(currentPassword, account.password);
     
     if (!isCurrentPasswordValid) {
-      return res.status(401).json({
-        success: false,
-        message: 'Mật khẩu hiện tại không đúng'
-      });
+      return sendUnauthorizedError(res, 'Mật khẩu hiện tại không đúng');
     }
 
     // Kiểm tra mật khẩu mới không trùng với mật khẩu cũ
     const isSamePassword = await bcrypt.compare(newPassword, account.password);
     
     if (isSamePassword) {
-      return res.status(400).json({
-        success: false,
-        message: 'Mật khẩu mới không được trùng với mật khẩu hiện tại'
-      });
+      return sendValidationError(res, 'Mật khẩu mới không được trùng với mật khẩu hiện tại');
     }
 
     // Hash mật khẩu mới
@@ -326,45 +270,29 @@ export const changePassword = async (req: Request<{}, {}, ChangePasswordRequest>
         password: hashedNewPassword
       });
 
-    return res.status(200).json({
-      success: true,
-      message: 'Đổi mật khẩu thành công'
-    });
+    return sendSuccess(res, 'Đổi mật khẩu thành công');
 
   } catch (error) {
-    console.error('ChangePassword error:', error);
-    return res.status(500).json({
-      success: false,
-      message: 'Lỗi server',
-      error: error instanceof Error ? error.message : 'Unknown error'
-    });
+    return handleControllerError(res, error, 'ChangePassword');
   }
 };
 
 export const resetPasswordByAccountId = async (req: Request<IResetPasswordRequest>, res: Response) => {
   try {
     const { accountId, newPassword } = req.body;
-    if (!accountId || !newPassword) {
-      return res.status(400).json({
-        success: false,
-        message: 'AccountId và mật khẩu mới là bắt buộc'
-      });
+    const validation = validateRequiredFields({ accountId, newPassword }, ['accountId', 'newPassword']);
+    if (!validation.isValid) {
+      return sendValidationError(res, 'AccountId và mật khẩu mới là bắt buộc');
     }
-    if (newPassword.length < 6) {
-      return res.status(400).json({
-        success: false,
-        message: 'Mật khẩu mới phải có ít nhất 6 ký tự'
-      });
+    if (!isValidPassword(newPassword, 6)) {
+      return sendValidationError(res, 'Mật khẩu mới phải có ít nhất 6 ký tự');
     }
     const account = await Account.query()
       .findById(accountId)
       .where('isActive', true);
 
     if (!account) {
-      return res.status(404).json({
-        success: false,
-        message: 'Không tìm thấy tài khoản'
-      });
+      return sendNotFoundError(res, 'Không tìm thấy tài khoản');
     }
 
     const hashedNewPassword = await bcrypt.hash(newPassword, SALT_ROUNDS);
@@ -375,18 +303,10 @@ export const resetPasswordByAccountId = async (req: Request<IResetPasswordReques
         password: hashedNewPassword
       });
 
-    return res.status(200).json({
-      success: true,
-      message: 'Reset mật khẩu thành công'
-    });
+    return sendSuccess(res, 'Reset mật khẩu thành công');
 
   } catch (error) {
-    console.error('ResetPassword error:', error);
-    return res.status(500).json({
-      success: false,
-      message: 'Lỗi server',
-      error: error instanceof Error ? error.message : 'Unknown error'
-    });
+    return handleControllerError(res, error, 'ResetPassword');
   }
 };
 
@@ -397,10 +317,7 @@ export const getProfile = async (req: Request, res: Response) => {
     const accountId = (req as any).user?.accountId;
 
     if (!accountId) {
-      return res.status(401).json({
-        success: false,
-        message: 'Unauthorized'
-      });
+      return sendUnauthorizedError(res, 'Unauthorized');
     }
 
     const account = await Account.query()
@@ -408,27 +325,15 @@ export const getProfile = async (req: Request, res: Response) => {
       .where('isActive', true);
 
     if (!account) {
-      return res.status(404).json({
-        success: false,
-        message: 'Không tìm thấy tài khoản'
-      });
+      return sendNotFoundError(res, 'Không tìm thấy tài khoản');
     }
 
     const { password, otpCode, ...accountData } = account;
 
-    return res.status(200).json({
-      success: true,
-      message: 'Lấy thông tin thành công',
-      data: accountData
-    });
+    return sendSuccess(res, 'Lấy thông tin thành công', accountData);
 
   } catch (error) {
-    console.error('GetProfile error:', error);
-    return res.status(500).json({
-      success: false,
-      message: 'Lỗi server',
-      error: error instanceof Error ? error.message : 'Unknown error'
-    });
+    return handleControllerError(res, error, 'GetProfile');
   }
 };
 
@@ -437,10 +342,7 @@ export const resendOTP = async (req: Request, res: Response) => {
     const { email } = req.body;
 
     if (!email) {
-      return res.status(400).json({
-        success: false,
-        message: 'Email là bắt buộc'
-      });
+      return sendValidationError(res, 'Email là bắt buộc');
     }
 
     // Tìm account theo email
@@ -450,17 +352,11 @@ export const resendOTP = async (req: Request, res: Response) => {
       .first();
 
     if (!account) {
-      return res.status(404).json({
-        success: false,
-        message: 'Không tìm thấy tài khoản'
-      });
+      return sendNotFoundError(res, 'Không tìm thấy tài khoản');
     }
 
     if (account.isVerified) {
-      return res.status(400).json({
-        success: false,
-        message: 'Tài khoản đã được xác thực'
-      });
+      return sendValidationError(res, 'Tài khoản đã được xác thực');
     }
 
     // Tạo OTP mới
@@ -476,18 +372,10 @@ export const resendOTP = async (req: Request, res: Response) => {
     // TODO: Gửi OTP qua email
     console.log(`OTP mới cho email ${email}: ${newOtpCode}`);
 
-    return res.status(200).json({
-      success: true,
-      message: 'Đã gửi lại mã OTP. Vui lòng kiểm tra email.',
-    });
+    return sendSuccess(res, 'Đã gửi lại mã OTP. Vui lòng kiểm tra email.');
 
   } catch (error) {
-    console.error('ResendOTP error:', error);
-    return res.status(500).json({
-      success: false,
-      message: 'Lỗi server',
-      error: error instanceof Error ? error.message : 'Unknown error'
-    });
+    return handleControllerError(res, error, 'ResendOTP');
   }
 };
 
@@ -497,10 +385,7 @@ export const googleSignIn = async (req: Request<{}, {}, GoogleSignInRequest>, re
     const { credential } = req.body;
 
     if (!credential) {
-      return res.status(400).json({
-        success: false,
-        message: 'Google credential là bắt buộc'
-      });
+      return sendValidationError(res, 'Google credential là bắt buộc');
     }
 
     // Verify Google token
@@ -511,19 +396,13 @@ export const googleSignIn = async (req: Request<{}, {}, GoogleSignInRequest>, re
 
     const payload = ticket.getPayload();
     if (!payload) {
-      return res.status(401).json({
-        success: false,
-        message: 'Token Google không hợp lệ'
-      });
+      return sendUnauthorizedError(res, 'Token Google không hợp lệ');
     }
 
     const { email, name, picture, sub: googleId } = payload;
 
     if (!email) {
-      return res.status(400).json({
-        success: false,
-        message: 'Không thể lấy email từ Google'
-      });
+      return sendValidationError(res, 'Không thể lấy email từ Google');
     }
 
     // Tìm role customer
@@ -578,21 +457,13 @@ export const googleSignIn = async (req: Request<{}, {}, GoogleSignInRequest>, re
       { expiresIn: '24h' }
     );
 
-    return res.status(200).json({
-      success: true,
-      message: 'Đăng nhập Google thành công',
-      data: {
-        token,
-        expiresIn: '24h'
-      }
+    return sendSuccess(res, 'Đăng nhập Google thành công', {
+      token,
+      expiresIn: '24h'
     });
 
   } catch (error) {
-    console.error('Google sign in error:', error);
-    return res.status(500).json({
-      success: false,
-      message: 'Lỗi server khi đăng nhập Google'
-    });
+    return handleControllerError(res, error, 'Google sign in');
   }
 };
 
@@ -603,10 +474,7 @@ export const updatePhone = async (req: Request, res: Response) => {
     const authHeader = req.headers.authorization;
 
     if (!authHeader?.startsWith('Bearer ')) {
-      return res.status(401).json({
-        success: false,
-        message: 'Token không hợp lệ'
-      });
+      return sendUnauthorizedError(res, 'Token không hợp lệ');
     }
 
     const token = authHeader.substring(7);
@@ -616,18 +484,12 @@ export const updatePhone = async (req: Request, res: Response) => {
     try {
       decoded = jwt.verify(token, JWT_SECRET);
     } catch (error) {
-      return res.status(401).json({
-        success: false,
-        message: 'Token không hợp lệ hoặc đã hết hạn'
-      });
+      return sendUnauthorizedError(res, 'Token không hợp lệ hoặc đã hết hạn');
     }
 
     // Validate phone format
-    if (!phone || !/^0[0-9]{9}$/.test(phone)) {
-      return res.status(400).json({
-        success: false,
-        message: 'Số điện thoại không hợp lệ. Phải có 10 số và bắt đầu bằng 0'
-      });
+    if (!phone || !isValidPhone(phone)) {
+      return sendValidationError(res, 'Số điện thoại không hợp lệ. Phải có 10 số và bắt đầu bằng 0');
     }
 
     // Check if phone already exists for another user
@@ -648,16 +510,9 @@ export const updatePhone = async (req: Request, res: Response) => {
       .findById(decoded.accountId)
       .patch({ phone });
 
-    return res.status(200).json({
-      success: true,
-      message: 'Cập nhật số điện thoại thành công'
-    });
+    return sendSuccess(res, 'Cập nhật số điện thoại thành công');
 
   } catch (error) {
-    console.error('Update phone error:', error);
-    return res.status(500).json({
-      success: false,
-      message: 'Lỗi server khi cập nhật số điện thoại'
-    });
+    return handleControllerError(res, error, 'Update phone');
   }
 };

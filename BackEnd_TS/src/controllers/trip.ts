@@ -6,6 +6,8 @@ import BusCompany from '../models/BusCompany'
 import Review from '../models/Reviews'
 import Coupon from '../models/Coupon'
 import { IGetListTrip, ITripDetail } from '../types/trip.interface'
+import { sendValidationError, sendNotFoundError, handleControllerError } from '../utils/responseHelper'
+import { validateRequiredFields } from '../utils/validationHelper'
 
 class TripController {
   async searchTrips(req: Request, res: Response) {
@@ -14,10 +16,12 @@ class TripController {
 
       const { fromCityId, toCityId, departureDate, typeBus, companiesId } = req.body
 
-      if (!fromCityId || !toCityId || !departureDate) {
-        return res.status(400).json({
-          message: 'fromCityId, toCityId và departureDate là bắt buộc'
-        })
+      const validation = validateRequiredFields(
+        { fromCityId, toCityId, departureDate },
+        ['fromCityId', 'toCityId', 'departureDate']
+      );
+      if (!validation.isValid) {
+        return sendValidationError(res, 'fromCityId, toCityId và departureDate là bắt buộc');
       }
       const convertDate = new Date(departureDate as string)
       convertDate.setHours(convertDate.getHours() - 7, convertDate.getMinutes(), 0, 0)
@@ -120,11 +124,7 @@ class TripController {
         data: trips
       })
     } catch (err: any) {
-      console.error(err)
-      res.status(500).json({
-        error: err.message,
-        message: 'Lỗi hệ thống'
-      })
+      return handleControllerError(res, err, 'searchTrips');
     }
   }
 
@@ -132,9 +132,7 @@ class TripController {
     try {
       const { id } = req.params
       if (!id) {
-        return res.status(400).json({
-          message: 'Trip ID is required'
-        })
+        return sendValidationError(res, 'Trip ID is required');
       }
       const trip = (await Trip.query()
         .alias('t')
@@ -157,9 +155,7 @@ class TripController {
         .first()) as unknown as ITripDetail
 
       if (!trip) {
-        return res.status(404).json({
-          message: 'Trip not found'
-        })
+        return sendNotFoundError(res, 'Trip not found');
       }
       const TripResult = {
         tripId: id,
@@ -224,10 +220,7 @@ class TripController {
         data: TripResult
       })
     } catch (err: any) {
-      res.status(500).json({
-        error: err.message,
-        message: 'Lỗi hệ thống'
-      })
+      return handleControllerError(res, err, 'getTripById');
     }
   }
 
@@ -235,9 +228,7 @@ class TripController {
     try {
       const { id } = req.params
       if (!id) {
-        return res.status(400).json({
-          message: 'Trip ID is required'
-        })
+        return sendValidationError(res, 'Trip ID is required');
       }
       const trip = (await Trip.query()
         .alias('t')
@@ -248,9 +239,7 @@ class TripController {
         .where('t.status', 'scheduled') // Chỉ lấy trip có status là scheduled
         .first()) as unknown as IGetListTrip
       if (!trip) {
-        return res.status(404).json({
-          message: 'Trip not found'
-        })
+        return sendNotFoundError(res, 'Trip not found');
       }
       const tripResult = {
         tripId: trip.id,
@@ -274,10 +263,7 @@ class TripController {
         data: tripResult
       })
     } catch (err: any) {
-      res.status(500).json({
-        error: err.message,
-        message: 'Lỗi hệ thống'
-      })
+      return handleControllerError(res, err, 'getTripSeatsById');
     }
   }
 }
