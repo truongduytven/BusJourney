@@ -26,8 +26,8 @@ import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import type { TripResults } from "@/types/trip";
 import { useAppDispatch, useAppSelector } from "@/redux/hook";
-import { fetchTripDetail } from "@/redux/slices/tripDetailSlice";
-import { fetchTripSeat } from "@/redux/slices/tripSeatSlice";
+import { fetchTripDetail } from "@/redux/thunks/tripDetailThunks";
+import { fetchTripSeat } from "@/redux/thunks/tripSeatThunks";
 interface TripCardProps {
   selectedTrip: string | null;
   item: TripResults;
@@ -50,8 +50,8 @@ export default function TripCard({
     route: `${item.route.startLocation.name || ""} - ${item.route.endLocation.name || ""}`,
     tripImage: item.buses.images[0] || "",
     busCompanyName: item.buses.bus_companies.name || "",
-    departureTime: new Date(item.departureTime),
-    arrivalTime: new Date(item.arrivalTime),
+    departureTime: new Date(item.departureTime).toISOString(),
+    arrivalTime: new Date(item.arrivalTime).toISOString(),
     typeBusName: item.buses.type_buses.name || "",
   }
   startTimeNumber.setHours(

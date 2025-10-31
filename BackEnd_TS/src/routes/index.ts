@@ -6,9 +6,10 @@ import authRouter from './auth';
 import ticketRouter from './ticket';
 import couponRouter from './coupon';
 import paymentRouter from './payment';
+import userRouter from './user';
 
 router.use('/auth', authRouter);
-// router.use('/user', userRouter);
+router.use('/users', userRouter);
 router.use('/cities', cityRouter);
 // router.use('/locations', localRouter);
 // router.use('/routes', routeTripRouter);

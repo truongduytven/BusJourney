@@ -3,8 +3,8 @@ export function convertMoney(amount: number): string {
   return amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + "đ";
 }
 
-export function formatDate(dateString: Date): string {
-  // Date object to dd/mm/yyyy
+export function formatDate(dateString: Date | string): string {
+  // Date object or ISO string to dd/mm/yyyy
   const date = new Date(dateString);
   const day = String(date.getDate()).padStart(2, "0");
   const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -12,8 +12,8 @@ export function formatDate(dateString: Date): string {
   return `${day}/${month}/${year}`;
 }
 
-export function formatTime(dateString: Date): string {
-  // Date object to HH:MM
+export function formatTime(dateString: Date | string): string {
+  // Date object or ISO string to HH:MM
   const date = new Date(dateString);
   const hours = String(date.getHours()).padStart(2, "0");
   const minutes = String(date.getMinutes()).padStart(2, "0");

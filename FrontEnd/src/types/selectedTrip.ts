@@ -25,7 +25,7 @@ export interface ITripData {
     route: string;
     tripImage: string;
     busCompanyName: string;
-    departureTime: Date;
-    arrivalTime: Date;
+    departureTime: string; // ISO string format
+    arrivalTime: string; // ISO string format
     typeBusName: string;
 }

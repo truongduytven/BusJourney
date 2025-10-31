@@ -2,7 +2,15 @@ import LogoFull from "../../assets/logo_full.png";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "../ui/button";
 import Container from "./container";
-import { AlignRight, ClipboardPen, LogIn, Settings, Ticket, LogOut } from "lucide-react";
+import {
+  AlignRight,
+  ClipboardPen,
+  LogIn,
+  Settings,
+  Ticket,
+  LogOut,
+  LayoutDashboard,
+} from "lucide-react";
 import {
   Sheet,
   SheetClose,
@@ -45,6 +53,10 @@ export default function Header() {
     navigate("/my-tickets");
   };
 
+  const handleDashboard = () => {
+    navigate("/admin");
+  };
+
   // Component để render user avatar và dropdown
   const UserAvatar = () => (
     <DropdownMenu>
@@ -72,12 +84,29 @@ export default function Header() {
           <Settings className="mr-2 h-4 w-4" />
           Chỉnh sửa hồ sơ
         </DropdownMenuItem>
-        <DropdownMenuItem className="cursor-pointer" onClick={handleMyTickets}>
-          <Ticket className="mr-2 h-4 w-4" />
-          Vé của tôi
-        </DropdownMenuItem>
+        {user && user.roles.name === "customer" && (
+          <DropdownMenuItem
+            className="cursor-pointer"
+            onClick={handleMyTickets}
+          >
+            <Ticket className="mr-2 h-4 w-4" />
+            Vé của tôi
+          </DropdownMenuItem>
+        )}
+        {user && user.roles.name === "admin" && (
+          <DropdownMenuItem
+            className="cursor-pointer"
+            onClick={handleDashboard}
+          >
+            <LayoutDashboard className="mr-2 h-4 w-4" />
+            Trang quản trị
+          </DropdownMenuItem>
+        )}
         <DropdownMenuSeparator />
-        <DropdownMenuItem className="cursor-pointer text-red-400" onClick={handleLogout}>
+        <DropdownMenuItem
+          className="cursor-pointer text-red-400"
+          onClick={handleLogout}
+        >
           <LogOut className="mr-2 h-4 w-4" />
           Đăng xuất
         </DropdownMenuItem>
@@ -106,7 +135,9 @@ export default function Header() {
           <div className="hidden md:flex items-center justify-end px-5 flex-1">
             {isAuthenticated && user ? (
               <div className="flex items-center gap-4 ml-10">
-                <span className="text-primary font-medium">Xin chào, {user.name}</span>
+                <span className="text-primary font-medium">
+                  Xin chào, {user.name}
+                </span>
                 <UserAvatar />
               </div>
             ) : (
@@ -146,23 +177,28 @@ export default function Header() {
                     </div>
                   </SheetClose>
                 ))}
-                
+
                 {isAuthenticated && user ? (
                   <SheetClose>
                     <div className="flex flex-col gap-4 px-6 mt-8">
                       <div className="flex items-center gap-3 pb-4 border-b">
                         <Avatar className="h-12 w-12">
-                          <AvatarImage src={user?.avatar || ""} alt={user?.name || ""} />
+                          <AvatarImage
+                            src={user?.avatar || ""}
+                            alt={user?.name || ""}
+                          />
                           <AvatarFallback className="bg-primary text-primary-foreground">
                             {user?.name?.charAt(0)?.toUpperCase() || "U"}
                           </AvatarFallback>
                         </Avatar>
                         <div>
                           <p className="font-medium">{user.name}</p>
-                          <p className="text-sm text-muted-foreground">{user.email}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {user.email}
+                          </p>
                         </div>
                       </div>
-                      
+
                       <Button
                         onClick={handleProfile}
                         variant="outline"
@@ -172,7 +208,7 @@ export default function Header() {
                         <Settings className="mr-2 h-4 w-4" />
                         Chỉnh sửa hồ sơ
                       </Button>
-                      
+
                       <Button
                         onClick={handleMyTickets}
                         variant="outline"
@@ -182,7 +218,7 @@ export default function Header() {
                         <Ticket className="mr-2 h-4 w-4" />
                         Vé của tôi
                       </Button>
-                      
+
                       <Button
                         onClick={handleLogout}
                         variant="destructive"

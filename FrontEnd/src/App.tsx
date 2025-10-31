@@ -1,23 +1,24 @@
 import { Route, Routes, useLocation } from "react-router-dom";
-import Home from "./pages/home";
+import Home from "./pages/User/home";
 import UserLayout from "./layouts/userLayout";
-import ErrorPage from "./pages/errorPage";
-import SearchPage from "./pages/searchPage";
+import ErrorPage from "./pages/User/errorPage";
+import SearchPage from "./pages/User/searchPage";
 import { useState } from "react";
-import IntroScreen from "./pages/introPage";
-import SearchTicket from "./pages/searchTicket";
+import IntroScreen from "./pages/User/introPage";
+import SearchTicket from "./pages/User/searchTicket";
 import SignPage from "./pages/auth/signPage";
-import InformationCheckoutPage from "./pages/informationCheckoutPage";
-import MethodCheckoutPage from "./pages/methodCheckoutPage";
-import PaymentSuccess from "./pages/paymentSucces";
-import BecomePartnerPage from "./pages/partner";
+import InformationCheckoutPage from "./pages/User/informationCheckoutPage";
+import MethodCheckoutPage from "./pages/User/methodCheckoutPage";
+import PaymentSuccess from "./pages/User/paymentSucces";
+import BecomePartnerPage from "./pages/User/partner";
 import { useAuthInitialize } from "./hooks/useAuthInitialize";
 import { RequireGuest } from "./components/common/ProtectedRoute";
 import RequireUser from "./components/common/RequireUser";
 import RequireAdmin from "./components/common/RequireAdmin";
 import AdminLayout from "./components/admin/AdminLayout";
 import AdminHome from "./components/admin/AdminHome";
-import CheckoutPage from "./pages/CheckoutPage";
+import CheckoutPage from "./pages/User/CheckoutPage";
+import { CustomersPage } from "./pages/Admin/customer/customersPage";
 
 function App() {
   const location = useLocation();
@@ -44,6 +45,8 @@ function App() {
               <AdminLayout />
             </RequireAdmin>
           }>
+          <Route index element={<AdminHome />} />
+          <Route path="customers" element={<CustomersPage />} />
           <Route index element={<AdminHome />} />
         </Route>
 

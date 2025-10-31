@@ -25,8 +25,8 @@ import { Calendar } from "../ui/calendar";
 import { vi } from "date-fns/locale/vi";
 import { useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { fetchTrips } from "@/redux/slices/tripSlice";
-import { fetchCities } from "@/redux/slices/citySlice";
+import { fetchTrips } from "@/redux/thunks/tripThunks";
+import { fetchCities } from "@/redux/thunks/cityThunks";
 
 interface SearchFormProps {
   className?: string;

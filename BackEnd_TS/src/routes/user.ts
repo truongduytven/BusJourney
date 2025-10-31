@@ -1,11 +1,14 @@
 import { Router } from 'express';
-import { User } from '../models/User';
-
 const router = Router();
+import userController from '../controllers/user';
+import { authenticateToken, requireAdmin } from '../middlewares/authMiddleware';
 
-router.get('/', async (req, res) => {
-  const users = await User.query();
-  res.json(users);
-});
+/**
+ * @swagger
+ * tags:
+ *   name: Trips
+ *   description: Trip search and management endpoints
+ */
+router.get('/:roleName', authenticateToken, requireAdmin, userController.getListUsers);
 
 export default router;

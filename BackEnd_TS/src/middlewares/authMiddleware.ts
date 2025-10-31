@@ -1,5 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
+import Account from '../models/Accounts';
+import Role from '../models/Role';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
@@ -59,7 +61,7 @@ export const authenticateToken = (req: Request, res: Response, next: NextFunctio
 /**
  * Middleware kiểm tra role admin
  */
-export const requireAdmin = (req: Request, res: Response, next: NextFunction) => {
+export const requireAdmin = async (req: Request, res: Response, next: NextFunction) => {
   if (!req.user) {
     return res.status(401).json({
       success: false,
@@ -67,9 +69,9 @@ export const requireAdmin = (req: Request, res: Response, next: NextFunction) =>
     });
   }
 
-  // Giả sử roleId của admin là 'admin' hoặc '1'
-  // Bạn có thể thay đổi logic này theo cấu trúc role của bạn
-  if (req.user.roleId !== 'admin' && req.user.roleId !== '1') {
+  const roleAccount = await Role.query().findOne({ id: req.user.roleId });
+
+  if (roleAccount?.name !== 'admin') {
     return res.status(403).json({
       success: false,
       message: 'Admin access required'
