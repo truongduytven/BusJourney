@@ -1,10 +1,20 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
-import type { UserPayload, UserResponse } from "@/types/user";
+import type { UserPayload, UserResponse, Role, CreateUserPayload, UpdateUserPayload, UserDataResponse } from "@/types/user";
 
 export interface ResponseData {
   message: string;
   data: UserResponse;
+}
+
+export interface RoleResponseData {
+  message: string;
+  data: Role[];
+}
+
+export interface UserResponseData {
+  message: string;
+  data: UserDataResponse;
 }
 
 export const fetchUsers = createAsyncThunk<
@@ -36,6 +46,89 @@ export const fetchUsers = createAsyncThunk<
       return response.data.data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data || "Fetch users failed");
+    }
+  }
+);
+
+export const fetchRoles = createAsyncThunk<Role[]>(
+  "users/fetchRoles",
+  async (_, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem("authToken");
+      
+      if(!token) throw new Error("No token found");
+      
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+      
+      const response = await axios.get<RoleResponseData>(`${import.meta.env.VITE_API_URL}/roles`);
+      return response.data.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data || "Fetch roles failed");
+    }
+  }
+);
+
+export const createUser = createAsyncThunk<UserDataResponse, CreateUserPayload>(
+  "users/create",
+  async (payload: CreateUserPayload, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem("authToken");
+      
+      if(!token) throw new Error("No token found");
+      
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+      
+      const response = await axios.post<UserResponseData>(
+        `${import.meta.env.VITE_API_URL}/users`,
+        payload
+      );
+      return response.data.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data || "Create user failed");
+    }
+  }
+);
+
+export const getUserById = createAsyncThunk<UserDataResponse, string>(
+  "users/getById",
+  async (id: string, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem("authToken");
+      
+      if(!token) throw new Error("No token found");
+      
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+      
+      const response = await axios.get<UserResponseData>(
+        `${import.meta.env.VITE_API_URL}/users/${id}`
+      );
+      return response.data.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data || "Fetch user failed");
+    }
+  }
+);
+
+export const updateUser = createAsyncThunk<
+  UserDataResponse,
+  { id: string; data: UpdateUserPayload }
+>(
+  "users/update",
+  async ({ id, data }, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem("authToken");
+      
+      if(!token) throw new Error("No token found");
+      
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+      
+      const response = await axios.put<UserResponseData>(
+        `${import.meta.env.VITE_API_URL}/users/${id}`,
+        data
+      );
+      return response.data.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data || "Update user failed");
     }
   }
 );

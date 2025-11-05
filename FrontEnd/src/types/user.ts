@@ -31,3 +31,49 @@ export interface UserResponse {
   pageSize: number;
   totalUsers: number;  
 }
+
+export interface Role {
+  id: string;
+  name: string;
+}
+
+export interface CreateUserPayload {
+  name: string;
+  email: string;
+  password: string;
+  phone?: string;
+  roleId: string;
+  isVerified?: boolean;
+  isActive?: boolean;
+}
+
+export interface UpdateUserPayload {
+  name?: string;
+  phone?: string;
+  roleId?: string;
+  isVerified?: boolean;
+  isActive?: boolean;
+}
+
+export interface Role {
+  id: string;
+  name: string;
+}
+
+export interface CreateUserPayload {
+  name: string;
+  email: string;
+  password: string;
+  phone?: string;
+  roleId: string;
+  isVerified?: boolean;
+  isActive?: boolean;
+}
+
+export interface UpdateUserPayload {
+  name?: string;
+  phone?: string;
+  roleId?: string;
+  isVerified?: boolean;
+  isActive?: boolean;
+}

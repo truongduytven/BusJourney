@@ -1,6 +1,7 @@
 import * as React from "react";
 import { Input } from "@/components/ui/input";
-import { Search } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Search, UserPlus } from "lucide-react";
 import type {
   ColumnDef,
   SortingState,
@@ -45,6 +46,7 @@ interface DataTableProps<TData, TValue> {
   onPageSizeChange: (pageSize: number) => void;
   searchQuery: string;
   onSearchChange: (search: string) => void;
+  onCreateUser: () => void;
 }
 
 export function DataTable<TData, TValue>({
@@ -62,6 +64,7 @@ export function DataTable<TData, TValue>({
   onPageSizeChange,
   searchQuery,
   onSearchChange,
+  onCreateUser,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -91,7 +94,7 @@ export function DataTable<TData, TValue>({
 
   return (
     <div>
-      <div className="flex flex-wrap items-center gap-2 py-4">
+      <div className="flex flex-wrap items-center gap-2 py-5">
         {/* Search input with debounce */}
         <div className="relative max-w-xs w-full">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
@@ -103,7 +106,7 @@ export function DataTable<TData, TValue>({
           />
         </div>
 
-        <div className="ml-auto flex gap-2">
+        <div className="ml-auto flex gap-4">
           <DataTableAdvancedFilters
             selectedRole={selectedRole}
             accountType={accountType}
@@ -116,6 +119,10 @@ export function DataTable<TData, TValue>({
             onReset={onResetFilters}
           />
           <DataTableViewOptions table={table} />
+          <Button onClick={onCreateUser} size="sm" className="h-8 gap-2">
+            <UserPlus className="h-4 w-4" />
+            <span>Thêm người dùng</span>
+          </Button>
         </div>
       </div>
       <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">

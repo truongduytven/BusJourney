@@ -1,5 +1,6 @@
 import Account from '../models/Accounts';
 import Role from '../models/Role';
+import bcrypt from 'bcrypt';
 
 export interface getListUsersPayload {
   roleName?: string;
@@ -87,6 +88,115 @@ class UserService {
       pageSize,
       totalUsers
     };
+  }
+
+  async createUser(data: {
+    name: string;
+    email: string;
+    password: string;
+    phone?: string;
+    roleId: string;
+    isVerified?: boolean;
+    isActive?: boolean;
+  }) {
+    // Check if email already exists
+    const existingUser = await Account.query().findOne({ email: data.email });
+    
+    if (existingUser) {
+      throw new Error('Email already exists');
+    }
+
+    // Check if role exists
+    const role = await Role.query().findById(data.roleId);
+    if (!role) {
+      throw new Error('Role not found');
+    }
+
+    // Hash password
+    const hashedPassword = await bcrypt.hash(data.password, 10);
+
+    // Create user
+    const newUser = await Account.query()
+      .insert({
+        name: data.name,
+        email: data.email,
+        password: hashedPassword,
+        phone: data.phone,
+        role_id: data.roleId,
+        type: 'normal',
+        is_verified: data.isVerified ?? false,
+        is_active: data.isActive ?? true
+      })
+      .returning('*');
+
+    // Fetch with role relation
+    const userWithRole = await Account.query()
+      .findById(newUser.id)
+      .withGraphFetched('roles')
+      .modifyGraph('roles', (builder) => {
+        builder.select('id', 'name');
+      });
+
+    return userWithRole;
+  }
+
+  async getUserById(id: string) {
+    const user = await Account.query()
+      .findById(id)
+      .withGraphFetched('roles')
+      .modifyGraph('roles', (builder) => {
+        builder.select('id', 'name');
+      });
+
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    return user;
+  }
+
+  async updateUser(id: string, data: {
+    name?: string;
+    phone?: string;
+    roleId?: string;
+    isVerified?: boolean;
+    isActive?: boolean;
+  }) {
+    const user = await Account.query().findById(id);
+    
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    // If roleId is provided, check if it exists
+    if (data.roleId) {
+      const role = await Role.query().findById(data.roleId);
+      if (!role) {
+        throw new Error('Role not found');
+      }
+    }
+
+    // Update user
+    const updateData: any = {};
+    if (data.name !== undefined) updateData.name = data.name;
+    if (data.phone !== undefined) updateData.phone = data.phone;
+    if (data.roleId !== undefined) updateData.role_id = data.roleId;
+    if (data.isVerified !== undefined) updateData.is_verified = data.isVerified;
+    if (data.isActive !== undefined) updateData.is_active = data.isActive;
+
+    await Account.query()
+      .findById(id)
+      .patch(updateData);
+
+    // Fetch updated user with role
+    const updatedUser = await Account.query()
+      .findById(id)
+      .withGraphFetched('roles')
+      .modifyGraph('roles', (builder) => {
+        builder.select('id', 'name');
+      });
+
+    return updatedUser;
   }
 }
 

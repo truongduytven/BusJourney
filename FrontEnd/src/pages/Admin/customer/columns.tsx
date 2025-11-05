@@ -25,7 +25,13 @@ import {
 } from "lucide-react";
 import { DataTableColumnHeader } from "@/components/table/data-table-column-header";
 
-export const columns: ColumnDef<UserDataResponse>[] = [
+interface ColumnActions {
+  onView: (userId: string) => void;
+  onEdit: (userId: string) => void;
+  onToggleActive: (userId: string, isActive: boolean) => void;
+}
+
+export const createColumns = (actions: ColumnActions): ColumnDef<UserDataResponse>[] => [
   {
     id: "select",
     header: ({ table }) => (
@@ -224,19 +230,28 @@ export const columns: ColumnDef<UserDataResponse>[] = [
               <span>Sao chép ID</span>
             </DropdownMenuItem>
             
-            <DropdownMenuItem className="cursor-pointer group">
+            <DropdownMenuItem 
+              onClick={() => actions.onView(user.id)}
+              className="cursor-pointer group"
+            >
               <BookUser className="mr-2 h-4 w-4 text-slate-500 group-hover:text-green-600" />
               <span>Xem chi tiết</span>
             </DropdownMenuItem>
             
-            <DropdownMenuItem className="cursor-pointer group">
+            <DropdownMenuItem 
+              onClick={() => actions.onEdit(user.id)}
+              className="cursor-pointer group"
+            >
               <Edit className="mr-2 h-4 w-4 text-slate-500 group-hover:text-amber-600" />
               <span>Chỉnh sửa</span>
             </DropdownMenuItem>
             
             <DropdownMenuSeparator />
             
-            <DropdownMenuItem className="cursor-pointer group">
+            <DropdownMenuItem 
+              onClick={() => actions.onToggleActive(user.id, isActive)}
+              className="cursor-pointer group"
+            >
               {isActive ? (
                 <>
                   <UserLock className="mr-2 h-4 w-4 text-slate-500 group-hover:text-red-600" />

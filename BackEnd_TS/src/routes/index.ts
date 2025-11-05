@@ -7,9 +7,11 @@ import ticketRouter from './ticket';
 import couponRouter from './coupon';
 import paymentRouter from './payment';
 import userRouter from './user';
+import roleRouter from './role';
 
 router.use('/auth', authRouter);
 router.use('/users', userRouter);
+router.use('/roles', roleRouter);
 router.use('/cities', cityRouter);
 // router.use('/locations', localRouter);
 // router.use('/routes', routeTripRouter);

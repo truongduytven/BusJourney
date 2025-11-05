@@ -1,12 +1,13 @@
 import type { RootState, AppDispatch } from "@/redux/store";
 import { useDispatch, useSelector } from "react-redux";
 import { DataTable } from "./data-table";
-import { columns } from "./columns";
-import { fetchUsers } from "@/redux/thunks/userThunks";
-import { useEffect, useState } from "react";
+import { createColumns } from "./columns";
+import { fetchUsers, updateUser } from "@/redux/thunks/userThunks";
+import { useEffect, useState, useMemo } from "react";
 import type { PaginationData } from "@/types";
 import type { UserDataResponse } from "@/types/user";
 import { useDebounce } from "@/hooks/useDebounce";
+import { UserModal } from "./user-modal";
 
 export const CustomersPage = () => {
   const { list } = useSelector((state: RootState) => state.users);
@@ -20,8 +21,13 @@ export const CustomersPage = () => {
   const [pageSize, setPageSize] = useState(10);
   const [searchQuery, setSearchQuery] = useState<string>("");
   
+  // Modal state
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalMode, setModalMode] = useState<"create" | "edit" | "view">("create");
+  const [selectedUserId, setSelectedUserId] = useState<string | undefined>();
+  
   // Debounce search query with 2 seconds delay
-  const debouncedSearch = useDebounce(searchQuery, 1500);
+  const debouncedSearch = useDebounce(searchQuery, 2000);
 
   const paginationData: PaginationData = {
     totalPage: list.totalPage,
@@ -90,6 +96,69 @@ export const CustomersPage = () => {
     setCurrentPage(1); // Reset to first page when searching
   };
 
+  const handleOpenCreateModal = () => {
+    setModalMode("create");
+    setSelectedUserId(undefined);
+    setModalOpen(true);
+  };
+
+  const handleViewUser = (userId: string) => {
+    setModalMode("view");
+    setSelectedUserId(userId);
+    setModalOpen(true);
+  };
+
+  const handleEditUser = (userId: string) => {
+    setModalMode("edit");
+    setSelectedUserId(userId);
+    setModalOpen(true);
+  };
+
+  const handleToggleActive = async (userId: string, currentIsActive: boolean) => {
+    try {
+      await dispatch(updateUser({
+        id: userId,
+        data: { isActive: !currentIsActive }
+      })).unwrap();
+      
+      // Refresh user list
+      refetchUsers();
+    } catch (error) {
+      console.error("Failed to toggle user active status:", error);
+    }
+  };
+
+  const refetchUsers = () => {
+    const roleName = selectedRole === "all" ? undefined : selectedRole;
+    const type = accountType === "all" ? undefined : accountType;
+    const verified = isVerified === "all" ? undefined : isVerified === "true";
+    const active = isActive === "all" ? undefined : isActive === "true";
+
+    dispatch(fetchUsers({ 
+      roleName, 
+      type,
+      isVerified: verified,
+      isActive: active,
+      search: debouncedSearch || undefined,
+      pageSize, 
+      pageNumber: currentPage 
+    }));
+  };
+
+  const handleModalSuccess = () => {
+    refetchUsers();
+  };
+
+  // Create columns with action handlers
+  const columns = useMemo(
+    () => createColumns({
+      onView: handleViewUser,
+      onEdit: handleEditUser,
+      onToggleActive: handleToggleActive,
+    }),
+    []
+  );
+
   return (
     <div className="container mx-auto py-4 flex flex-col">
       <div className="mb-10 text-2xl font-semibold tracking-tight">
@@ -111,6 +180,15 @@ export const CustomersPage = () => {
         onPageSizeChange={handlePageSizeChange}
         searchQuery={searchQuery}
         onSearchChange={handleSearchChange}
+        onCreateUser={handleOpenCreateModal}
+      />
+      
+      <UserModal
+        open={modalOpen}
+        onOpenChange={setModalOpen}
+        mode={modalMode}
+        userId={selectedUserId}
+        onSuccess={handleModalSuccess}
       />
     </div>
   );
