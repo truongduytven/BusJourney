@@ -2,12 +2,22 @@ import type { RootState, AppDispatch } from "@/redux/store";
 import { useDispatch, useSelector } from "react-redux";
 import { DataTable } from "./data-table";
 import { createColumns } from "./columns";
-import { fetchUsers, updateUser } from "@/redux/thunks/userThunks";
+import { fetchUsers, updateUser, bulkToggleActive } from "@/redux/thunks/userThunks";
 import { useEffect, useState, useMemo } from "react";
 import type { PaginationData } from "@/types";
 import type { UserDataResponse } from "@/types/user";
 import { useDebounce } from "@/hooks/useDebounce";
 import { UserModal } from "./user-modal";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export const CustomersPage = () => {
   const { list } = useSelector((state: RootState) => state.users);
@@ -25,6 +35,19 @@ export const CustomersPage = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<"create" | "edit" | "view">("create");
   const [selectedUserId, setSelectedUserId] = useState<string | undefined>();
+  
+  // Confirm dialog state
+  const [confirmDialog, setConfirmDialog] = useState<{
+    open: boolean;
+    userId?: string;
+    currentStatus?: boolean;
+    title: string;
+    description: string;
+  }>({
+    open: false,
+    title: '',
+    description: '',
+  });
   
   // Debounce search query with 2 seconds delay
   const debouncedSearch = useDebounce(searchQuery, 2000);
@@ -114,17 +137,39 @@ export const CustomersPage = () => {
     setModalOpen(true);
   };
 
-  const handleToggleActive = async (userId: string, currentIsActive: boolean) => {
+  const handleToggleActive = (userId: string, currentIsActive: boolean) => {
+    setConfirmDialog({
+      open: true,
+      userId,
+      currentStatus: currentIsActive,
+      title: currentIsActive ? 'Xác nhận khóa tài khoản' : 'Xác nhận mở khóa tài khoản',
+      description: currentIsActive 
+        ? 'Bạn có chắc chắn muốn khóa tài khoản này? Người dùng sẽ không thể đăng nhập vào hệ thống.'
+        : 'Bạn có chắc chắn muốn mở khóa tài khoản này? Người dùng sẽ có thể đăng nhập lại.',
+    });
+  };
+
+  const handleConfirmToggleActive = async () => {
+    setConfirmDialog({ open: false, title: '', description: '' });
+    if (confirmDialog.userId && confirmDialog.currentStatus !== undefined) {
+      try {
+        await dispatch(updateUser({
+          id: confirmDialog.userId,
+          data: { isActive: !confirmDialog.currentStatus }
+        })).unwrap();
+        refetchUsers();
+      } catch (error) {
+        console.error("Failed to toggle user active status:", error);
+      }
+    }
+  };
+
+  const handleBulkToggleActive = async (userIds: string[], isActive: boolean) => {
     try {
-      await dispatch(updateUser({
-        id: userId,
-        data: { isActive: !currentIsActive }
-      })).unwrap();
-      
-      // Refresh user list
+      await dispatch(bulkToggleActive({ userIds, isActive })).unwrap();
       refetchUsers();
     } catch (error) {
-      console.error("Failed to toggle user active status:", error);
+      console.error("Failed to bulk toggle active:", error);
     }
   };
 
@@ -181,6 +226,7 @@ export const CustomersPage = () => {
         searchQuery={searchQuery}
         onSearchChange={handleSearchChange}
         onCreateUser={handleOpenCreateModal}
+        onBulkToggleActive={handleBulkToggleActive}
       />
       
       <UserModal
@@ -190,6 +236,26 @@ export const CustomersPage = () => {
         userId={selectedUserId}
         onSuccess={handleModalSuccess}
       />
+      
+      {/* Confirmation Dialog */}
+      <AlertDialog open={confirmDialog.open} onOpenChange={(open) => !open && setConfirmDialog({ open: false, title: '', description: '' })}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{confirmDialog.title}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {confirmDialog.description}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setConfirmDialog({ open: false, title: '', description: '' })}>
+              Hủy
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmToggleActive}>
+              Xác nhận
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

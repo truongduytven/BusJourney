@@ -100,6 +100,9 @@ class UserController {
         })
       }
 
+      // Get current logged-in user ID
+      const currentUserId = req.user?.accountId;
+
       // Convert boolean strings to boolean
       const isVerifiedBool = isVerified === 'true' ? true : isVerified === 'false' ? false : undefined;
       const isActiveBool = isActive === 'true' ? true : isActive === 'false' ? false : undefined;
@@ -110,6 +113,7 @@ class UserController {
         isVerified: isVerifiedBool,
         isActive: isActiveBool,
         search: search as string | undefined,
+        excludeUserId: currentUserId, // Exclude current logged-in user
         pageNumber: Number(pageNumber),
         pageSize: Number(pageSize)
       })
@@ -311,6 +315,66 @@ class UserController {
           message: err.message
         });
       }
+      res.status(500).json({
+        error: err.message,
+        message: 'Lỗi hệ thống'
+      });
+    }
+  }
+
+  /**
+   * @openapi
+   * /users/bulk-toggle-active:
+   *   put:
+   *     summary: Toggle active status for multiple users
+   *     tags: [Users]
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             required:
+   *               - userIds
+   *               - isActive
+   *             properties:
+   *               userIds:
+   *                 type: array
+   *                 items:
+   *                   type: string
+   *               isActive:
+   *                 type: boolean
+   *     responses:
+   *       200:
+   *         description: Users updated successfully
+   *       400:
+   *         description: Invalid input
+   *       500:
+   *         description: Server error
+   */
+  async bulkToggleActive(req: Request, res: Response) {
+    try {
+      const { userIds, isActive } = req.body;
+
+      if (!userIds || !Array.isArray(userIds) || userIds.length === 0) {
+        return res.status(400).json({
+          message: 'userIds là bắt buộc và phải là một mảng không rỗng'
+        });
+      }
+
+      if (typeof isActive !== 'boolean') {
+        return res.status(400).json({
+          message: 'isActive là bắt buộc và phải là boolean'
+        });
+      }
+
+      const result = await UserService.bulkToggleActive(userIds, isActive);
+
+      res.json({
+        message: `Đã ${isActive ? 'mở khóa' : 'khóa'} ${result} tài khoản thành công`,
+        data: { updatedCount: result }
+      });
+    } catch (err: any) {
       res.status(500).json({
         error: err.message,
         message: 'Lỗi hệ thống'

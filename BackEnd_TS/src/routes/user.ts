@@ -11,6 +11,7 @@ import { authenticateToken, requireAdmin } from '../middlewares/authMiddleware';
  */
 router.get('/', authenticateToken, requireAdmin, userController.getListUsers);
 router.post('/', authenticateToken, requireAdmin, userController.createUser);
+router.put('/bulk-toggle-active', authenticateToken, requireAdmin, userController.bulkToggleActive);
 router.get('/:id', authenticateToken, requireAdmin, userController.getUserById);
 router.put('/:id', authenticateToken, requireAdmin, userController.updateUser);
 

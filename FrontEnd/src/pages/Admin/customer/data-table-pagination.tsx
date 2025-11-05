@@ -99,10 +99,10 @@ export function DataTablePagination<TData>({
           {selectedCount > 0 && (
             <div className="flex items-center gap-2">
               <Button
-                variant="destructive"
+                variant="outline"
                 size="sm"
                 onClick={handleConfirmLock}
-                className="h-8 gap-2"
+                className="h-8 gap-2 border-gray-400"
               >
                 <UserX className="h-4 w-4" />
                 Khóa đã chọn
@@ -111,7 +111,7 @@ export function DataTablePagination<TData>({
                 variant="outline"
                 size="sm"
                 onClick={handleConfirmExport}
-                className="h-8 gap-2"
+                className="h-8 gap-2 border-gray-400"
               >
                 <FileSpreadsheet className="h-4 w-4" />
                 Xuất Excel

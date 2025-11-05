@@ -132,3 +132,27 @@ export const updateUser = createAsyncThunk<
     }
   }
 );
+
+export const bulkToggleActive = createAsyncThunk<
+  { updatedCount: number },
+  { userIds: string[]; isActive: boolean }
+>(
+  "users/bulkToggleActive",
+  async ({ userIds, isActive }, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem("authToken");
+      
+      if(!token) throw new Error("No token found");
+      
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+      
+      const response = await axios.put<{ message: string; data: { updatedCount: number } }>(
+        `${import.meta.env.VITE_API_URL}/users/bulk-toggle-active`,
+        { userIds, isActive }
+      );
+      return response.data.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data || "Bulk toggle active failed");
+    }
+  }
+);

@@ -2,6 +2,8 @@ import * as React from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search, UserPlus } from "lucide-react";
+import * as XLSX from 'xlsx';
+import type { UserDataResponse } from "@/types/user";
 import type {
   ColumnDef,
   SortingState,
@@ -26,7 +28,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import type { PaginationData } from "@/types";
-import { DataTablePagination } from "@/components/table/data-table-pagination";
+import { DataTablePagination } from "@/pages/Admin/customer/data-table-pagination";
 import { DataTableViewOptions } from "@/pages/Admin/customer/data-table-view-option";
 import { DataTableAdvancedFilters } from "@/pages/Admin/customer/data-table-advanced-filters";
 
@@ -47,6 +49,7 @@ interface DataTableProps<TData, TValue> {
   searchQuery: string;
   onSearchChange: (search: string) => void;
   onCreateUser: () => void;
+  onBulkToggleActive: (userIds: string[], isActive: boolean) => void;
 }
 
 export function DataTable<TData, TValue>({
@@ -65,6 +68,7 @@ export function DataTable<TData, TValue>({
   searchQuery,
   onSearchChange,
   onCreateUser,
+  onBulkToggleActive,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -73,6 +77,7 @@ export function DataTable<TData, TValue>({
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
+  
   const table = useReactTable({
     data,
     columns,
@@ -91,6 +96,58 @@ export function DataTable<TData, TValue>({
       rowSelection,
     },
   });
+
+  const selectedRows = table.getFilteredSelectedRowModel().rows;
+  const selectedCount = selectedRows.length;
+  
+  // Get selected user IDs
+  const getSelectedUserIds = (): string[] => {
+    return selectedRows.map(row => (row.original as UserDataResponse).id);
+  };
+
+  // Export selected rows to Excel
+  const handleExportExcel = () => {
+    if (selectedCount === 0) return;
+
+    const exportData = selectedRows.map(row => {
+      const user = row.original as UserDataResponse;
+      return {
+        'Tên': user.name,
+        'Email': user.email,
+        'Số điện thoại': user.phone || 'N/A',
+        'Vai trò': user.roles?.name || 'N/A',
+        'Loại tài khoản': user.type === 'google' ? 'Google' : 'Tài khoản thường',
+        'Đã xác thực': user.isVerified ? 'Có' : 'Không',
+        'Trạng thái': user.isActive ? 'Hoạt động' : 'Đã khóa',
+      };
+    });
+
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Users');
+    
+    // Auto-size columns
+    const maxWidth = 50;
+    const colWidths = Object.keys(exportData[0] || {}).map(key => ({
+      wch: Math.min(
+        Math.max(
+          key.length,
+          ...exportData.map(row => String(row[key as keyof typeof row]).length)
+        ),
+        maxWidth
+      )
+    }));
+    ws['!cols'] = colWidths;
+    
+    XLSX.writeFile(wb, `danh-sach-nguoi-dung-${new Date().toISOString().split('T')[0]}.xlsx`);
+  };
+
+  // Handle bulk lock/unlock
+  const handleBulkToggleActive = (isActive: boolean) => {
+    const userIds = getSelectedUserIds();
+    onBulkToggleActive(userIds, isActive);
+    setRowSelection({});
+  };
 
   return (
     <div>
@@ -187,7 +244,15 @@ export function DataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      <DataTablePagination table={table} onPageSizeChange={onPageSizeChange} />
+      
+      <DataTablePagination 
+        table={table} 
+        onPageSizeChange={onPageSizeChange}
+        selectedCount={selectedCount}
+        totalRows={table.getFilteredRowModel().rows.length}
+        onBulkToggleActive={handleBulkToggleActive}
+        onExportExcel={handleExportExcel}
+      />
     </div>
   );
 }

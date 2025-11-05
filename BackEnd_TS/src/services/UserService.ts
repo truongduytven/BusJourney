@@ -8,6 +8,7 @@ export interface getListUsersPayload {
   isVerified?: boolean; // Verification status filter
   isActive?: boolean; // Active status filter
   search?: string; // Search by email or name
+  excludeUserId?: string; // Exclude user by ID (for current logged-in user)
   pageNumber: number;
   pageSize: number;
 }
@@ -22,7 +23,7 @@ export interface UserListResponse {
 
 class UserService {
   async getListUsers(payload: getListUsersPayload): Promise<UserListResponse> {
-    const { roleName, type, isVerified, isActive, search, pageNumber, pageSize } = payload;
+    const { roleName, type, isVerified, isActive, search, excludeUserId, pageNumber, pageSize } = payload;
 
     const offset = (pageNumber - 1) * pageSize;
 
@@ -33,6 +34,11 @@ class UserService {
       .modifyGraph('roles', (builder) => {
         builder.select('id', 'name');
       });
+
+    // Exclude current logged-in user
+    if (excludeUserId) {
+      query = query.whereNot('accounts.id', excludeUserId);
+    }
 
     // If roleName is provided, filter by role
     if (roleName) {
@@ -122,10 +128,10 @@ class UserService {
         email: data.email,
         password: hashedPassword,
         phone: data.phone,
-        role_id: data.roleId,
+        roleId: data.roleId,
         type: 'normal',
-        is_verified: data.isVerified ?? false,
-        is_active: data.isActive ?? true
+        isVerified: data.isVerified ?? false,
+        isActive: data.isActive ?? true
       })
       .returning('*');
 
@@ -197,6 +203,15 @@ class UserService {
       });
 
     return updatedUser;
+  }
+
+  async bulkToggleActive(userIds: string[], isActive: boolean): Promise<number> {
+    // Update multiple users at once
+    const result = await Account.query()
+      .whereIn('id', userIds)
+      .patch({ isActive: isActive });
+
+    return result;
   }
 }
 

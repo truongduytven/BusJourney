@@ -1,6 +1,6 @@
 import type { UserResponse, Role } from "@/types/user";
 import { createSlice } from "@reduxjs/toolkit";
-import { fetchUsers, fetchRoles, createUser, updateUser } from "../thunks/userThunks";
+import { fetchUsers, fetchRoles, createUser, updateUser, bulkToggleActive } from "../thunks/userThunks";
 import { toast } from "sonner";
 
 interface ListUser {
@@ -64,6 +64,14 @@ const userSlice = createSlice({
       .addCase(updateUser.rejected, (state, action) => {
         const error = action.payload as any;
         toast.error(error?.message || "Lỗi khi cập nhật người dùng");
+      })
+      // Bulk Toggle Active
+      .addCase(bulkToggleActive.fulfilled, (state, action) => {
+        toast.success(`Đã cập nhật ${action.payload.updatedCount} tài khoản`);
+      })
+      .addCase(bulkToggleActive.rejected, (state, action) => {
+        const error = action.payload as any;
+        toast.error(error?.message || "Lỗi khi cập nhật tài khoản");
       });
   },
 });
