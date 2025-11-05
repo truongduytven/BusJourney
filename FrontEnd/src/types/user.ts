@@ -1,5 +1,9 @@
 export interface UserPayload {
-  roleName: string;
+  roleName?: string;
+  type?: string; // Account type filter
+  isVerified?: boolean; // Verification status filter
+  isActive?: boolean; // Active status filter
+  search?: string; // Search by email or name
   pageSize: number;
   pageNumber: number;
 }
@@ -11,7 +15,11 @@ export interface UserDataResponse {
   phone: string | null;
   avatar: string | null;
   type: string;
-  address: string | null;
+  roleName?: string; // Role name from relation
+  roles?: {
+    id: string;
+    name: string;
+  };
   isVerified: boolean;
   isActive: boolean;
 }

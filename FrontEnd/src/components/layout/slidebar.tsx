@@ -56,6 +56,11 @@ const menuItems: MenuItem[] = [
   {
     label: "Người dùng",
     icon: SquareUser,
+    path: "/admin/users",
+  },
+  {
+    label: "Chuyến xe",
+    icon: SquareUser,
     children: [
       { label: "Khách hàng", icon: CircleUserRound, path: "/admin/customers" },
       { label: "Nhà xe", icon: Building2, path: "/admin/companies" },

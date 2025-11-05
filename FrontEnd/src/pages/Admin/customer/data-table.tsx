@@ -1,5 +1,6 @@
 import * as React from "react";
 import { Input } from "@/components/ui/input";
+import { Search } from "lucide-react";
 import type {
   ColumnDef,
   SortingState,
@@ -25,17 +26,42 @@ import {
 } from "@/components/ui/table";
 import type { PaginationData } from "@/types";
 import { DataTablePagination } from "@/components/table/data-table-pagination";
-import { DataTableViewOptions } from "@/components/table/data-table-view-option";
+import { DataTableViewOptions } from "@/pages/Admin/customer/data-table-view-option";
+import { DataTableAdvancedFilters } from "@/pages/Admin/customer/data-table-advanced-filters";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   pagination: PaginationData;
+  selectedRole: string;
+  onRoleChange: (role: string) => void;
+  accountType: string;
+  isVerified: string;
+  isActive: string;
+  onAccountTypeChange: (type: string) => void;
+  onIsVerifiedChange: (verified: string) => void;
+  onIsActiveChange: (active: string) => void;
+  onResetFilters: () => void;
+  onPageSizeChange: (pageSize: number) => void;
+  searchQuery: string;
+  onSearchChange: (search: string) => void;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
+  selectedRole,
+  onRoleChange,
+  accountType,
+  isVerified,
+  isActive,
+  onAccountTypeChange,
+  onIsVerifiedChange,
+  onIsActiveChange,
+  onResetFilters,
+  onPageSizeChange,
+  searchQuery,
+  onSearchChange,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -66,17 +92,29 @@ export function DataTable<TData, TValue>({
   return (
     <div>
       <div className="flex flex-wrap items-center gap-2 py-4">
-        {/* Search input */}
-        <Input
-          placeholder="Tìm kiếm theo email..."
-          value={(table.getColumn("email")?.getFilterValue() as string) ?? ""}
-          onChange={(event) =>
-            table.getColumn("email")?.setFilterValue(event.target.value)
-          }
-          className="max-w-sm"
-        />
+        {/* Search input with debounce */}
+        <div className="relative max-w-xs w-full">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+          <Input
+            placeholder="Tìm kiếm theo email hoặc tên..."
+            value={searchQuery}
+            onChange={(event) => onSearchChange(event.target.value)}
+            className="pl-9 focus-visible:ring-1"
+          />
+        </div>
 
-        <div className="ml-auto">
+        <div className="ml-auto flex gap-2">
+          <DataTableAdvancedFilters
+            selectedRole={selectedRole}
+            accountType={accountType}
+            isVerified={isVerified}
+            isActive={isActive}
+            onRoleChange={onRoleChange}
+            onAccountTypeChange={onAccountTypeChange}
+            onIsVerifiedChange={onIsVerifiedChange}
+            onIsActiveChange={onIsActiveChange}
+            onReset={onResetFilters}
+          />
           <DataTableViewOptions table={table} />
         </div>
       </div>
@@ -142,7 +180,7 @@ export function DataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      <DataTablePagination table={table} />
+      <DataTablePagination table={table} onPageSizeChange={onPageSizeChange} />
     </div>
   );
 }

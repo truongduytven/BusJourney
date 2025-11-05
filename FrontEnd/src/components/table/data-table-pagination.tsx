@@ -17,10 +17,12 @@ import {
 
 interface DataTablePaginationProps<TData> {
   table: Table<TData>
+  onPageSizeChange?: (pageSize: number) => void
 }
 
 export function DataTablePagination<TData>({
   table,
+  onPageSizeChange,
 }: DataTablePaginationProps<TData>) {
   return (
     <div className="flex items-center justify-between px-2 mt-5">
@@ -34,10 +36,15 @@ export function DataTablePagination<TData>({
           <Select
             value={`${table.getState().pagination.pageSize}`}
             onValueChange={(value) => {
-              table.setPageSize(Number(value))
+              const newPageSize = Number(value);
+              table.setPageSize(newPageSize);
+              // Call the callback to trigger API refetch
+              if (onPageSizeChange) {
+                onPageSizeChange(newPageSize);
+              }
             }}
           >
-            <SelectTrigger className="h-8 w-[70px]">
+            <SelectTrigger className="h-8 w-[70px] border-gray-400 cursor-pointer">
               <SelectValue placeholder={table.getState().pagination.pageSize} />
             </SelectTrigger>
             <SelectContent side="top">

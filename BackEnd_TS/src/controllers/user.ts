@@ -4,28 +4,55 @@ import UserService from '../services/UserService'
 class UserController {
   /**
    * @openapi
-   * /users/{roleName}:
+   * /users:
    *   get:
-   *     summary: Get user list by role with pagination
+   *     summary: Get user list with optional filters and pagination
    *     tags: [Users]
    *     parameters:
-   *       - in: path
+   *       - in: query
    *         name: roleName
    *         schema:
    *           type: string
-   *         required: true
+   *         required: false
+   *         description: Optional role name to filter users (e.g., "admin", "customer", "driver")
+   *       - in: query
+   *         name: type
+   *         schema:
+   *           type: string
+   *         required: false
+   *         description: Account type filter (e.g., "local", "google")
+   *       - in: query
+   *         name: isVerified
+   *         schema:
+   *           type: boolean
+   *         required: false
+   *         description: Filter by verification status
+   *       - in: query
+   *         name: isActive
+   *         schema:
+   *           type: boolean
+   *         required: false
+   *         description: Filter by active status
+   *       - in: query
+   *         name: search
+   *         schema:
+   *           type: string
+   *         required: false
+   *         description: Search by email or name
    *       - in: query
    *         name: pageNumber
    *         schema:
    *           type: integer
    *           default: 1
    *         required: true
+   *         description: Page number (starts from 1)
    *       - in: query
    *         name: pageSize
    *         schema:
    *           type: integer
    *           default: 10
    *         required: true
+   *         description: Number of users per page
    *     responses:
    *       200:
    *         description: User list retrieved successfully
@@ -65,14 +92,7 @@ class UserController {
    */
   async getListUsers(req: Request, res: Response) {
     try {
-      const { roleName } = req.params
-      const { pageNumber, pageSize } = req.query
-
-      if (!roleName) {
-        return res.status(400).json({
-          message: 'Role name is required'
-        })
-      }
+      const { roleName, type, isVerified, isActive, search, pageNumber, pageSize } = req.query
 
       if (!pageNumber || !pageSize) {
         return res.status(400).json({
@@ -80,8 +100,16 @@ class UserController {
         })
       }
 
+      // Convert boolean strings to boolean
+      const isVerifiedBool = isVerified === 'true' ? true : isVerified === 'false' ? false : undefined;
+      const isActiveBool = isActive === 'true' ? true : isActive === 'false' ? false : undefined;
+
       const userResult = await UserService.getListUsers({
-        roleName,
+        roleName: roleName as string | undefined,
+        type: type as string | undefined,
+        isVerified: isVerifiedBool,
+        isActive: isActiveBool,
+        search: search as string | undefined,
         pageNumber: Number(pageNumber),
         pageSize: Number(pageSize)
       })

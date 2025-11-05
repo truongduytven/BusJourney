@@ -6,9 +6,9 @@ import { authenticateToken, requireAdmin } from '../middlewares/authMiddleware';
 /**
  * @swagger
  * tags:
- *   name: Trips
- *   description: Trip search and management endpoints
+ *   name: Users
+ *   description: User management endpoints
  */
-router.get('/:roleName', authenticateToken, requireAdmin, userController.getListUsers);
+router.get('/', authenticateToken, requireAdmin, userController.getListUsers);
 
 export default router;

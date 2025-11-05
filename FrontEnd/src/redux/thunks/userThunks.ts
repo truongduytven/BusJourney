@@ -14,19 +14,28 @@ export const fetchUsers = createAsyncThunk<
   "users/fetch",
   async (payload: UserPayload, { rejectWithValue }) => {
     try {
-      const { roleName, pageSize, pageNumber } = payload;
+      const { roleName, type, isVerified, isActive, search, pageSize, pageNumber } = payload;
       const token = localStorage.getItem("authToken");
       
       if(!token) throw new Error("No token found");
       
       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-      const response = await axios.get<ResponseData>(`${import.meta.env.VITE_API_URL}/users/${roleName}`, {
-        params: { pageSize, pageNumber },
+      
+      // Build params object, only include values if they're provided
+      const params: any = { pageSize, pageNumber };
+      if (roleName) params.roleName = roleName;
+      if (type) params.type = type;
+      if (isVerified !== undefined) params.isVerified = isVerified;
+      if (isActive !== undefined) params.isActive = isActive;
+      if (search) params.search = search;
+      
+      const response = await axios.get<ResponseData>(`${import.meta.env.VITE_API_URL}/users`, {
+        params,
       });
-      console.log(response)
+      console.log(response);
       return response.data.data;
     } catch (error: any) {
-      return rejectWithValue(error.response?.data || "Fetch trips failed");
+      return rejectWithValue(error.response?.data || "Fetch users failed");
     }
   }
 );

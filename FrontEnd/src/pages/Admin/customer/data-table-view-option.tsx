@@ -23,7 +23,7 @@ export function DataTableViewOptions<TData>({
       avatar: "Ảnh đại diện",
       email: "Email",
       phone: "Số điện thoại",
-      "roles.name": "Vai trò",
+      roles: "Vai trò",
       type: "Loại tài khoản",
       isVerified: "Xác thực",
       isActive: "Trạng thái",
@@ -37,7 +37,7 @@ export function DataTableViewOptions<TData>({
         <Button
           variant="outline"
           size="sm"
-          className="ml-auto hidden h-8 lg:flex border-gray-400"
+          className="hidden h-8 lg:flex border-gray-400 cursor-pointer"
         >
           <Settings2 />
           Hiển thị cột

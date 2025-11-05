@@ -46,8 +46,7 @@ function App() {
             </RequireAdmin>
           }>
           <Route index element={<AdminHome />} />
-          <Route path="customers" element={<CustomersPage />} />
-          <Route index element={<AdminHome />} />
+          <Route path="users" element={<CustomersPage />} />
         </Route>
 
         <Route element={<UserLayout />}>
