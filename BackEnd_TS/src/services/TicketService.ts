@@ -37,7 +37,8 @@ class TicketService {
           buses.[
             bus_companies,
             type_buses
-          ]
+          ],
+          tripPoints.point
         ],
         pickUpPoint,
         dropOffPoint
@@ -64,6 +65,14 @@ class TicketService {
         code: 'UNAUTHORIZED' 
       }
     }
+
+    // Tìm thông tin time cho pickup và dropoff point từ tripPoints
+    const pickupTripPoint = ticket.trip?.tripPoints?.find(
+      (tp: any) => tp.pointId === ticket.pickupPointId
+    )
+    const dropoffTripPoint = ticket.trip?.tripPoints?.find(
+      (tp: any) => tp.pointId === ticket.dropoffPointId
+    )
 
     // Chuẩn bị response data với đầy đủ thông tin
     const ticketInfo = {
@@ -153,19 +162,19 @@ class TicketService {
         createdAt: ticket.order.transaction.createdAt
       } : null,
 
-      // Điểm đón
+      // Điểm đón (với time từ trip_points)
       pickUpPoint: ticket.pickUpPoint ? {
         id: ticket.pickUpPoint.id,
         type: ticket.pickUpPoint.type,
-        time: ticket.pickUpPoint.time,
+        time: pickupTripPoint?.time || null,
         locationName: ticket.pickUpPoint.locationName
       } : null,
 
-      // Điểm trả
+      // Điểm trả (với time từ trip_points)
       dropOffPoint: ticket.dropOffPoint ? {
         id: ticket.dropOffPoint.id,
         type: ticket.dropOffPoint.type,
-        time: ticket.dropOffPoint.time,
+        time: dropoffTripPoint?.time || null,
         locationName: ticket.dropOffPoint.locationName
       } : null
     }

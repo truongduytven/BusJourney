@@ -15,6 +15,8 @@ import {
   SquareUser,
   Building2,
   LocateFixed,
+  MapPin,
+  MapPinned,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -61,10 +63,11 @@ const menuItems: MenuItem[] = [
   },
   {
     label: "Chuyến xe",
-    icon: SquareUser,
+    icon: MapPinned,
     children: [
       { label: "Thành phố", icon: Building2, path: "/admin/cities" },
       { label: "Địa điểm", icon: LocateFixed, path: "/admin/locations" },
+      { label: "Điểm đón/trả", icon: MapPin, path: "/admin/points" },
     ],
   },
   {

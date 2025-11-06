@@ -45,10 +45,10 @@ export default class Trip extends BaseModel implements ITrip {
             modelClass: () => require("./Reviews").default,
             join: { from: 'trips.id', to: 'reviews.trip_id' }
         },
-        point: {
+        tripPoints: {
             relation: Model.HasManyRelation,
-            modelClass: () => require("./Point").default,
-            join: { from: 'trips.id', to: 'points.trip_id' }
+            modelClass: () => require("./TripPoint").default,
+            join: { from: 'trips.id', to: 'trip_points.trip_id' }
         },
         ticket: {
             relation: Model.HasManyRelation,

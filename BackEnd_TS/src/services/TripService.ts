@@ -151,7 +151,7 @@ class TripService {
       .leftJoinRelated('review')
       .groupBy('t.id')
       .withGraphFetched('buses.bus_companies.coupons(activeCoupons)')
-      .withGraphFetched('[point]')
+      .withGraphFetched('[tripPoints.point]')
       .modifiers({
         activeCoupons(builder) {
           builder.where('status', 'active').where('valid_to', '>=', new Date()).where('valid_from', '<=', new Date())
@@ -176,17 +176,17 @@ class TripService {
         status: coupon.status
       })),
       points: {
-        startPoint: trip.point.filter((p) => p.type === 'pickup').map((p) => ({
-          id: p.id,
-          time: p.time,
-          type: p.type,
-          locationName: p.locationName
+        startPoint: trip.tripPoints.filter((tp) => tp.point.type === 'pickup').map((tp) => ({
+          id: tp.point.id,
+          time: tp.time,
+          type: tp.point.type,
+          locationName: tp.point.locationName
         })),
-        endPoint: trip.point.filter((p) => p.type === 'dropoff').map((p) => ({
-          id: p.id,
-          time: p.time,
-          type: p.type,
-          locationName: p.locationName
+        endPoint: trip.tripPoints.filter((tp) => tp.point.type === 'dropoff').map((tp) => ({
+          id: tp.point.id,
+          time: tp.time,
+          type: tp.point.type,
+          locationName: tp.point.locationName
         }))
       },
       rating: {
@@ -227,7 +227,7 @@ class TripService {
       .alias('t')
       .withGraphJoined('buses.[type_buses.[seat]]')
       .withGraphJoined('[ticket]')
-      .withGraphFetched('[point]')
+      .withGraphFetched('[tripPoints.point]')
       .where('t.id', tripId)
       .where('t.status', 'scheduled')
       .first()) as unknown as IGetListTrip
@@ -249,8 +249,18 @@ class TripService {
       seats: trip.buses.type_buses.seat,
       bookedSeats: trip.ticket.filter((r) => r.status === 'valid').map((t) => t.seatCode),
       points: {
-        startPoint: trip.point.filter((p) => p.type === 'pickup'),
-        endPoint: trip.point.filter((p) => p.type === 'dropoff')
+        startPoint: trip.tripPoints.filter((tp) => tp.point.type === 'pickup').map((tp) => ({
+          id: tp.point.id,
+          time: tp.time,
+          type: tp.point.type,
+          locationName: tp.point.locationName
+        })),
+        endPoint: trip.tripPoints.filter((tp) => tp.point.type === 'dropoff').map((tp) => ({
+          id: tp.point.id,
+          time: tp.time,
+          type: tp.point.type,
+          locationName: tp.point.locationName
+        }))
       }
     }
   }

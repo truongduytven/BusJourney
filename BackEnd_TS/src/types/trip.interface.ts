@@ -10,15 +10,20 @@ import { ILocation } from "../models/Location";
 import { ITrip } from "../models/Trip";
 import { ISeat } from "../models/Seat";
 import { ITicket } from "../models/Ticket";
+import { ITripPoint } from "../models/TripPoint";
 
 export interface ITripDetail {
     id: string;
     buses: IBusTrip;
-    point: IPoint[];
+    tripPoints: ITripPointWithPoint[];
     avgRating: number | null;
     numberComments: number;
     review: IReviewAccount[];
     route: IRouteTrip;
+}
+
+interface ITripPointWithPoint extends ITripPoint {
+    point: IPoint;
 }
 
 interface IBusTrip extends IBus {
@@ -48,7 +53,7 @@ interface IRouteTrip extends IRoute {
 export interface IGetListTrip extends ITrip {
     buses: IBusData;
     ticket: ITicket[];
-    point: IPoint[];
+    tripPoints: ITripPointWithPoint[];
 }
 
 interface IBusData extends IBus {
