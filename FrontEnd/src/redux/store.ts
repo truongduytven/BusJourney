@@ -3,6 +3,7 @@ import { configureStore } from "@reduxjs/toolkit";
 import cityReducer from "./slices/citySlice";
 import locationReducer from "./slices/locationSlice";
 import pointReducer from "./slices/pointSlice";
+import couponReducer from "./slices/couponSlice";
 import typeBusReducer from "./slices/typeBusSlice";
 import tripReducer from "./slices/tripSlice";
 import tripDetailReducer from "./slices/tripDetailSlice";
@@ -18,6 +19,7 @@ export const store = configureStore({
     cities: cityReducer,
     locations: locationReducer,
     points: pointReducer,
+    coupons: couponReducer,
     typeBuses: typeBusReducer,
     trips: tripReducer,
     tripDeatails: tripDetailReducer,

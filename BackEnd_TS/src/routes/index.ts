@@ -7,6 +7,7 @@ import tripRouter from './trip';
 import authRouter from './auth';
 import ticketRouter from './ticket';
 import couponRouter from './coupon';
+import couponManagementRouter from './couponManagement';
 import paymentRouter from './payment';
 import userRouter from './user';
 import roleRouter from './role';
@@ -24,6 +25,7 @@ router.use('/points', pointRouter);
 router.use('/trips', tripRouter);
 router.use('/tickets', ticketRouter);
 router.use('/coupons', couponRouter);
+router.use('/coupon-management', couponManagementRouter);
 router.use('/payment', paymentRouter);
 
 export default router;

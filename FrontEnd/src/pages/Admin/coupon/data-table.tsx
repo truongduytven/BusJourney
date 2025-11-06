@@ -22,27 +22,23 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus, Search } from "lucide-react";
-import type { Location } from "@/types/location";
-import type { City } from "@/types/city";
-import { DataTablePagination } from "./data-table-pagination";
+import type { Coupon } from "@/types/coupon";
+import { DataTablePagination } from "@/pages/Admin/coupon/data-table-pagination";
 import { DataTableAdvancedFilters } from "./data-table-advanced-filters";
 
 interface DataTableProps {
-  columns: ColumnDef<Location>[];
-  data: Location[];
+  columns: ColumnDef<Coupon>[];
+  data: Coupon[];
   totalRows: number;
   searchQuery: string;
-  isActive: string;
-  cityId: string;
-  cities: City[];
+  status: string;
+  discountType: string;
   onSearchChange: (search: string) => void;
-  onIsActiveChange: (isActive: string) => void;
-  onCityChange: (cityId: string) => void;
+  onStatusChange: (status: string) => void;
+  onDiscountTypeChange: (discountType: string) => void;
   onPageSizeChange: (pageSize: number) => void;
   onResetFilters: () => void;
-  onCreateLocation: () => void;
-  onBulkToggleActive: (isActive: boolean) => void;
-  onExportExcel: () => void;
+  onCreateCoupon: () => void;
 }
 
 export function DataTable({
@@ -50,17 +46,14 @@ export function DataTable({
   data,
   totalRows,
   searchQuery,
-  isActive,
-  cityId,
-  cities,
+  status,
+  discountType,
   onSearchChange,
-  onIsActiveChange,
-  onCityChange,
+  onStatusChange,
+  onDiscountTypeChange,
   onPageSizeChange,
   onResetFilters,
-  onCreateLocation,
-  onBulkToggleActive,
-  onExportExcel,
+  onCreateCoupon,
 }: DataTableProps) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -100,7 +93,7 @@ export function DataTable({
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
           <Input
             type="search"
-            placeholder="Tìm kiếm theo tên địa điểm..."
+            placeholder="Tìm kiếm mã giảm giá..."
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
             className="pl-9 focus-visible:ring-1"
@@ -109,16 +102,15 @@ export function DataTable({
 
         <div className="ml-auto flex gap-x-4">
           <DataTableAdvancedFilters
-            isActive={isActive}
-            cityId={cityId}
-            cities={cities}
-            onIsActiveChange={onIsActiveChange}
-            onCityChange={onCityChange}
+            status={status}
+            discountType={discountType}
+            onStatusChange={onStatusChange}
+            onDiscountTypeChange={onDiscountTypeChange}
             onReset={onResetFilters}
           />
-          <Button onClick={onCreateLocation} size="sm" className="h-8 gap-2">
+          <Button onClick={onCreateCoupon} size="sm" className="h-8 gap-2">
             <Plus className="h-4 w-4" />
-            <span>Thêm địa điểm</span>
+            <span>Thêm mã giảm giá</span>
           </Button>
         </div>
       </div>
@@ -194,8 +186,6 @@ export function DataTable({
           onPageSizeChange={onPageSizeChange}
           selectedCount={selectedCount}
           totalRows={totalRows}
-          onBulkToggleActive={onBulkToggleActive}
-          onExportExcel={onExportExcel}
         />
       </div>
     </div>

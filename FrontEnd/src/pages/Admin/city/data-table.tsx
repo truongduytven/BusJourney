@@ -92,6 +92,7 @@ export function DataTable({
         <div className="relative max-w-xs w-full">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
           <Input
+            type="search"
             placeholder="Tìm kiếm theo tên thành phố..."
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}

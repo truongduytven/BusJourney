@@ -22,6 +22,7 @@ import { CustomersPage } from "./pages/Admin/customer/customersPage";
 import { CitiesPage } from "./pages/Admin/city/citiesPage";
 import { LocationsPage } from "./pages/Admin/location/locationsPage";
 import { PointsPage } from "./pages/Admin/point/pointsPage";
+import { CouponsPage } from "./pages/Admin/coupon/couponsPage";
 
 function App() {
   const location = useLocation();
@@ -53,6 +54,7 @@ function App() {
           <Route path="cities" element={<CitiesPage />} />
           <Route path="locations" element={<LocationsPage />} />
           <Route path="points" element={<PointsPage />} />
+          <Route path="coupons" element={<CouponsPage />} />
         </Route>
 
         <Route element={<UserLayout />}>

@@ -24,6 +24,7 @@ import { createLocation, updateLocation } from "@/redux/thunks/locationThunks";
 import { fetchCityList } from "@/redux/thunks/cityThunks";
 import { Loader2 } from "lucide-react";
 import axios from "axios";
+import { toast } from "sonner";
 
 interface LocationModalProps {
   open: boolean;
@@ -85,6 +86,7 @@ export default function LocationModal({
         })
         .catch((error) => {
           console.error("Failed to fetch location:", error);
+          toast.error("Không thể tải thông tin địa điểm");
         })
         .finally(() => {
           setLoading(false);
@@ -146,6 +148,7 @@ export default function LocationModal({
             isActive: formData.isActive,
           })
         ).unwrap();
+        toast.success("Tạo địa điểm thành công!");
       } else if (mode === "edit" && locationId) {
         await dispatch(
           updateLocation({
@@ -157,13 +160,16 @@ export default function LocationModal({
             },
           })
         ).unwrap();
+        toast.success("Cập nhật địa điểm thành công!");
       }
 
       onSuccess?.();
       onOpenChange(false);
     } catch (error: any) {
       console.error("Failed to save location:", error);
-      setErrors({ submit: error || "Có lỗi xảy ra" });
+      const errorMessage = error || "Có lỗi xảy ra";
+      setErrors({ submit: errorMessage });
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }

@@ -156,6 +156,7 @@ export function DataTable<TData, TValue>({
         <div className="relative max-w-xs w-full">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
           <Input
+            type="search"
             placeholder="Tìm kiếm theo email hoặc tên..."
             value={searchQuery}
             onChange={(event) => onSearchChange(event.target.value)}

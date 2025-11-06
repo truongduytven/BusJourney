@@ -17,6 +17,7 @@ import {
   LocateFixed,
   MapPin,
   MapPinned,
+  Tag,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -62,13 +63,18 @@ const menuItems: MenuItem[] = [
     path: "/admin/users",
   },
   {
-    label: "Chuyến xe",
+    label: "Vị trí",
     icon: MapPinned,
     children: [
       { label: "Thành phố", icon: Building2, path: "/admin/cities" },
       { label: "Địa điểm", icon: LocateFixed, path: "/admin/locations" },
       { label: "Điểm đón/trả", icon: MapPin, path: "/admin/points" },
     ],
+  },
+  {
+    label: "Mã giảm giá",
+    icon: Tag,
+    path: "/admin/coupons",
   },
   {
     label: "Cài đặt",

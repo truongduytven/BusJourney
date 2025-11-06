@@ -2,13 +2,15 @@ import type { RootState, AppDispatch } from "@/redux/store";
 import { useDispatch, useSelector } from "react-redux";
 import { DataTable } from "./data-table";
 import { createColumns } from "./columns";
-import { fetchLocationList, updateLocation } from "@/redux/thunks/locationThunks";
-import { fetchCityList } from "@/redux/thunks/cityThunks";
+import { 
+  fetchCouponList, 
+  toggleCouponStatus
+} from "@/redux/thunks/couponThunks";
 import { useEffect, useState, useMemo } from "react";
-import type { Location } from "@/types/location";
-import type { City } from "@/types/city";
+import type { Coupon } from "@/types/coupon";
 import { useDebounce } from "@/hooks/useDebounce";
-import LocationModal from "./location-modal";
+import CouponModal from "./coupon-modal";
+import ExtendCouponModal from "@/pages/Admin/coupon/extend-coupon-modal";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -21,14 +23,12 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 
-export const LocationsPage = () => {
-  const { locationList } = useSelector((state: RootState) => state.locations);
-  const { cityList } = useSelector((state: RootState) => state.cities);
+export const CouponsPage = () => {
+  const { couponList } = useSelector((state: RootState) => state.coupons);
   const dispatch = useDispatch<AppDispatch>();
-  const [locationData, setLocationData] = useState<Location[]>([]);
-  const [cityData, setCityData] = useState<City[]>([]);
-  const [isActive, setIsActive] = useState<string>("all");
-  const [cityId, setCityId] = useState<string>("all");
+  const [couponData, setCouponData] = useState<Coupon[]>([]);
+  const [status, setStatus] = useState<string>("all");
+  const [discountType, setDiscountType] = useState<string>("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -36,14 +36,19 @@ export const LocationsPage = () => {
   // Modal state
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<"create" | "edit">("create");
-  const [selectedLocationId, setSelectedLocationId] = useState<string | undefined>();
+  const [selectedCouponId, setSelectedCouponId] = useState<string | undefined>();
+  
+  // Extend modal state
+  const [extendModalOpen, setExtendModalOpen] = useState(false);
+  const [extendCouponId, setExtendCouponId] = useState<string>("");
+  const [extendCurrentValidTo, setExtendCurrentValidTo] = useState<string>("");
   
   // Confirm dialog state
   const [confirmDialog, setConfirmDialog] = useState<{
     open: boolean;
     type: "toggle";
-    locationId?: string;
-    currentStatus?: boolean;
+    couponId?: string;
+    currentStatus?: string;
     title: string;
     description: string;
   }>({
@@ -56,46 +61,37 @@ export const LocationsPage = () => {
   // Debounce search query
   const debouncedSearch = useDebounce(searchQuery, 500);
 
-  // Fetch cities for filter
+  // Fetch coupons when any filter changes
   useEffect(() => {
-    dispatch(fetchCityList({ pageSize: 100, pageNumber: 1 }));
-  }, [dispatch]);
+    const selectedStatus = status === "all" ? undefined : status;
+    const selectedDiscountType = discountType === "all" ? undefined : discountType;
 
-  useEffect(() => {
-    setCityData(cityList?.cities || []);
-  }, [cityList]);
-
-  // Fetch locations when any filter changes
-  useEffect(() => {
-    const active = isActive === "all" ? undefined : isActive === "true";
-    const selectedCityId = cityId === "all" ? undefined : cityId;
-
-    dispatch(fetchLocationList({ 
-      isActive: active,
-      cityId: selectedCityId,
+    dispatch(fetchCouponList({ 
+      status: selectedStatus,
+      discountType: selectedDiscountType,
       search: debouncedSearch || undefined,
       pageSize, 
       pageNumber: currentPage 
     }));
-  }, [dispatch, isActive, cityId, currentPage, pageSize, debouncedSearch]);
+  }, [dispatch, status, discountType, currentPage, pageSize, debouncedSearch]);
 
   useEffect(() => {
-    setLocationData(locationList?.locations || []);
-  }, [locationList]);
+    setCouponData(couponList?.coupons || []);
+  }, [couponList]);
 
-  const handleIsActiveChange = (active: string) => {
-    setIsActive(active);
+  const handleStatusChange = (newStatus: string) => {
+    setStatus(newStatus);
     setCurrentPage(1);
   };
 
-  const handleCityChange = (city: string) => {
-    setCityId(city);
+  const handleDiscountTypeChange = (type: string) => {
+    setDiscountType(type);
     setCurrentPage(1);
   };
 
   const handleResetFilters = () => {
-    setIsActive("all");
-    setCityId("all");
+    setStatus("all");
+    setDiscountType("all");
     setCurrentPage(1);
     setSearchQuery("");
   };
@@ -110,70 +106,66 @@ export const LocationsPage = () => {
     setCurrentPage(1);
   };
 
-  // Bulk operations handlers
-  const handleBulkToggleActive = async (isActive: boolean) => {
-    console.log("Bulk toggle active:", isActive);
-    // TODO: Implement bulk toggle active logic when backend supports it
-  };
-
-  const handleExportExcel = async () => {
-    console.log("Export to Excel");
-    // TODO: Implement export Excel logic
-  };
-
   const handleOpenCreateModal = () => {
     setModalMode("create");
-    setSelectedLocationId(undefined);
+    setSelectedCouponId(undefined);
     setModalOpen(true);
   };
 
-  const handleEditLocation = (locationId: string) => {
+  const handleEditCoupon = (couponId: string) => {
     setModalMode("edit");
-    setSelectedLocationId(locationId);
+    setSelectedCouponId(couponId);
     setModalOpen(true);
   };
 
-  const handleToggleActive = (locationId: string, currentIsActive: boolean) => {
+  const handleToggleStatus = (couponId: string, currentStatus: string) => {
     setConfirmDialog({
       open: true,
       type: "toggle",
-      locationId,
-      currentStatus: currentIsActive,
-      title: currentIsActive ? 'Xác nhận vô hiệu hóa' : 'Xác nhận kích hoạt',
-      description: currentIsActive 
-        ? 'Bạn có chắc chắn muốn vô hiệu hóa địa điểm này?'
-        : 'Bạn có chắc chắn muốn kích hoạt địa điểm này?',
+      couponId,
+      currentStatus,
+      title: currentStatus === "active" ? 'Xác nhận vô hiệu hóa' : 'Xác nhận kích hoạt',
+      description: currentStatus === "active"
+        ? 'Bạn có chắc chắn muốn vô hiệu hóa mã giảm giá này?'
+        : 'Bạn có chắc chắn muốn kích hoạt mã giảm giá này?',
     });
   };
 
+  const handleExtendCoupon = (couponId: string) => {
+    const coupon = couponData.find(c => c.id === couponId);
+    console.log(coupon)
+    if (coupon) {
+      setExtendCouponId(couponId);
+      setExtendCurrentValidTo(coupon.validTo);
+      setExtendModalOpen(true);
+    }
+  };
+
   const handleConfirmAction = async () => {
-    if (confirmDialog.type === "toggle" && confirmDialog.locationId && confirmDialog.currentStatus !== undefined) {
+    if (confirmDialog.type === "toggle" && confirmDialog.couponId) {
       try {
-        await dispatch(updateLocation({
-          id: confirmDialog.locationId,
-          data: { isActive: !confirmDialog.currentStatus }
-        })).unwrap();
+        await dispatch(toggleCouponStatus(confirmDialog.couponId)).unwrap();
         toast.success(
-          confirmDialog.currentStatus 
-            ? "Vô hiệu hóa địa điểm thành công!" 
-            : "Kích hoạt địa điểm thành công!"
+          confirmDialog.currentStatus === "active" 
+            ? "Vô hiệu hóa mã giảm giá thành công!" 
+            : "Kích hoạt mã giảm giá thành công!"
         );
-        refetchLocations();
+        refetchCoupons();
       } catch (error: any) {
-        console.error("Failed to toggle location status:", error);
+        console.error("Failed to toggle coupon status:", error);
         toast.error(error || "Có lỗi xảy ra khi thay đổi trạng thái");
       }
     }
     setConfirmDialog({ open: false, type: "toggle", title: '', description: '' });
   };
 
-  const refetchLocations = () => {
-    const active = isActive === "all" ? undefined : isActive === "true";
-    const selectedCityId = cityId === "all" ? undefined : cityId;
+  const refetchCoupons = () => {
+    const selectedStatus = status === "all" ? undefined : status;
+    const selectedDiscountType = discountType === "all" ? undefined : discountType;
 
-    dispatch(fetchLocationList({ 
-      isActive: active,
-      cityId: selectedCityId,
+    dispatch(fetchCouponList({ 
+      status: selectedStatus,
+      discountType: selectedDiscountType,
       search: debouncedSearch || undefined,
       pageSize, 
       pageNumber: currentPage 
@@ -181,14 +173,15 @@ export const LocationsPage = () => {
   };
 
   const handleModalSuccess = () => {
-    refetchLocations();
+    refetchCoupons();
   };
 
   // Create columns with action handlers
   const columns = useMemo(
     () => createColumns({
-      onEdit: handleEditLocation,
-      onToggleActive: handleToggleActive,
+      onEdit: handleEditCoupon,
+      onToggleStatus: handleToggleStatus,
+      onExtend: handleExtendCoupon,
     }),
     []
   );
@@ -197,33 +190,38 @@ export const LocationsPage = () => {
     <div className="container mx-auto py-4 px-4 md:px-6 lg:px-8">
       <div className="mb-6">
         <h1 className="text-2xl font-semibold tracking-tight">
-          Quản lý danh sách địa điểm
+          Quản lý mã giảm giá
         </h1>
       </div>
       
       <DataTable 
         columns={columns} 
-        data={locationData} 
-        totalRows={locationList?.totalLocations || 0}
-        isActive={isActive}
-        cityId={cityId}
-        cities={cityData}
-        onIsActiveChange={handleIsActiveChange}
-        onCityChange={handleCityChange}
+        data={couponData} 
+        totalRows={couponList?.totalCoupons || 0}
+        status={status}
+        discountType={discountType}
+        onStatusChange={handleStatusChange}
+        onDiscountTypeChange={handleDiscountTypeChange}
         onResetFilters={handleResetFilters}
         onPageSizeChange={handlePageSizeChange}
         searchQuery={searchQuery}
         onSearchChange={handleSearchChange}
-        onCreateLocation={handleOpenCreateModal}
-        onBulkToggleActive={handleBulkToggleActive}
-        onExportExcel={handleExportExcel}
+        onCreateCoupon={handleOpenCreateModal}
       />
       
-      <LocationModal
+      <CouponModal
         open={modalOpen}
         onOpenChange={setModalOpen}
         mode={modalMode}
-        locationId={selectedLocationId}
+        couponId={selectedCouponId}
+        onSuccess={handleModalSuccess}
+      />
+      
+      <ExtendCouponModal
+        open={extendModalOpen}
+        onOpenChange={setExtendModalOpen}
+        couponId={extendCouponId}
+        currentValidTo={extendCurrentValidTo}
         onSuccess={handleModalSuccess}
       />
       
