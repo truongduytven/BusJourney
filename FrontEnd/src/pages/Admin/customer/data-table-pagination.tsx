@@ -5,6 +5,7 @@ import {
   ChevronsLeft,
   ChevronsRight,
   UserX,
+  UserCheck,
   FileSpreadsheet,
 } from "lucide-react"
 import * as React from "react"
@@ -47,7 +48,7 @@ export function DataTablePagination<TData>({
 }: DataTablePaginationProps<TData>) {
   const [confirmAction, setConfirmAction] = React.useState<{
     open: boolean;
-    type: 'lock' | 'export' | null;
+    type: 'lock' | 'unlock' | 'export' | null;
     title: string;
     description: string;
   }>({
@@ -78,6 +79,8 @@ export function DataTablePagination<TData>({
   const handleConfirm = () => {
     if (confirmAction.type === 'lock' && onBulkToggleActive) {
       onBulkToggleActive(false);
+    } else if (confirmAction.type === 'unlock' && onBulkToggleActive) {
+      onBulkToggleActive(true);
     } else if (confirmAction.type === 'export' && onExportExcel) {
       onExportExcel();
     }
@@ -93,7 +96,11 @@ export function DataTablePagination<TData>({
       <div className="flex items-center justify-between px-2 mt-5">
         <div className="flex items-center gap-3">
           <div className="text-sm text-muted-foreground">
-            {selectedCount} trên {totalRows} dòng đã được chọn
+            {selectedCount > 0 ? (
+              <span className="font-medium">{selectedCount} trên {totalRows} dòng đã được chọn</span>
+            ) : (
+              <span>Tổng số {totalRows} người dùng</span>
+            )}
           </div>
           
           {selectedCount > 0 && (
@@ -102,7 +109,7 @@ export function DataTablePagination<TData>({
                 variant="outline"
                 size="sm"
                 onClick={handleConfirmLock}
-                className="h-8 gap-2 border-gray-400"
+                className="h-8 gap-2 border-red-500 text-red-500 hover:bg-red-50"
               >
                 <UserX className="h-4 w-4" />
                 Khóa đã chọn
@@ -110,8 +117,22 @@ export function DataTablePagination<TData>({
               <Button
                 variant="outline"
                 size="sm"
+                onClick={() => setConfirmAction({ 
+                  open: true, 
+                  type: 'unlock', 
+                  title: 'Xác nhận mở khóa', 
+                  description: `Bạn có chắc chắn muốn mở khóa ${selectedCount} người dùng đã chọn?` 
+                })}
+                className="h-8 gap-2 border-green-500 text-green-500 hover:bg-green-50"
+              >
+                <UserCheck className="h-4 w-4" />
+                Mở khóa đã chọn
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={handleConfirmExport}
-                className="h-8 gap-2 border-gray-400"
+                className="h-8 gap-2 border-blue-500 text-blue-500 hover:bg-blue-50"
               >
                 <FileSpreadsheet className="h-4 w-4" />
                 Xuất Excel

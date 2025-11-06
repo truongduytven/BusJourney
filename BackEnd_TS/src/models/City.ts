@@ -4,11 +4,13 @@ import BaseModel from './BaseModel'
 export interface ICity {
   id: string
   name: string
+  isActive: boolean
 }
 
 export default class City extends BaseModel implements ICity {
   id!: string
   name!: string
+  isActive!: boolean
 
   static tableName = 'cities'
 

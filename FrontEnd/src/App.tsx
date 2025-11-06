@@ -19,6 +19,7 @@ import AdminLayout from "./components/admin/AdminLayout";
 import AdminHome from "./components/admin/AdminHome";
 import CheckoutPage from "./pages/User/CheckoutPage";
 import { CustomersPage } from "./pages/Admin/customer/customersPage";
+import { CitiesPage } from "./pages/Admin/city/citiesPage";
 
 function App() {
   const location = useLocation();
@@ -47,6 +48,7 @@ function App() {
           }>
           <Route index element={<AdminHome />} />
           <Route path="users" element={<CustomersPage />} />
+          <Route path="cities" element={<CitiesPage />} />
         </Route>
 
         <Route element={<UserLayout />}>
