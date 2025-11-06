@@ -7,6 +7,7 @@ export interface IPoint {
     type: string
     time: Date
     locationName: string
+    isActive: boolean
 }
 
 export default class Point extends BaseModel implements IPoint {
@@ -15,6 +16,7 @@ export default class Point extends BaseModel implements IPoint {
     type!: string
     time!: Date
     locationName!: string
+    isActive!: boolean
 
     static tableName = 'points'
 

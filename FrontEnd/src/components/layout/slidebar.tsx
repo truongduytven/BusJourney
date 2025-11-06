@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
@@ -64,7 +64,7 @@ const menuItems: MenuItem[] = [
     icon: SquareUser,
     children: [
       { label: "Thành phố", icon: Building2, path: "/admin/cities" },
-      { label: "Địa điểm", icon: LocateFixed, path: "/admin/locat" },
+      { label: "Địa điểm", icon: LocateFixed, path: "/admin/locations" },
     ],
   },
   {
@@ -81,6 +81,24 @@ const AdminSidebar = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
+
+  // Tự động mở menu chứa trang hiện tại khi load/reload
+  useEffect(() => {
+    const currentPath = location.pathname;
+    
+    // Tìm menu cha có chứa đường dẫn hiện tại
+    menuItems.forEach((item) => {
+      if (item.children) {
+        const hasActiveChild = item.children.some((child) =>
+          currentPath.includes(child.path)
+        );
+        
+        if (hasActiveChild && !openMenus.includes(item.label)) {
+          setOpenMenus((prev) => [...prev, item.label]);
+        }
+      }
+    });
+  }, [location.pathname]);
 
   const handleToggleMenu = (label: string) => {
     setOpenMenus((prev) =>
@@ -107,7 +125,7 @@ const AdminSidebar = () => {
             <Button
               variant="ghost"
               className={cn(
-                "justify-between w-full h-12 text-base font-semibold rounded-xl transition-all duration-200",
+                "px-3 justify-between w-full h-12 text-base font-semibold rounded-xl transition-all duration-200",
                 "hover:bg-gray-200 hover:text-primary",
                 isActive && "bg-primary text-white hover:bg-primary hover:text-white"
               )}

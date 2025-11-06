@@ -1,6 +1,7 @@
 // src/redux/store.ts
 import { configureStore } from "@reduxjs/toolkit";
 import cityReducer from "./slices/citySlice";
+import locationReducer from "./slices/locationSlice";
 import typeBusReducer from "./slices/typeBusSlice";
 import tripReducer from "./slices/tripSlice";
 import tripDetailReducer from "./slices/tripDetailSlice";
@@ -14,6 +15,7 @@ import userReducer from "./slices/userSlice";
 export const store = configureStore({
   reducer: {
     cities: cityReducer,
+    locations: locationReducer,
     typeBuses: typeBusReducer,
     trips: tripReducer,
     tripDeatails: tripDetailReducer,

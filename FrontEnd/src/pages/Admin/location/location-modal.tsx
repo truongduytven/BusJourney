@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
-import type { AppDispatch } from "@/redux/store";
+import { useDispatch, useSelector } from "react-redux";
+import type { AppDispatch, RootState } from "@/redux/store";
 import {
   Dialog,
   DialogContent,
@@ -13,53 +13,78 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { createCity, updateCity } from "@/redux/thunks/cityThunks";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { createLocation, updateLocation } from "@/redux/thunks/locationThunks";
+import { fetchCityList } from "@/redux/thunks/cityThunks";
 import { Loader2 } from "lucide-react";
 import axios from "axios";
 
-interface CityModalProps {
+interface LocationModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   mode: "create" | "edit";
-  cityId?: string;
+  locationId?: string;
   onSuccess?: () => void;
 }
 
-export function CityModal({ open, onOpenChange, mode, cityId, onSuccess }: CityModalProps) {
+export default function LocationModal({ 
+  open, 
+  onOpenChange, 
+  mode, 
+  locationId, 
+  onSuccess 
+}: LocationModalProps) {
   const dispatch = useDispatch<AppDispatch>();
+  const { cityList } = useSelector((state: RootState) => state.cities);
   
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
+    cityId: "",
     isActive: true,
   });
   const [originalData, setOriginalData] = useState({
     name: "",
+    cityId: "",
     isActive: true,
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // Fetch city data for edit mode
+  // Fetch cities list for dropdown
   useEffect(() => {
-    if (open && mode === "edit" && cityId) {
+    if (open) {
+      dispatch(fetchCityList({ pageSize: 100, pageNumber: 1 }));
+    }
+  }, [open, dispatch]);
+
+  // Fetch location data for edit mode
+  useEffect(() => {
+    if (open && mode === "edit" && locationId) {
       setLoading(true);
       const token = localStorage.getItem("authToken");
       axios
-        .get(`${import.meta.env.VITE_API_URL}/cities/${cityId}`, {
+        .get(`${import.meta.env.VITE_API_URL}/locations/${locationId}`, {
           headers: { Authorization: `Bearer ${token}` }
         })
         .then((response) => {
-          const city = response.data.data;
+          const location = response.data.data;
           const data = {
-            name: city.name,
-            isActive: city.isActive,
+            name: location.name,
+            cityId: location.cityId,
+            isActive: location.isActive,
           };
           setFormData(data);
           setOriginalData(data);
         })
         .catch((error) => {
-          console.error("Failed to fetch city:", error);
+          console.error("Failed to fetch location:", error);
         })
         .finally(() => {
           setLoading(false);
@@ -68,21 +93,27 @@ export function CityModal({ open, onOpenChange, mode, cityId, onSuccess }: CityM
       // Reset form for create mode
       setFormData({
         name: "",
+        cityId: "",
         isActive: true,
       });
       setOriginalData({
         name: "",
+        cityId: "",
         isActive: true,
       });
       setErrors({});
     }
-  }, [open, mode, cityId]);
+  }, [open, mode, locationId]);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
     if (!formData.name.trim()) {
-      newErrors.name = "Tên thành phố là bắt buộc";
+      newErrors.name = "Tên địa điểm là bắt buộc";
+    }
+
+    if (!formData.cityId) {
+      newErrors.cityId = "Vui lòng chọn thành phố";
     }
 
     setErrors(newErrors);
@@ -94,6 +125,7 @@ export function CityModal({ open, onOpenChange, mode, cityId, onSuccess }: CityM
     if (mode === "create") return true;
     return (
       formData.name !== originalData.name ||
+      formData.cityId !== originalData.cityId ||
       formData.isActive !== originalData.isActive
     );
   };
@@ -108,17 +140,19 @@ export function CityModal({ open, onOpenChange, mode, cityId, onSuccess }: CityM
     try {
       if (mode === "create") {
         await dispatch(
-          createCity({
+          createLocation({
             name: formData.name,
+            cityId: formData.cityId,
             isActive: formData.isActive,
           })
         ).unwrap();
-      } else if (mode === "edit" && cityId) {
+      } else if (mode === "edit" && locationId) {
         await dispatch(
-          updateCity({
-            id: cityId,
+          updateLocation({
+            id: locationId,
             data: {
               name: formData.name,
+              cityId: formData.cityId,
               isActive: formData.isActive,
             },
           })
@@ -128,7 +162,7 @@ export function CityModal({ open, onOpenChange, mode, cityId, onSuccess }: CityM
       onSuccess?.();
       onOpenChange(false);
     } catch (error: any) {
-      console.error("Failed to save city:", error);
+      console.error("Failed to save location:", error);
       setErrors({ submit: error || "Có lỗi xảy ra" });
     } finally {
       setLoading(false);
@@ -140,12 +174,12 @@ export function CityModal({ open, onOpenChange, mode, cityId, onSuccess }: CityM
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>
-            {mode === "create" && "Thêm thành phố mới"}
-            {mode === "edit" && "Chỉnh sửa thành phố"}
+            {mode === "create" && "Thêm địa điểm mới"}
+            {mode === "edit" && "Chỉnh sửa địa điểm"}
           </DialogTitle>
           <DialogDescription>
-            {mode === "create" && "Điền thông tin để tạo thành phố mới"}
-            {mode === "edit" && "Cập nhật thông tin thành phố"}
+            {mode === "create" && "Điền thông tin để tạo địa điểm mới"}
+            {mode === "edit" && "Cập nhật thông tin địa điểm"}
           </DialogDescription>
         </DialogHeader>
 
@@ -158,15 +192,38 @@ export function CityModal({ open, onOpenChange, mode, cityId, onSuccess }: CityM
             {/* Name */}
             <div className="grid gap-2">
               <Label htmlFor="name">
-                Tên thành phố <span className="text-red-500">*</span>
+                Tên địa điểm <span className="text-red-500">*</span>
               </Label>
               <Input
                 id="name"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                placeholder="Nhập tên thành phố"
+                placeholder="Nhập tên địa điểm"
               />
               {errors.name && <p className="text-sm text-red-500">{errors.name}</p>}
+            </div>
+
+            {/* City Selection */}
+            <div className="grid gap-2">
+              <Label htmlFor="cityId">
+                Thành phố <span className="text-red-500">*</span>
+              </Label>
+              <Select
+                value={formData.cityId}
+                onValueChange={(value) => setFormData({ ...formData, cityId: value })}
+              >
+                <SelectTrigger id="cityId" className="border-gray-300 focus-visible:ring-1 focus-visible:border-primary focus-visible:ring-primary/50">
+                  <SelectValue placeholder="Chọn thành phố" />
+                </SelectTrigger>
+                <SelectContent>
+                  {cityList?.cities?.map((city) => (
+                    <SelectItem key={city.id} value={city.id}>
+                      {city.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {errors.cityId && <p className="text-sm text-red-500">{errors.cityId}</p>}
             </div>
 
             {/* Is Active */}

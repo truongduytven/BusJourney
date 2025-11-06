@@ -5,12 +5,14 @@ export interface ILocation {
     id: string
     cityId: string
     name: string
+    isActive: boolean
 }
 
 export default class Location extends BaseModel implements ILocation {
     id!: string
     cityId!: string
     name!: string
+    isActive!: boolean
 
     static tableName = 'locations'
 
