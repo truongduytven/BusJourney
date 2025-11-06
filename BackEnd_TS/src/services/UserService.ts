@@ -102,6 +102,7 @@ class UserService {
     password: string;
     phone?: string;
     roleId: string;
+    avatar?: string;
     isVerified?: boolean;
     isActive?: boolean;
   }) {
@@ -128,6 +129,7 @@ class UserService {
         email: data.email,
         password: hashedPassword,
         phone: data.phone,
+        avatar: data.avatar,
         roleId: data.roleId,
         type: 'normal',
         isVerified: data.isVerified ?? false,
@@ -167,6 +169,7 @@ class UserService {
     roleId?: string;
     isVerified?: boolean;
     isActive?: boolean;
+    avatar?: string;
   }) {
     const user = await Account.query().findById(id);
     
@@ -188,6 +191,7 @@ class UserService {
     if (data.phone !== undefined) updateData.phone = data.phone;
     if (data.roleId !== undefined) updateData.role_id = data.roleId;
     if (data.isVerified !== undefined) updateData.is_verified = data.isVerified;
+    if (data.avatar !== undefined) updateData.avatar = data.avatar;
     if (data.isActive !== undefined) updateData.is_active = data.isActive;
 
     await Account.query()

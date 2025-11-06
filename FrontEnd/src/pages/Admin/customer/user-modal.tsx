@@ -20,8 +20,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { fetchRoles, createUser, updateUser, getUserById } from "@/redux/thunks/userThunks";
-import { Loader2 } from "lucide-react";
+import { Loader2, Camera, X } from "lucide-react";
 import type { UserDataResponse } from "@/types/user";
 
 interface UserModalProps {
@@ -46,6 +47,11 @@ export function UserModal({ open, onOpenChange, mode, userId, onSuccess }: UserM
     isVerified: false,
     isActive: true,
   });
+
+  // Avatar state
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string>("");
+  const [currentAvatarUrl, setCurrentAvatarUrl] = useState<string>("");
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -72,6 +78,10 @@ export function UserModal({ open, onOpenChange, mode, userId, onSuccess }: UserM
             isVerified: user.isVerified,
             isActive: user.isActive,
           });
+          // Set current avatar URL
+          setCurrentAvatarUrl(user.avatar || "");
+          setAvatarPreview("");
+          setAvatarFile(null);
         })
         .catch((error) => {
           console.error("Failed to fetch user:", error);
@@ -90,6 +100,9 @@ export function UserModal({ open, onOpenChange, mode, userId, onSuccess }: UserM
         isVerified: false,
         isActive: true,
       });
+      setCurrentAvatarUrl("");
+      setAvatarPreview("");
+      setAvatarFile(null);
       setErrors({});
     }
   }, [open, mode, userId, dispatch]);
@@ -119,8 +132,59 @@ export function UserModal({ open, onOpenChange, mode, userId, onSuccess }: UserM
       newErrors.roleId = "Vai trò là bắt buộc";
     }
 
+    // Validate avatar file if selected
+    if (avatarFile) {
+      const maxSize = 2 * 1024 * 1024; // 2MB
+      if (avatarFile.size > maxSize) {
+        newErrors.avatar = "Kích thước ảnh không được vượt quá 2MB";
+      }
+      
+      const allowedTypes = ["image/jpeg", "image/png", "image/jpg", "image/webp"];
+      if (!allowedTypes.includes(avatarFile.type)) {
+        newErrors.avatar = "Chỉ chấp nhận file ảnh định dạng JPG, PNG, WEBP";
+      }
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
+  };
+
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setAvatarFile(file);
+      
+      // Create preview URL
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setAvatarPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+      
+      // Clear avatar error if exists
+      if (errors.avatar) {
+        setErrors({ ...errors, avatar: "" });
+      }
+    }
+  };
+
+  const handleRemoveAvatar = () => {
+    setAvatarFile(null);
+    setAvatarPreview("");
+    // Reset file input
+    const fileInput = document.getElementById("avatar-upload") as HTMLInputElement;
+    if (fileInput) {
+      fileInput.value = "";
+    }
+  };
+
+  const getInitials = (name: string) => {
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2);
   };
 
   const handleSubmit = async () => {
@@ -137,28 +201,40 @@ export function UserModal({ open, onOpenChange, mode, userId, onSuccess }: UserM
 
     try {
       if (mode === "create") {
-        await dispatch(
-          createUser({
-            name: formData.name,
-            email: formData.email,
-            password: formData.password,
-            phone: formData.phone || undefined,
-            roleId: formData.roleId,
-            isVerified: formData.isVerified,
-            isActive: formData.isActive,
-          })
-        ).unwrap();
+        // Always use FormData
+        const formDataToSend = new FormData();
+        formDataToSend.append("name", formData.name);
+        formDataToSend.append("email", formData.email);
+        formDataToSend.append("password", formData.password);
+        if (formData.phone) formDataToSend.append("phone", formData.phone);
+        formDataToSend.append("roleId", formData.roleId);
+        formDataToSend.append("isVerified", String(formData.isVerified));
+        formDataToSend.append("isActive", String(formData.isActive));
+        
+        // Only append avatar if file is selected
+        if (avatarFile) {
+          formDataToSend.append("avatar", avatarFile);
+        }
+
+        await dispatch(createUser(formDataToSend)).unwrap();
       } else if (mode === "edit" && userId) {
+        // Always use FormData
+        const formDataToSend = new FormData();
+        formDataToSend.append("name", formData.name);
+        if (formData.phone) formDataToSend.append("phone", formData.phone);
+        formDataToSend.append("roleId", formData.roleId);
+        formDataToSend.append("isVerified", String(formData.isVerified));
+        formDataToSend.append("isActive", String(formData.isActive));
+        
+        // Only append avatar if new file is selected
+        if (avatarFile) {
+          formDataToSend.append("avatar", avatarFile);
+        }
+
         await dispatch(
           updateUser({
             id: userId,
-            data: {
-              name: formData.name,
-              phone: formData.phone || undefined,
-              roleId: formData.roleId,
-              isVerified: formData.isVerified,
-              isActive: formData.isActive,
-            },
+            data: formDataToSend,
           })
         ).unwrap();
       }
@@ -208,6 +284,66 @@ export function UserModal({ open, onOpenChange, mode, userId, onSuccess }: UserM
           </div>
         ) : (
           <div className="grid gap-4 py-4">
+            {/* Avatar Upload */}
+            <div className="grid gap-2">
+              <Label htmlFor="avatar">Ảnh đại diện</Label>
+              <div className="flex items-center gap-4">
+                <div className="relative">
+                  <Avatar className="h-20 w-20">
+                    <AvatarImage 
+                      src={avatarPreview || currentAvatarUrl} 
+                      alt={formData.name || "User"} 
+                    />
+                    <AvatarFallback className="text-lg">
+                      {formData.name ? getInitials(formData.name) : "U"}
+                    </AvatarFallback>
+                  </Avatar>
+                  {!isReadOnly && (
+                    <label
+                      htmlFor="avatar-upload"
+                      className="absolute bottom-0 right-0 rounded-full bg-primary p-1.5 cursor-pointer hover:bg-primary/90 transition-colors"
+                    >
+                      <Camera className="h-3.5 w-3.5 text-white" />
+                    </label>
+                  )}
+                </div>
+                
+                <div className="flex-1">
+                  {!isReadOnly && (
+                    <>
+                      <input
+                        id="avatar-upload"
+                        type="file"
+                        accept="image/*"
+                        onChange={handleAvatarChange}
+                        className="hidden"
+                      />
+                      {avatarFile ? (
+                        <div className="flex items-center gap-2">
+                          <p className="text-sm text-muted-foreground flex-1 truncate">
+                            {avatarFile.name}
+                          </p>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={handleRemoveAvatar}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ) : (
+                        <p className="text-sm text-muted-foreground">
+                          Kích thước tối đa: 2MB. Định dạng: JPG, PNG, WEBP
+                        </p>
+                      )}
+                    </>
+                  )}
+                </div>
+              </div>
+              {errors.avatar && <p className="text-sm text-red-500">{errors.avatar}</p>}
+            </div>
+
             {/* Name */}
             <div className="grid gap-2">
               <Label htmlFor="name">

@@ -1,6 +1,6 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
-import type { UserPayload, UserResponse, Role, CreateUserPayload, UpdateUserPayload, UserDataResponse } from "@/types/user";
+import type { UserPayload, UserResponse, Role, UserDataResponse } from "@/types/user";
 
 export interface ResponseData {
   message: string;
@@ -68,19 +68,23 @@ export const fetchRoles = createAsyncThunk<Role[]>(
   }
 );
 
-export const createUser = createAsyncThunk<UserDataResponse, CreateUserPayload>(
+export const createUser = createAsyncThunk<UserDataResponse, FormData>(
   "users/create",
-  async (payload: CreateUserPayload, { rejectWithValue }) => {
+  async (formData: FormData, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem("authToken");
       
       if(!token) throw new Error("No token found");
       
-      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-      
       const response = await axios.post<UserResponseData>(
         `${import.meta.env.VITE_API_URL}/users`,
-        payload
+        formData,
+        { 
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            // Don't set Content-Type - browser will set it with boundary for FormData
+          }
+        }
       );
       return response.data.data;
     } catch (error: any) {
@@ -111,7 +115,7 @@ export const getUserById = createAsyncThunk<UserDataResponse, string>(
 
 export const updateUser = createAsyncThunk<
   UserDataResponse,
-  { id: string; data: UpdateUserPayload }
+  { id: string; data: FormData }
 >(
   "users/update",
   async ({ id, data }, { rejectWithValue }) => {
@@ -120,11 +124,15 @@ export const updateUser = createAsyncThunk<
       
       if(!token) throw new Error("No token found");
       
-      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-      
       const response = await axios.put<UserResponseData>(
         `${import.meta.env.VITE_API_URL}/users/${id}`,
-        data
+        data,
+        { 
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "multipart/form-data"
+          }
+        }
       );
       return response.data.data;
     } catch (error: any) {

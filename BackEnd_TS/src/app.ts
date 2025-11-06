@@ -15,6 +15,9 @@ import { checkDatabaseTables } from "./checkDb";
 
 // --------------------- //
 
+import dotenv from 'dotenv';
+dotenv.config();
+
 var app = express();
 app.use(cors());
 app.disable("etag");
@@ -34,8 +37,8 @@ const startDatabase = async () => {
 startDatabase();
 
 app.use(logger('dev'));
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 

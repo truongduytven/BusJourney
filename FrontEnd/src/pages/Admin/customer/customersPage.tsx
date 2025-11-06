@@ -153,9 +153,13 @@ export const CustomersPage = () => {
     setConfirmDialog({ open: false, title: '', description: '' });
     if (confirmDialog.userId && confirmDialog.currentStatus !== undefined) {
       try {
+        // Create FormData for the update
+        const formData = new FormData();
+        formData.append("isActive", String(!confirmDialog.currentStatus));
+        
         await dispatch(updateUser({
           id: confirmDialog.userId,
-          data: { isActive: !confirmDialog.currentStatus }
+          data: formData
         })).unwrap();
         refetchUsers();
       } catch (error) {
