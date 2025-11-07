@@ -23,8 +23,27 @@ import RatingCard from "@/components/common/ratingCard";
 import { Bus, CircleCheckBig, TicketCheck, TicketPercent } from "lucide-react";
 import QuestionForm from "@/components/forms/questionForm";
 import FadeInSection from "@/components/common/faeInSection";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import type { RootState, AppDispatch } from "@/redux/store";
+import {
+  fetchFeaturedRoutes,
+  fetchActiveCoupons,
+  fetchFeaturedReviews,
+} from "@/redux/thunks/homeThunks";
 
 export default function Home() {
+  const dispatch = useDispatch<AppDispatch>();
+  const { featuredRoutes, activeCoupons, featuredReviews, loading } = useSelector(
+    (state: RootState) => state.home
+  );
+
+  useEffect(() => {
+    dispatch(fetchFeaturedRoutes(6));
+    dispatch(fetchActiveCoupons(6));
+    dispatch(fetchFeaturedReviews(10));
+  }, [dispatch]);
+
   return (
     <div className="flex-col justify-center items-center mb-20 pt-10 overflow-hidden">
       {/* Hero Section with Parallax Effect */}
@@ -99,15 +118,25 @@ export default function Home() {
               plugins={[Autoplay({ delay: 5000 })]}
             >
               <CarouselContent className="py-3">
-                {[1, 2, 3, 4, 5].map((_, index) => (
-                  <CarouselItem
-                    key={index}
-                    className="basis-full sm:basis-1/2 lg:basis-1/3 animate-fade-in"
-                    style={{ animationDelay: `${index * 0.1}s` }}
-                  >
-                    <FeaturedTripCard />
-                  </CarouselItem>
-                ))}
+                {loading.routes ? (
+                  <div className="w-full flex justify-center py-10">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
+                  </div>
+                ) : featuredRoutes.length > 0 ? (
+                  featuredRoutes.map((route, index) => (
+                    <CarouselItem
+                      key={route.id}
+                      className="basis-full sm:basis-1/2 lg:basis-1/3 animate-fade-in"
+                      style={{ animationDelay: `${index * 0.1}s` }}
+                    >
+                      <FeaturedTripCard route={route} />
+                    </CarouselItem>
+                  ))
+                ) : (
+                  <div className="w-full text-center py-10 text-gray-500">
+                    Không có tuyến đường nổi bật
+                  </div>
+                )}
               </CarouselContent>
               <CarouselNext className="cursor-pointer text-gray-500 border-gray-500 hover:scale-110 hover:bg-gray-100 transition-all duration-300" />
               <CarouselPrevious className="cursor-pointer text-gray-500 border-gray-500 hover:scale-110 hover:bg-gray-100 transition-all duration-300" />
@@ -144,15 +173,36 @@ export default function Home() {
               </p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-20">
-              {[1, 2, 3, 4, 5, 6].map((_, index) => (
-                <div
-                  key={index}
-                  className="animate-fade-in-up hover:animate-pulse-slow"
-                  style={{ animationDelay: `${index * 0.1}s` }}
-                >
-                  <VoucherTicket />
+              {loading.coupons ? (
+                <div className="col-span-full flex justify-center py-10">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
                 </div>
-              ))}
+              ) : activeCoupons.length > 0 ? (
+                activeCoupons.map((coupon, index) => (
+                  <div
+                    key={coupon.id}
+                    className="animate-fade-in-up hover:animate-pulse-slow"
+                    style={{ animationDelay: `${index * 0.1}s` }}
+                  >
+                    <VoucherTicket 
+                      data={{
+                        id: coupon.id,
+                        discountType: coupon.discountType,
+                        discountValue: coupon.discountValue.toString(),
+                        maxDiscountValue: coupon.maxDiscountValue.toString(),
+                        description: coupon.description,
+                        validFrom: new Date(coupon.validFrom),
+                        validTo: new Date(coupon.validTo),
+                        status: 'active',
+                      }}
+                    />
+                  </div>
+                ))
+              ) : (
+                <div className="col-span-full text-center py-10 text-gray-500">
+                  Không có voucher khả dụng
+                </div>
+              )}
             </div>
           </div>
         </FadeInSection>
@@ -190,14 +240,24 @@ export default function Home() {
               plugins={[Autoplay({ delay: 3000 })]}
             >
               <CarouselContent className="py-3">
-                {[1, 2, 3, 4, 5].map((_, index) => (
-                  <CarouselItem
-                    key={index}
-                    className="basis-full sm:basis-1/2 lg:basis-1/3"
-                  >
-                    <RatingCard />
-                  </CarouselItem>
-                ))}
+                {loading.reviews ? (
+                  <div className="w-full flex justify-center py-10">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
+                  </div>
+                ) : featuredReviews.length > 0 ? (
+                  featuredReviews.map((review) => (
+                    <CarouselItem
+                      key={review.id}
+                      className="basis-full sm:basis-1/2 lg:basis-1/3"
+                    >
+                      <RatingCard review={review} />
+                    </CarouselItem>
+                  ))
+                ) : (
+                  <div className="w-full text-center py-10 text-gray-500">
+                    Chưa có đánh giá
+                  </div>
+                )}
               </CarouselContent>
               <CarouselNext className="cursor-pointer text-gray-500 border-gray-500 hover:scale-110 hover:bg-gray-100 transition-all duration-300" />
               <CarouselPrevious className="cursor-pointer text-gray-500 border-gray-500 hover:scale-110 hover:bg-gray-100 transition-all duration-300" />
