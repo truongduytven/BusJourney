@@ -3,21 +3,30 @@ import { Home } from "lucide-react";
 import PaymentSuccessImage from "@/assets/payment_success.png";
 import PaymentFailureImage from "@/assets/payment_failure.png";
 import LoadingImage from "@/assets/loading.gif";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 
 export default function PaymentSuccess() {
+  const [searchParams] = useSearchParams();
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
 
-  setTimeout(() => {
-    setIsLoading(false);
-    setHasError(Math.random() < 0.5);
-  }, 10000);
+  useEffect(() => {
+    // Đọc status từ query params (được set bởi backend khi redirect)
+    const status = searchParams.get('status');
+    
+    // Simulate loading để UX mượt hơn
+    setTimeout(() => {
+      setIsLoading(false);
+      setHasError(status === 'failed');
+    }, 2000); // Giảm từ 10s xuống 2s
+  }, [searchParams]);
 
   if (isLoading) {
     return <div className="w-screen h-screen flex flex-col justify-center items-center gap-2">
         <img src={LoadingImage} alt="Loading" className="w-52 h-52" />
-        <div className="text-2xl font-semibold">Đang tải....</div>
+        <div className="text-2xl font-semibold">Đang xác nhận thanh toán...</div>
+        <div className="text-gray-600">Vui lòng chờ trong giây lát</div>
     </div>;
   }
 
@@ -52,3 +61,4 @@ export default function PaymentSuccess() {
     </div>
   );
 }
+

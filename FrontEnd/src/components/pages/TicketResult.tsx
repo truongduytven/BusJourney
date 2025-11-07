@@ -358,19 +358,6 @@ export default function TicketResult({ ticket, onClose }: TicketResultProps) {
                       </div>
                     </div>
                   </div>
-                  {/* {ticket.order.note && (
-                    <div className="bg-white rounded-xl p-6 shadow-md hover:shadow-lg transition-all duration-300 border-l-4 border-yellow-500">
-                      <div className="flex items-start gap-4">
-                        <div className="p-3 bg-yellow-100 rounded-full">
-                          <AlertCircle className="h-6 w-6 text-yellow-600" />
-                        </div>
-                        <div className="flex-1">
-                          <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Ghi chú</p>
-                          <p className="font-medium text-gray-700 leading-relaxed">{ticket.order.note}</p>
-                        </div>
-                      </div>
-                    </div>
-                  )} */}
                 </div>
               </div>
             </CardContent>
@@ -434,7 +421,7 @@ export default function TicketResult({ ticket, onClose }: TicketResultProps) {
                         <p className="text-xs text-gray-500 uppercase tracking-wide mb-1">Phương thức thanh toán</p>
                         <p className="font-bold text-lg text-gray-800">
                           {ticket.transaction
-                            ? ticket.transaction.paymentMethod
+                            ? ticket.transaction.paymentMethod.toUpperCase()
                             : "MOMO"}
                         </p>
                       </div>
@@ -446,23 +433,23 @@ export default function TicketResult({ ticket, onClose }: TicketResultProps) {
                         <Badge
                           variant={
                             ticket.transaction
-                              ? ticket.transaction.status === "success"
+                              ? ticket.transaction.status === "completed"
                                 ? "default"
                                 : "secondary"
                               : "secondary"
                           }
                           className={cn("px-4 py-3 text-sm text-white font-bold rounded-full shadow-md", {
-                            "bg-green-500": ticket.transaction?.status === "success",
-                            "bg-orange-500": ticket.transaction?.status !== "success",
+                            "bg-green-500": ticket.transaction?.status === "completed",
+                            "bg-orange-500": ticket.transaction?.status !== "completed",
                           })}
                         >
                           {ticket.transaction
-                            ? ticket.transaction.status === "success"
+                            ? ticket.transaction.status === "completed"
                               ? <CheckCircle className="h-4 w-4 text-white inline-block mr-1" />
                               : ticket.transaction.status
                             : <CircleEllipsis className="h-4 w-4 text-white inline-block mr-1" />}
                           {ticket.transaction
-                            ? ticket.transaction.status === "success"
+                            ? ticket.transaction.status === "completed"
                               ? "Đã thanh toán"
                               : ticket.transaction.status
                             : "Đang xử lí"}

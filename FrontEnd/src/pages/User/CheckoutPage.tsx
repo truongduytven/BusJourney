@@ -1,7 +1,7 @@
 import type { AppDispatch, RootState } from "@/redux/store";
 import { useDispatch, useSelector } from "react-redux";
 import LoadingImage from "@/assets/loading.gif";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { createVNPayPayment } from "@/redux/thunks/paymentThunks";
 import { toast } from "sonner";
@@ -13,10 +13,17 @@ const CheckoutPage = () => {
   const navigate = useNavigate();
   const selectedTicket = useSelector((state: RootState) => state.selectedTicket);
   const [error, setError] = useState<string | null>(null);
+  const hasProcessedPayment = useRef(false); // ← Thêm flag để tránh duplicate
 
   useEffect(() => {
+    // Chỉ chạy 1 lần duy nhất khi component mount
+    if (hasProcessedPayment.current) {
+      return;
+    }
+
     const processPayment = async () => {
       try {
+        hasProcessedPayment.current = true; // ← Đánh dấu đã xử lý
         setError(null);
 
         if (!selectedTicket.tripId || selectedTicket.selectedSeats.length === 0) {
@@ -50,9 +57,10 @@ const CheckoutPage = () => {
     };
 
     processPayment();
-  }, [dispatch, selectedTicket, navigate]);
+  }, []); // ← Chỉ chạy 1 lần khi mount
 
   const handleRetry = () => {
+    hasProcessedPayment.current = false; // ← Reset flag khi retry
     setError(null);
     window.location.reload();
   };

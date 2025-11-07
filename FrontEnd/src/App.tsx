@@ -23,6 +23,8 @@ import { CitiesPage } from "./pages/Admin/city/citiesPage";
 import { LocationsPage } from "./pages/Admin/location/locationsPage";
 import { PointsPage } from "./pages/Admin/point/pointsPage";
 import { CouponsPage } from "./pages/Admin/coupon/couponsPage";
+import { PartnersPage } from "./pages/Admin/partner/partnersPage";
+import { ProfilePage } from "./pages/profilePage";
 
 function App() {
   const location = useLocation();
@@ -55,6 +57,8 @@ function App() {
           <Route path="locations" element={<LocationsPage />} />
           <Route path="points" element={<PointsPage />} />
           <Route path="coupons" element={<CouponsPage />} />
+          <Route path="partners" element={<PartnersPage />} />
+          <Route path="profile" element={<ProfilePage />} />
         </Route>
 
         <Route element={<UserLayout />}>
@@ -62,6 +66,14 @@ function App() {
           <Route path="/search" element={<SearchPage />} />
           <Route path="/search-ticket" element={<SearchTicket />} />
           <Route path="/become-partner" element={<BecomePartnerPage />} />
+          <Route 
+            path="/profile" 
+            element={
+              <RequireUser>
+                <ProfilePage />
+              </RequireUser>
+            } 
+          />
 
           <Route
             path="/information-checkout"

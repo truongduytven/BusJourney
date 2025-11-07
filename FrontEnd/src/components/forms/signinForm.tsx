@@ -45,7 +45,7 @@ export default function SigninForm({ reset }: SigninFormProps) {
           // Lấy profile và redirect theo role
           const profile = await dispatch(getProfile()).unwrap();
           const returnUrl = searchParams.get("returnUrl");
-          const isAdmin = profile && (profile.role === 'admin' || profile.roleId === '1' || profile.roles?.some((r: any) => r.name === 'admin'));
+          const isAdmin = profile && (profile.roles.name === 'admin');
           if (isAdmin) {
             navigate('/admin', { replace: true });
           } else if (returnUrl) {

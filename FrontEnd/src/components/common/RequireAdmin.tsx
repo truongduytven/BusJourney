@@ -13,7 +13,7 @@ export default function RequireAdmin({ children }: { children: ReactNode }) {
     return <Navigate to={`/sign?type=signin&returnUrl=${returnUrl}`} replace />
   }
 
-  const isAdmin = user && (user.roles.name === 'admin' || user.roleId === '1' || user.roles?.some((r: any) => r.name === 'admin'))
+  const isAdmin = user && (user.roles.name === 'admin')
 
   if(isAdmin === null) {
     return <div className="flex items-center justify-center h-screen">

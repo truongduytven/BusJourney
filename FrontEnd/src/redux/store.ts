@@ -13,6 +13,7 @@ import authReducer from "./slices/authSlice";
 import ticketReducer from "./slices/ticketSlice";
 import paymentReducer from "./slices/paymentSlice";
 import userReducer from "./slices/userSlice";
+import partnerReducer from "./slices/partnerSlice";
 
 export const store = configureStore({
   reducer: {
@@ -29,6 +30,7 @@ export const store = configureStore({
     ticket: ticketReducer,
     payment: paymentReducer,
     users: userReducer,
+    partners: partnerReducer,
   },
 });
 

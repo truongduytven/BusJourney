@@ -18,6 +18,7 @@ import {
   MapPin,
   MapPinned,
   Tag,
+  Handshake,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -77,6 +78,11 @@ const menuItems: MenuItem[] = [
     path: "/admin/coupons",
   },
   {
+    label: "Đối tác",
+    icon: Handshake,
+    path: "/admin/partners",
+  },
+  {
     label: "Cài đặt",
     icon: Settings,
     path: "/admin/settings",
@@ -94,14 +100,14 @@ const AdminSidebar = () => {
   // Tự động mở menu chứa trang hiện tại khi load/reload
   useEffect(() => {
     const currentPath = location.pathname;
-    
+
     // Tìm menu cha có chứa đường dẫn hiện tại
     menuItems.forEach((item) => {
       if (item.children) {
         const hasActiveChild = item.children.some((child) =>
           currentPath.includes(child.path)
         );
-        
+
         if (hasActiveChild && !openMenus.includes(item.label)) {
           setOpenMenus((prev) => [...prev, item.label]);
         }
@@ -136,7 +142,8 @@ const AdminSidebar = () => {
               className={cn(
                 "px-3 justify-between w-full h-12 text-base font-semibold rounded-xl transition-all duration-200",
                 "hover:bg-gray-200 hover:text-primary",
-                isActive && "bg-primary text-white hover:bg-primary hover:text-white"
+                isActive &&
+                  "bg-primary text-white hover:bg-primary hover:text-white"
               )}
               onClick={() =>
                 item.children
@@ -183,7 +190,8 @@ const AdminSidebar = () => {
                         className={cn(
                           "justify-start w-full h-11 text-sm rounded-lg font-medium transition-all duration-200",
                           "hover:bg-gray-200 hover:text-primary",
-                          activeChild && "bg-primary text-white hover:bg-primary hover:text-white"
+                          activeChild &&
+                            "bg-primary text-white hover:bg-primary hover:text-white"
                         )}
                         onClick={() => navigate(child.path)}
                       >
@@ -282,7 +290,11 @@ const AdminSidebar = () => {
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuGroup>
-                <DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => {
+                    navigate("/admin/profile");
+                  }}
+                >
                   <CircleUserRound />
                   Thông tin tài khoản
                 </DropdownMenuItem>

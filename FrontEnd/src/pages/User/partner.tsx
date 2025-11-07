@@ -31,10 +31,15 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { useDispatch } from "react-redux";
+import type { AppDispatch } from "@/redux/store";
+import { registerPartner } from "@/redux/thunks/partnerThunks";
+import { toast } from "sonner";
 
 type PartnerForm = z.infer<typeof partnerSchema>;
 
 export default function BecomePartnerPage() {
+  const dispatch = useDispatch<AppDispatch>();
   const form = useForm<PartnerForm>({
     resolver: zodResolver(partnerSchema),
     defaultValues: {
@@ -52,9 +57,14 @@ export default function BecomePartnerPage() {
     divRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  const onSubmit = (data: PartnerForm) => {
-    console.log("Form submitted: ", data);
-    // TODO: gửi API cho admin
+  const onSubmit = async (data: PartnerForm) => {
+    try {
+      await dispatch(registerPartner(data)).unwrap();
+      toast.success("Đăng ký thành công! Chúng tôi sẽ liên hệ với bạn sớm nhất.");
+      form.reset(); // Reset form sau khi đăng ký thành công
+    } catch (error: any) {
+      toast.error(error || "Đăng ký thất bại. Vui lòng thử lại.");
+    }
   };
 
   return (
@@ -435,11 +445,11 @@ export default function BecomePartnerPage() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="text-base font-semibold">
-                          Nội dung bạn đang thắc mắc
+                          Mô tả ngắn
                         </FormLabel>
                         <FormControl>
                           <Textarea
-                            placeholder="Nhập nội dung..."
+                            placeholder="Thông tin (quy mô, trụ sở, nhóm khách hàng, số chuyến, số tuyến) ...."
                             draggable={false}
                             rows={10}
                             className="text-lg py-3 min-h-[120px] border-gray-300 focus:border-primary focus:ring-0 outline-0 focus:ring-primary focus:border-none resize-none"

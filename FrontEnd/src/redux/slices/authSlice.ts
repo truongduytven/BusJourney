@@ -9,6 +9,11 @@ import {
   googleSignIn,
   updatePhone,
 } from '@/redux/thunks/authThunks';
+import {
+  updateProfile,
+  uploadAvatar,
+  changePassword,
+} from '@/redux/thunks/profileThunks';
 
 export interface AuthState {
   isAuthenticated: boolean;
@@ -215,6 +220,51 @@ const authSlice = createSlice({
       .addCase(updatePhone.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || 'Cập nhật số điện thoại thất bại';
+      })
+      // Update Profile
+      .addCase(updateProfile.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateProfile.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = null;
+        if (action.payload.data) {
+          state.user = action.payload.data;
+        }
+      })
+      .addCase(updateProfile.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string || 'Cập nhật thông tin thất bại';
+      })
+      // Upload Avatar
+      .addCase(uploadAvatar.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(uploadAvatar.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = null;
+        if (action.payload.data) {
+          state.user = action.payload.data;
+        }
+      })
+      .addCase(uploadAvatar.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string || 'Upload avatar thất bại';
+      })
+      // Change Password
+      .addCase(changePassword.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(changePassword.fulfilled, (state) => {
+        state.loading = false;
+        state.error = null;
+      })
+      .addCase(changePassword.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string || 'Đổi mật khẩu thất bại';
       });
   },
 });
