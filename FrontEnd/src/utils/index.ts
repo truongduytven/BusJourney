@@ -25,3 +25,27 @@ export function formatNumberPhone(numberPhone: string | null): string {
   if (!numberPhone) return "N/A";
   return numberPhone.replace(/(\d{4})(\d{3})(\d{3})/, '$1 $2 $3');
 }
+
+export function findDuration(departureTime: Date | string, arrivalTime: Date | string): string {
+  try {
+    const departure = new Date(departureTime);
+    const arrival = new Date(arrivalTime);
+
+    if (isNaN(departure.getTime()) || isNaN(arrival.getTime())) {
+      throw new Error("Invalid date input");
+    }
+
+    const diffMs = arrival.getTime() - departure.getTime();
+    if (diffMs < 0) return "Thời gian không hợp lệ";
+
+    const totalMinutes = Math.floor(diffMs / (1000 * 60));
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+
+    if (hours === 0) return `${minutes} phút`;
+    if (minutes === 0) return `${hours} giờ`;
+    return `${hours} giờ ${minutes} phút`;
+  } catch {
+    return "Không xác định";
+  }
+}

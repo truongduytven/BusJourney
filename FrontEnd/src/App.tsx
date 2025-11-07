@@ -25,6 +25,7 @@ import { PointsPage } from "./pages/Admin/point/pointsPage";
 import { CouponsPage } from "./pages/Admin/coupon/couponsPage";
 import { PartnersPage } from "./pages/Admin/partner/partnersPage";
 import { ProfilePage } from "./pages/profilePage";
+import MyTicketsPage from "./pages/User/myTicketsPage";
 
 function App() {
   const location = useLocation();
@@ -71,6 +72,14 @@ function App() {
             element={
               <RequireUser>
                 <ProfilePage />
+              </RequireUser>
+            } 
+          />
+          <Route 
+            path="/my-tickets" 
+            element={
+              <RequireUser>
+                <MyTicketsPage />
               </RequireUser>
             } 
           />
