@@ -11,6 +11,7 @@ import couponManagementRouter from './couponManagement';
 import paymentRouter from './payment';
 import userRouter from './user';
 import roleRouter from './role';
+import partnerRouter from './partner';
 
 router.use('/auth', authRouter);
 router.use('/users', userRouter);
@@ -27,5 +28,6 @@ router.use('/tickets', ticketRouter);
 router.use('/coupons', couponRouter);
 router.use('/coupon-management', couponManagementRouter);
 router.use('/payment', paymentRouter);
+router.use('/partners', partnerRouter);
 
 export default router;

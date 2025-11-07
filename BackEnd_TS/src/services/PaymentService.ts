@@ -209,9 +209,25 @@ class PaymentService {
    * Xử lý thanh toán thành công
    */
   private async handleSuccessfulPayment(orderId: string, transactionNo: string, amount: number) {
+    // Kiểm tra xem order đã được xử lý thành công chưa để tránh duplicate
+    const existingOrder = await Order.query().findById(orderId)
+    
+    if (!existingOrder) {
+      throw new Error(`Order ${orderId} not found`)
+    }
+
+    // Nếu order đã completed rồi, không xử lý nữa (tránh duplicate khi VNPay callback nhiều lần)
+    if (existingOrder.status === 'completed') {
+      return
+    }
+
+    // Update order status
     await Order.query().findById(orderId).patch({ status: 'completed' })
+    
+    // Update tickets status
     await Ticket.query().where('orderId', orderId).patch({ status: 'valid' })
 
+    // Tạo transaction record (audit log)
     await Transaction.query().insert({
       orderId,
       amount,
@@ -230,6 +246,20 @@ class PaymentService {
    * Xử lý thanh toán thất bại
    */
   private async handleFailedPayment(orderId: string) {
+    // Kiểm tra xem order có tồn tại không
+    const existingOrder = await Order.query().findById(orderId)
+    
+    if (!existingOrder) {
+      throw new Error(`Order ${orderId} not found`)
+    }
+
+    // Nếu order đã failed hoặc cancelled rồi, không xử lý nữa
+    if (existingOrder.status === 'failed' || existingOrder.status === 'cancelled') {
+      console.log(`Order ${orderId} already ${existingOrder.status}, skipping duplicate processing`)
+      return
+    }
+
+    // Update order và tickets
     await Order.query().findById(orderId).patch({ status: 'failed' })
     await Ticket.query().where('orderId', orderId).patch({ status: 'cancelled' })
   }
