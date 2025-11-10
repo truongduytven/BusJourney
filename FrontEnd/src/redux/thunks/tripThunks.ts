@@ -1,5 +1,5 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
+import apiClient from '@/lib/axios';
 import type { SearchTrips, TripSearchPayload } from "@/types/trip";
 
 export const fetchTrips = createAsyncThunk<
@@ -9,8 +9,7 @@ export const fetchTrips = createAsyncThunk<
   try {
     const { pageNumber, pageSize, minPrice, maxPrice, sort, ...body } = payload;
 
-    const res = await axios.post<SearchTrips>(
-      `${import.meta.env.VITE_API_URL}/trips/search`,
+    const res = await apiClient.post<SearchTrips>(`/trips/search`,
       {
         ...body,
         departureDate:

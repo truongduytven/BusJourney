@@ -7,6 +7,7 @@ import logger from "morgan";
 import swaggerUi from "swagger-ui-express";
 import swaggerJsdoc from "swagger-jsdoc";
 import indexRouter from './routes/index';
+import { Request, Response, NextFunction } from "express";
 
 // Import database connection
 import knex from "./db";
@@ -19,7 +20,13 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 var app = express();
-app.use(cors());
+
+if(process.env.NODE_ENV !== 'production') {
+  app.use(cors({
+    origin: 'http://localhost:5173',
+  }));
+}
+
 app.disable("etag");
 
 app.locals.knex = knex;
@@ -40,7 +47,6 @@ app.use(logger('dev'));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
 
 const options = {
   definition: {
@@ -78,17 +84,11 @@ const swaggerSpec = swaggerJsdoc(options);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use('/api', indexRouter);
 
-import { Request, Response, NextFunction } from "express";
-
-app.use(function (req: Request, res: Response, next: NextFunction) {
-  next(createError(404));
-});
-
-app.use(function (err: any, req: Request, res: Response, next: NextFunction) {
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
-  res.status(err.status || 500);
-  res.json({ error: res.locals.error });
-});
+if(process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, '../../FrontEnd/dist')));
+  app.get('*', (req: Request, res: Response) => {
+    res.sendFile(path.join(__dirname, '../../FrontEnd/dist/index.html'));
+  });
+}
 
 export default app;

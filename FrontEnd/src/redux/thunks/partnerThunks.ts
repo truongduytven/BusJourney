@@ -1,5 +1,5 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
+import apiClient from '@/lib/axios';
 import type { 
   PartnerRegistrationData, 
   PartnerFilters, 
@@ -9,7 +9,7 @@ import type {
   PartnerStats
 } from '@/types/partner';
 
-const API_URL = import.meta.env.VITE_API_URL;
+// using apiClient baseURL
 
 // Register partner (public - no auth required)
 export const registerPartner = createAsyncThunk<
@@ -18,8 +18,8 @@ export const registerPartner = createAsyncThunk<
   { rejectValue: string }
 >('partners/register', async (data, { rejectWithValue }) => {
   try {
-    const response = await axios.post(`${API_URL}/partners/register`, data);
-    return response.data.data;
+  const response = await apiClient.post(`/partners/register`, data);
+  return response.data.data;
   } catch (error: any) {
     return rejectWithValue(error.response?.data?.error || 'Đăng ký thất bại');
   }
@@ -48,7 +48,7 @@ export const fetchPartnerList = createAsyncThunk<
     }
 
     const token = localStorage.getItem('authToken');
-    const response = await axios.get(`${API_URL}/partners?${params.toString()}`, {
+    const response = await apiClient.get(`/partners?${params.toString()}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -67,15 +67,11 @@ export const updatePartnerStatus = createAsyncThunk<
 >('partners/updateStatus', async ({ partnerId, status }, { rejectWithValue }) => {
   try {
     const token = localStorage.getItem('authToken');
-    const response = await axios.patch(
-      `${API_URL}/partners/${partnerId}/status`,
-      { status },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+    const response = await apiClient.patch(`/partners/${partnerId}/status`, { status }, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     return response.data.data;
   } catch (error: any) {
     return rejectWithValue(error.response?.data?.error || 'Cập nhật trạng thái thất bại');
@@ -90,7 +86,7 @@ export const deletePartner = createAsyncThunk<
 >('partners/delete', async (id, { rejectWithValue }) => {
   try {
     const token = localStorage.getItem('authToken');
-    await axios.delete(`${API_URL}/partners/${id}`, {
+    await apiClient.delete(`/partners/${id}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -108,7 +104,7 @@ export const fetchPartnerStats = createAsyncThunk<
 >('partners/fetchStats', async (_, { rejectWithValue }) => {
   try {
     const token = localStorage.getItem('authToken');
-    const response = await axios.get(`${API_URL}/partners/stats`, {
+    const response = await apiClient.get(`/partners/stats`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

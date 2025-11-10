@@ -1,5 +1,5 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
+import apiClient from '@/lib/axios';
 import type {
   FeaturedRoute,
   ActiveCoupon,
@@ -7,7 +7,7 @@ import type {
   HomeDataResponse,
 } from '@/types/home';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+// using apiClient baseURL
 
 /**
  * Fetch featured routes for homepage
@@ -16,10 +16,7 @@ export const fetchFeaturedRoutes = createAsyncThunk(
   'home/fetchFeaturedRoutes',
   async (limit: number = 6, { rejectWithValue }) => {
     try {
-      const response = await axios.get<HomeDataResponse<FeaturedRoute>>(
-        `${API_URL}/home/featured-routes`,
-        { params: { limit } }
-      );
+      const response = await apiClient.get<HomeDataResponse<FeaturedRoute>>('/home/featured-routes', { params: { limit } });
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
@@ -36,10 +33,7 @@ export const fetchActiveCoupons = createAsyncThunk(
   'home/fetchActiveCoupons',
   async (limit: number = 6, { rejectWithValue }) => {
     try {
-      const response = await axios.get<HomeDataResponse<ActiveCoupon>>(
-        `${API_URL}/home/active-coupons`,
-        { params: { limit } }
-      );
+      const response = await apiClient.get<HomeDataResponse<ActiveCoupon>>('/home/active-coupons', { params: { limit } });
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
@@ -56,10 +50,7 @@ export const fetchFeaturedReviews = createAsyncThunk(
   'home/fetchFeaturedReviews',
   async (limit: number = 10, { rejectWithValue }) => {
     try {
-      const response = await axios.get<HomeDataResponse<FeaturedReview>>(
-        `${API_URL}/home/featured-reviews`,
-        { params: { limit } }
-      );
+      const response = await apiClient.get<HomeDataResponse<FeaturedReview>>('/home/featured-reviews', { params: { limit } });
       return response.data;
     } catch (error: any) {
       return rejectWithValue(

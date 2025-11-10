@@ -1,5 +1,5 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
+import apiClient from '@/lib/axios';
 import type { City, CityListPayload, CityListResponse, CreateCityPayload, UpdateCityPayload } from "@/types/city";
 
 interface ResponseData {
@@ -20,7 +20,7 @@ interface CityResponseData {
 export const fetchCities = createAsyncThunk<City[]>(
   "cities/fetch",
   async () => {
-    const res = await axios.get<ResponseData>(`${import.meta.env.VITE_API_URL}/cities`);
+    const res = await apiClient.get<ResponseData>(`/cities`);
     return res.data.data;
   }
 );
@@ -38,13 +38,7 @@ export const fetchCityList = createAsyncThunk<CityListResponse, CityListPayload>
       if (search) params.search = search;
       if (isActive !== undefined) params.isActive = isActive;
       
-      const response = await axios.get<CityListResponseData>(
-        `${import.meta.env.VITE_API_URL}/cities/list`,
-        {
-          params,
-          headers: { Authorization: `Bearer ${token}` }
-        }
-      );
+      const response = await apiClient.get<CityListResponseData>(`/cities/list`, { params, headers: { Authorization: `Bearer ${token}` } });
       
       return response.data.data;
     } catch (error: any) {
@@ -61,11 +55,7 @@ export const createCity = createAsyncThunk<City, CreateCityPayload>(
       
       if (!token) throw new Error("No token found");
       
-      const response = await axios.post<CityResponseData>(
-        `${import.meta.env.VITE_API_URL}/cities`,
-        payload,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const response = await apiClient.post<CityResponseData>(`/cities`, payload, { headers: { Authorization: `Bearer ${token}` } });
       
       return response.data.data;
     } catch (error: any) {
@@ -85,11 +75,7 @@ export const updateCity = createAsyncThunk<
       
       if (!token) throw new Error("No token found");
       
-      const response = await axios.put<CityResponseData>(
-        `${import.meta.env.VITE_API_URL}/cities/${id}`,
-        data,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const response = await apiClient.put<CityResponseData>(`/cities/${id}`, data, { headers: { Authorization: `Bearer ${token}` } });
       
       return response.data.data;
     } catch (error: any) {
@@ -106,10 +92,7 @@ export const deleteCity = createAsyncThunk<void, string>(
       
       if (!token) throw new Error("No token found");
       
-      await axios.delete(
-        `${import.meta.env.VITE_API_URL}/cities/${id}`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+  await apiClient.delete(`/cities/${id}`, { headers: { Authorization: `Bearer ${token}` } });
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || "Delete city failed");
     }

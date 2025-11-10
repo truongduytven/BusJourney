@@ -1,5 +1,5 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
+import apiClient from '@/lib/axios';
 import type { UserPayload, UserResponse, Role, UserDataResponse } from "@/types/user";
 
 export interface ResponseData {
@@ -29,7 +29,7 @@ export const fetchUsers = createAsyncThunk<
       
       if(!token) throw new Error("No token found");
       
-      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+  apiClient.defaults.headers.common["Authorization"] = `Bearer ${token}`;
       
       // Build params object, only include values if they're provided
       const params: any = { pageSize, pageNumber };
@@ -39,7 +39,7 @@ export const fetchUsers = createAsyncThunk<
       if (isActive !== undefined) params.isActive = isActive;
       if (search) params.search = search;
       
-      const response = await axios.get<ResponseData>(`${import.meta.env.VITE_API_URL}/users`, {
+      const response = await apiClient.get<ResponseData>(`/users`, {
         params,
       });
       console.log(response);
@@ -58,9 +58,9 @@ export const fetchRoles = createAsyncThunk<Role[]>(
       
       if(!token) throw new Error("No token found");
       
-      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-      
-      const response = await axios.get<RoleResponseData>(`${import.meta.env.VITE_API_URL}/roles`);
+  apiClient.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
+  const response = await apiClient.get<RoleResponseData>(`/roles`);
       return response.data.data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data || "Fetch roles failed");
@@ -76,16 +76,12 @@ export const createUser = createAsyncThunk<UserDataResponse, FormData>(
       
       if(!token) throw new Error("No token found");
       
-      const response = await axios.post<UserResponseData>(
-        `${import.meta.env.VITE_API_URL}/users`,
-        formData,
-        { 
-          headers: {
-            "Authorization": `Bearer ${token}`,
-            // Don't set Content-Type - browser will set it with boundary for FormData
-          }
+      const response = await apiClient.post<UserResponseData>(`/users`, formData, { 
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          // Don't set Content-Type - browser will set it with boundary for FormData
         }
-      );
+      });
       return response.data.data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data || "Create user failed");
@@ -101,11 +97,9 @@ export const getUserById = createAsyncThunk<UserDataResponse, string>(
       
       if(!token) throw new Error("No token found");
       
-      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-      
-      const response = await axios.get<UserResponseData>(
-        `${import.meta.env.VITE_API_URL}/users/${id}`
-      );
+      apiClient.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
+      const response = await apiClient.get<UserResponseData>(`/users/${id}`);
       return response.data.data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data || "Fetch user failed");
@@ -124,16 +118,12 @@ export const updateUser = createAsyncThunk<
       
       if(!token) throw new Error("No token found");
       
-      const response = await axios.put<UserResponseData>(
-        `${import.meta.env.VITE_API_URL}/users/${id}`,
-        data,
-        { 
-          headers: {
-            "Authorization": `Bearer ${token}`,
-            "Content-Type": "multipart/form-data"
-          }
+      const response = await apiClient.put<UserResponseData>(`/users/${id}`, data, { 
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "multipart/form-data"
         }
-      );
+      });
       return response.data.data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data || "Update user failed");
@@ -152,12 +142,9 @@ export const bulkToggleActive = createAsyncThunk<
       
       if(!token) throw new Error("No token found");
       
-      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+      apiClient.defaults.headers.common["Authorization"] = `Bearer ${token}`;
       
-      const response = await axios.put<{ message: string; data: { updatedCount: number } }>(
-        `${import.meta.env.VITE_API_URL}/users/bulk-toggle-active`,
-        { userIds, isActive }
-      );
+      const response = await apiClient.put<{ message: string; data: { updatedCount: number } }>(`/users/bulk-toggle-active`, { userIds, isActive });
       return response.data.data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data || "Bulk toggle active failed");

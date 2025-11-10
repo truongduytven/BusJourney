@@ -1,7 +1,6 @@
 import { createAsyncThunk } from '@reduxjs/toolkit'
 import type { InformationCheckout } from '@/types/selectedTrip'
-
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+import apiClient from '@/lib/axios';
 
 interface PaymentResponse {
   success: boolean
@@ -51,22 +50,20 @@ export const createVNPayPayment = createAsyncThunk<
       }
       console.log(paymentData)
 
-      const response = await fetch(`${API_BASE_URL}/payment/create`, {
-        method: 'POST',
+      const resp = await apiClient.post('/payment/create', paymentData, {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(paymentData)
-      })
+        }
+      });
 
-      const result: PaymentResponse | PaymentError = await response.json()
+      const result: PaymentResponse | PaymentError = resp.data;
 
-      if (!response.ok || !result.success) {
-        return rejectWithValue(result.message || 'Có lỗi xảy ra khi tạo thanh toán')
+      if (!result || !(result as PaymentResponse).data) {
+        return rejectWithValue((result as PaymentError).message || 'Có lỗi xảy ra khi tạo thanh toán');
       }
 
-      return (result as PaymentResponse).data
+      return (result as PaymentResponse).data;
     } catch (error) {
       console.error('Payment creation error:', error)
       return rejectWithValue('Không thể kết nối đến server')

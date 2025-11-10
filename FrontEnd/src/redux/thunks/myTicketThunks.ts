@@ -1,12 +1,12 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
+import apiClient from '@/lib/axios';
 import type {
   MyTicketsResponse,
   TicketDetailResponse,
   TicketStatusFilter,
 } from '../../types/myTicket';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+// using apiClient baseURL
 
 // Fetch user's tickets
 export const fetchMyTickets = createAsyncThunk(
@@ -35,14 +35,11 @@ export const fetchMyTickets = createAsyncThunk(
       params.append('page', page.toString());
       params.append('limit', limit.toString());
 
-      const response = await axios.get<MyTicketsResponse>(
-        `${API_URL}/tickets/my-tickets?${params.toString()}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await apiClient.get<MyTicketsResponse>(`/tickets/my-tickets?${params.toString()}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       return response.data;
     } catch (error: any) {
@@ -68,14 +65,11 @@ export const fetchTicketDetail = createAsyncThunk(
         throw new Error('No authentication token found');
       }
 
-      const response = await axios.get<TicketDetailResponse>(
-        `${API_URL}/tickets/${ticketId}/detail`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await apiClient.get<TicketDetailResponse>(`/tickets/${ticketId}/detail`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       return response.data;
     } catch (error: any) {

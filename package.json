@@ -1,8 +1,13 @@
-{
-  "devDependencies": {
-    "concurrently": "^9.2.1"
-  },
+{ 
+  "name": "Bus_Journey",
+  "version": "1.0.0",
+  "description": "A web application to manage and visualize bus journeys.",
+  "main": "index.js",
   "scripts": {
-    "dev": "concurrently \"npm run dev --prefix Backend_TS\" \"npm run dev --prefix Frontend\""
-  }
+    "build": "npm install --prefix Backend_TS && npm install --prefix Frontend && npm run build --prefix Frontend",
+    "start": "npm run start --prefix Backend_TS"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
 }

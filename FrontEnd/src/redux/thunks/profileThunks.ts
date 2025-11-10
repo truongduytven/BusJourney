@@ -1,25 +1,9 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
+import apiClient from '@/lib/axios';
 import type { UpdateProfileData, ChangePasswordData, ProfileResponse } from '@/types/profile';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-
 // Get auth token from localStorage
-const getAuthToken = () => {
-  const token = localStorage.getItem('accessToken');
-  return token;
-};
-
-// Create axios instance with auth header
-const createAuthAxios = () => {
-  const token = getAuthToken();
-  return axios.create({
-    baseURL: API_URL,
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-};
+const getAuthToken = () => localStorage.getItem('accessToken');
 
 /**
  * Get user profile
@@ -28,8 +12,10 @@ export const getProfile = createAsyncThunk(
   'profile/getProfile',
   async (_, { rejectWithValue }) => {
     try {
-      const api = createAuthAxios();
-      const response = await api.get<ProfileResponse>('/auth/me');
+      const token = getAuthToken();
+      const response = await apiClient.get<ProfileResponse>('/auth/me', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
@@ -46,8 +32,10 @@ export const updateProfile = createAsyncThunk(
   'profile/updateProfile',
   async (updateData: UpdateProfileData, { rejectWithValue }) => {
     try {
-      const api = createAuthAxios();
-      const response = await api.patch<ProfileResponse>('/auth/profile', updateData);
+      const token = getAuthToken();
+      const response = await apiClient.patch<ProfileResponse>('/auth/profile', updateData, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
@@ -64,12 +52,13 @@ export const uploadAvatar = createAsyncThunk(
   'profile/uploadAvatar',
   async (file: File, { rejectWithValue }) => {
     try {
-      const api = createAuthAxios();
+      const token = getAuthToken();
       const formData = new FormData();
       formData.append('avatar', file);
 
-      const response = await api.post<ProfileResponse>('/auth/profile/avatar', formData, {
+      const response = await apiClient.post<ProfileResponse>('/auth/profile/avatar', formData, {
         headers: {
+          Authorization: `Bearer ${token}`,
           'Content-Type': 'multipart/form-data',
         },
       });
@@ -90,17 +79,17 @@ export const changePassword = createAsyncThunk(
   'profile/changePassword',
   async (passwordData: ChangePasswordData, { rejectWithValue }) => {
     try {
-      const api = createAuthAxios();
+  const token = getAuthToken();
       
       // Validate passwords match
       if (passwordData.newPassword !== passwordData.confirmPassword) {
         return rejectWithValue('Mật khẩu xác nhận không khớp');
       }
 
-      const response = await api.patch('/auth/profile/password', {
+      const response = await apiClient.patch('/auth/profile/password', {
         currentPassword: passwordData.currentPassword,
         newPassword: passwordData.newPassword,
-      });
+      }, { headers: { Authorization: `Bearer ${token}` } });
 
       return response.data;
     } catch (error: any) {

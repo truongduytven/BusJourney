@@ -1,8 +1,8 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
+import apiClient from '@/lib/axios';
 import type { LocationListPayload, LocationListResponse } from '@/types/location';
 
-const API_URL = import.meta.env.VITE_API_URL;
+// using apiClient baseURL
 
 // Fetch location list
 export const fetchLocationList = createAsyncThunk<
@@ -29,8 +29,8 @@ export const fetchLocationList = createAsyncThunk<
       params.append('pageNumber', payload.pageNumber.toString());
     }
 
-    const response = await axios.get(`${API_URL}/locations/list?${params.toString()}`);
-    return response.data.data;
+  const response = await apiClient.get(`/locations/list?${params.toString()}`);
+  return response.data.data;
   } catch (error: any) {
     return rejectWithValue(error.response?.data?.message || 'Failed to fetch locations');
   }
@@ -44,7 +44,7 @@ export const createLocation = createAsyncThunk<
 >('locations/create', async (data, { rejectWithValue }) => {
   try {
     const token = localStorage.getItem('authToken');
-    await axios.post(`${API_URL}/locations`, data, {
+    await apiClient.post(`/locations`, data, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -62,7 +62,7 @@ export const updateLocation = createAsyncThunk<
 >('locations/update', async ({ id, data }, { rejectWithValue }) => {
   try {
     const token = localStorage.getItem('authToken');
-    await axios.put(`${API_URL}/locations/${id}`, data, {
+    await apiClient.put(`/locations/${id}`, data, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -80,7 +80,7 @@ export const deleteLocation = createAsyncThunk<
 >('locations/delete', async (id, { rejectWithValue }) => {
   try {
     const token = localStorage.getItem('authToken');
-    await axios.delete(`${API_URL}/locations/${id}`, {
+    await apiClient.delete(`/locations/${id}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

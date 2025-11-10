@@ -1,6 +1,5 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+import apiClient from '@/lib/axios';
 
 // Types
 export interface TicketLookupRequest {
@@ -125,23 +124,15 @@ export const lookupTicket = createAsyncThunk<
   'ticket/lookup',
   async (lookupData, { rejectWithValue }) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/tickets/lookup`, {
-        method: 'POST',
+      const response = await apiClient.post('/tickets/lookup', lookupData, {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(lookupData),
       });
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        return rejectWithValue(data.message || `HTTP error! status: ${response.status}`);
-      }
-
-      return data;
-    } catch (error) {
-      return rejectWithValue(error instanceof Error ? error.message : 'Tra cứu vé thất bại');
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || (error instanceof Error ? error.message : 'Tra cứu vé thất bại'));
     }
   }
 );

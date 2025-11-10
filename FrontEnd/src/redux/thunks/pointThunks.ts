@@ -1,8 +1,6 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
+import apiClient from '@/lib/axios';
 import type { PointListPayload, PointListResponse } from '@/types/point';
-
-const API_URL = import.meta.env.VITE_API_URL;
 
 // Fetch point list
 export const fetchPointList = createAsyncThunk<
@@ -29,8 +27,8 @@ export const fetchPointList = createAsyncThunk<
       params.append('pageNumber', payload.pageNumber.toString());
     }
 
-    const response = await axios.get(`${API_URL}/points/list?${params.toString()}`);
-    return response.data.data;
+  const response = await apiClient.get(`/points/list?${params.toString()}`);
+  return response.data.data;
   } catch (error: any) {
     return rejectWithValue(error.response?.data?.message || 'Failed to fetch points');
   }
@@ -44,7 +42,7 @@ export const createPoint = createAsyncThunk<
 >('points/create', async (data, { rejectWithValue }) => {
   try {
     const token = localStorage.getItem('authToken');
-    await axios.post(`${API_URL}/points`, data, {
+    await apiClient.post(`/points`, data, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -62,7 +60,7 @@ export const updatePoint = createAsyncThunk<
 >('points/update', async ({ id, data }, { rejectWithValue }) => {
   try {
     const token = localStorage.getItem('authToken');
-    await axios.put(`${API_URL}/points/${id}`, data, {
+    await apiClient.put(`/points/${id}`, data, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -80,7 +78,7 @@ export const deletePoint = createAsyncThunk<
 >('points/delete', async (id, { rejectWithValue }) => {
   try {
     const token = localStorage.getItem('authToken');
-    await axios.delete(`${API_URL}/points/${id}`, {
+    await apiClient.delete(`/points/${id}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

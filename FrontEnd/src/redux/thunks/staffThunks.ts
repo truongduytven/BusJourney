@@ -1,5 +1,5 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
+import apiClient from '@/lib/axios';
 import type {
   StaffListPayload,
   StaffListResponse,
@@ -8,7 +8,7 @@ import type {
   Staff,
 } from '@/types/staff';
 
-const API_URL = import.meta.env.VITE_API_URL;
+// using apiClient with baseURL from FrontEnd/src/lib/axios.ts
 
 // Fetch staff list
 export const fetchStaffList = createAsyncThunk<
@@ -33,7 +33,7 @@ export const fetchStaffList = createAsyncThunk<
     }
 
     const token = localStorage.getItem('authToken');
-    const response = await axios.get(`${API_URL}/company/staff/list?${params.toString()}`, {
+    const response = await apiClient.get(`/company/staff/list?${params.toString()}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -52,7 +52,7 @@ export const fetchStaffById = createAsyncThunk<
 >('staff/fetchById', async (id, { rejectWithValue }) => {
   try {
     const token = localStorage.getItem('authToken');
-    const response = await axios.get(`${API_URL}/company/staff/${id}`, {
+    const response = await apiClient.get(`/company/staff/${id}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -71,7 +71,7 @@ export const createStaff = createAsyncThunk<
 >('staff/create', async (data, { rejectWithValue }) => {
   try {
     const token = localStorage.getItem('authToken');
-    const response = await axios.post(`${API_URL}/company/staff`, data, {
+    const response = await apiClient.post(`/company/staff`, data, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -90,7 +90,7 @@ export const updateStaff = createAsyncThunk<
 >('staff/update', async ({ id, data }, { rejectWithValue }) => {
   try {
     const token = localStorage.getItem('authToken');
-    const response = await axios.put(`${API_URL}/company/staff/${id}`, data, {
+    const response = await apiClient.put(`/company/staff/${id}`, data, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -109,15 +109,11 @@ export const toggleStaffStatus = createAsyncThunk<
 >('staff/toggleStatus', async (id, { rejectWithValue }) => {
   try {
     const token = localStorage.getItem('authToken');
-    const response = await axios.patch(
-      `${API_URL}/company/staff/${id}/toggle-status`,
-      {},
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+    const response = await apiClient.patch(`/company/staff/${id}/toggle-status`, {}, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     return response.data.data;
   } catch (error: any) {
     return rejectWithValue(error.response?.data?.message || 'Failed to toggle staff status');
@@ -132,15 +128,11 @@ export const bulkToggleStaffActive = createAsyncThunk<
 >('staff/bulkToggleActive', async ({ staffIds, isActive }, { rejectWithValue }) => {
   try {
     const token = localStorage.getItem('authToken');
-    const response = await axios.put(
-      `${API_URL}/company/staff/bulk-toggle-active`,
-      { staffIds, isActive },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+    const response = await apiClient.put(`/company/staff/bulk-toggle-active`, { staffIds, isActive }, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     return response.data.data;
   } catch (error: any) {
     return rejectWithValue(error.response?.data?.message || 'Failed to bulk toggle staff status');

@@ -1,5 +1,5 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
+import apiClient from '@/lib/axios';
 import type { TypeBus } from "@/types/typeBus";
 
 interface ResponseData {
@@ -10,7 +10,7 @@ interface ResponseData {
 export const fetchTypeBuses = createAsyncThunk<TypeBus[]>(
   "typeBuses/fetch",
   async () => {
-    const res = await axios.get<ResponseData>(`${import.meta.env.VITE_API_URL}/types-bus`);
+    const res = await apiClient.get<ResponseData>(`/types-bus`);
     return res.data.data;
   }
 );

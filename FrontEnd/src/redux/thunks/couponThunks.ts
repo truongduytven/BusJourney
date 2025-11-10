@@ -1,8 +1,8 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
+import apiClient from '@/lib/axios';
 import type { CouponListPayload, CouponListResponse } from '@/types/coupon';
 
-const API_URL = import.meta.env.VITE_API_URL;
+// using apiClient baseURL
 
 // Fetch coupon list
 export const fetchCouponList = createAsyncThunk<
@@ -32,8 +32,8 @@ export const fetchCouponList = createAsyncThunk<
       params.append('pageNumber', payload.pageNumber.toString());
     }
 
-    const response = await axios.get(`${API_URL}/coupon-management/list?${params.toString()}`);
-    return response.data.data;
+  const response = await apiClient.get(`/coupon-management/list?${params.toString()}`);
+  return response.data.data;
   } catch (error: any) {
     return rejectWithValue(error.response?.data?.message || 'Failed to fetch coupons');
   }
@@ -58,7 +58,7 @@ export const createCoupon = createAsyncThunk<
 >('coupons/create', async (data, { rejectWithValue }) => {
   try {
     const token = localStorage.getItem('authToken');
-    await axios.post(`${API_URL}/coupon-management`, data, {
+    await apiClient.post(`/coupon-management`, data, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -89,7 +89,7 @@ export const updateCoupon = createAsyncThunk<
 >('coupons/update', async ({ id, data }, { rejectWithValue }) => {
   try {
     const token = localStorage.getItem('authToken');
-    await axios.put(`${API_URL}/coupon-management/${id}`, data, {
+    await apiClient.put(`/coupon-management/${id}`, data, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -107,7 +107,7 @@ export const toggleCouponStatus = createAsyncThunk<
 >('coupons/toggleStatus', async (id, { rejectWithValue }) => {
   try {
     const token = localStorage.getItem('authToken');
-    await axios.patch(`${API_URL}/coupon-management/${id}/toggle-status`, {}, {
+    await apiClient.patch(`/coupon-management/${id}/toggle-status`, {}, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -125,14 +125,11 @@ export const extendCoupon = createAsyncThunk<
 >('coupons/extend', async ({ id, validTo }, { rejectWithValue }) => {
   try {
     const token = localStorage.getItem('authToken');
-    await axios.patch(`${API_URL}/coupon-management/${id}/extend`, 
-      { validTo }, 
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+    await apiClient.patch(`/coupon-management/${id}/extend`, { validTo }, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
   } catch (error: any) {
     return rejectWithValue(error.response?.data?.message || 'Failed to extend coupon');
   }
