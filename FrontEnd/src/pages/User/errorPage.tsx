@@ -1,4 +1,4 @@
-import ErrorImage from "@/assets/error_image.png";
+import ErrorImage from "@/assets/Error_image.png";
 import { Button } from "@/components/ui/button";
 
 export default function ErrorPage() {
