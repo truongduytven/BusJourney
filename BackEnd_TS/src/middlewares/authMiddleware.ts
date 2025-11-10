@@ -82,6 +82,29 @@ export const requireAdmin = async (req: Request, res: Response, next: NextFuncti
 };
 
 /**
+ * Middleware kiểm tra role company
+ */
+export const requireCompany = async (req: Request, res: Response, next: NextFunction) => {
+  if (!req.user) {
+    return res.status(401).json({
+      success: false,
+      message: 'Authentication required'
+    });
+  }
+
+  const roleAccount = await Role.query().findOne({ id: req.user.roleId });
+
+  if (roleAccount?.name !== 'company') {
+    return res.status(403).json({
+      success: false,
+      message: 'Company access required'
+    });
+  }
+
+  next();
+};
+
+/**
  * Middleware kiểm tra owner hoặc admin
  */
 export const requireOwnerOrAdmin = (req: Request, res: Response, next: NextFunction) => {

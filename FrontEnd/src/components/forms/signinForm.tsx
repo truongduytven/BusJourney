@@ -45,9 +45,11 @@ export default function SigninForm({ reset }: SigninFormProps) {
           // Lấy profile và redirect theo role
           const profile = await dispatch(getProfile()).unwrap();
           const returnUrl = searchParams.get("returnUrl");
-          const isAdmin = profile && (profile.roles.name === 'admin');
-          if (isAdmin) {
+          const role = profile && profile.roles?.name;
+          if (role === 'admin') {
             navigate('/admin', { replace: true });
+          } else if (role === 'company') {
+            navigate('/company', { replace: true });
           } else if (returnUrl) {
             navigate(decodeURIComponent(returnUrl), { replace: true });
           } else {
@@ -90,9 +92,11 @@ export default function SigninForm({ reset }: SigninFormProps) {
         // Lấy profile để biết role và redirect hợp lý
         const profile = await dispatch(getProfile()).unwrap();
         const returnUrl = searchParams.get('returnUrl');
-        const isAdmin = profile && (profile.roles.name === 'admin');
-        if (isAdmin) {
+        const role = profile && profile.roles?.name;
+        if (role === 'admin') {
           navigate('/admin', { replace: true });
+        } else if (role === 'company') {
+          navigate('/company', { replace: true });
         } else {
           navigate(returnUrl || '/', { replace: true });
         }

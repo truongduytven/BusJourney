@@ -13,6 +13,7 @@ import userRouter from './user';
 import roleRouter from './role';
 import partnerRouter from './partner';
 import homeRouter from './home';
+import staffRouter from './staff';
 
 router.use('/auth', authRouter);
 router.use('/users', userRouter);
@@ -31,5 +32,6 @@ router.use('/coupon-management', couponManagementRouter);
 router.use('/payment', paymentRouter);
 router.use('/partners', partnerRouter);
 router.use('/home', homeRouter);
+router.use('/company/staff', staffRouter);
 
 export default router;

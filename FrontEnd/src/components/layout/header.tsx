@@ -54,7 +54,7 @@ export default function Header() {
   };
 
   const handleDashboard = () => {
-    navigate("/admin");
+    user.roles.name === "admin" ? navigate("/admin") : navigate("/company");
   };
 
   // Component để render user avatar và dropdown
@@ -93,7 +93,7 @@ export default function Header() {
             Vé của tôi
           </DropdownMenuItem>
         )}
-        {user && user.roles.name === "admin" && (
+        {user && (user.roles.name === "admin" || user.roles.name === "company") && (
           <DropdownMenuItem
             className="cursor-pointer"
             onClick={handleDashboard}

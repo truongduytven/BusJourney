@@ -16,6 +16,7 @@ import userReducer from "./slices/userSlice";
 import partnerReducer from "./slices/partnerSlice";
 import homeReducer from "./slices/homeSlice";
 import myTicketReducer from "./slices/myTicketSlice";
+import staffReducer from "./slices/staffSlice";
 
 export const store = configureStore({
   reducer: {
@@ -35,6 +36,7 @@ export const store = configureStore({
     partners: partnerReducer,
     home: homeReducer,
     myTicket: myTicketReducer,
+    staff: staffReducer,
   },
 });
 

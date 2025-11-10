@@ -17,6 +17,9 @@ import RequireUser from "./components/common/RequireUser";
 import RequireAdmin from "./components/common/RequireAdmin";
 import AdminLayout from "./components/admin/AdminLayout";
 import AdminHome from "./components/admin/AdminHome";
+import RequireCompany from "./components/common/RequireCompany";
+import CompanyLayout from "./components/company/CompanyLayout";
+import CompanyHome from "./components/company/CompanyHome";
 import CheckoutPage from "./pages/User/CheckoutPage";
 import { CustomersPage } from "./pages/Admin/customer/customersPage";
 import { CitiesPage } from "./pages/Admin/city/citiesPage";
@@ -26,6 +29,7 @@ import { CouponsPage } from "./pages/Admin/coupon/couponsPage";
 import { PartnersPage } from "./pages/Admin/partner/partnersPage";
 import { ProfilePage } from "./pages/profilePage";
 import MyTicketsPage from "./pages/User/myTicketsPage";
+import { StaffPage } from "./pages/Company/staff/staffPage";
 
 function App() {
   const location = useLocation();
@@ -60,6 +64,21 @@ function App() {
           <Route path="coupons" element={<CouponsPage />} />
           <Route path="partners" element={<PartnersPage />} />
           <Route path="profile" element={<ProfilePage />} />
+        </Route>
+
+        {/* Company routes */}
+        <Route
+          path="/company"
+          element={
+            <RequireCompany>
+              <CompanyLayout />
+            </RequireCompany>
+          }
+        >
+          <Route index element={<CompanyHome />} />
+          <Route path="staff" element={<StaffPage />} />
+          <Route path="profile" element={<ProfilePage />} />
+          {/* Additional company-specific routes (trips, vehicles, orders) can be added here */}
         </Route>
 
         <Route element={<UserLayout />}>
