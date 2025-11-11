@@ -16,6 +16,9 @@ import {
   Clock,
   ListChecks,
   Users,
+  Route,
+  AlignHorizontalDistributeCenter,
+  Waypoints,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -59,6 +62,22 @@ const menuItems: MenuItem[] = [
     label: "Nhân viên", 
     icon: Users, 
     path: "/company/staff" 
+  },
+  { 
+    label: "Tuyến đường", 
+    icon: Route, 
+    children: [
+      {
+        label: "Tuyến đường chung",
+        icon: AlignHorizontalDistributeCenter,
+        path: "/company/routes" 
+      },
+      {
+        label: "Tuyến xe",
+        icon: Waypoints,
+        path: "/company/bus-routes" 
+      }
+    ]
   },
   { 
     label: "Chuyến xe", 

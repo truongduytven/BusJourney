@@ -30,6 +30,9 @@ import { PartnersPage } from "./pages/Admin/partner/partnersPage";
 import { ProfilePage } from "./pages/profilePage";
 import MyTicketsPage from "./pages/User/myTicketsPage";
 import { StaffPage } from "./pages/Company/staff/staffPage";
+import { AdminRoutesPage } from "./pages/Admin/route/routesPage";
+import { CompanyRoutesPage } from "./pages/Company/route/routesPage";
+import { CompanyBusRoutesPage } from "./pages/Company/busRoute/busRoutesPage";
 
 function App() {
   const location = useLocation();
@@ -61,6 +64,7 @@ function App() {
           <Route path="cities" element={<CitiesPage />} />
           <Route path="locations" element={<LocationsPage />} />
           <Route path="points" element={<PointsPage />} />
+          <Route path="routes" element={<AdminRoutesPage />} />
           <Route path="coupons" element={<CouponsPage />} />
           <Route path="partners" element={<PartnersPage />} />
           <Route path="profile" element={<ProfilePage />} />
@@ -77,6 +81,8 @@ function App() {
         >
           <Route index element={<CompanyHome />} />
           <Route path="staff" element={<StaffPage />} />
+          <Route path="routes" element={<CompanyRoutesPage />} />
+          <Route path="bus-routes" element={<CompanyBusRoutesPage />} />
           <Route path="profile" element={<ProfilePage />} />
           {/* Additional company-specific routes (trips, vehicles, orders) can be added here */}
         </Route>

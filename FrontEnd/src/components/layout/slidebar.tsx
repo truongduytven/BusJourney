@@ -19,6 +19,8 @@ import {
   MapPinned,
   Tag,
   Handshake,
+  Route,
+  Bus,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -70,6 +72,13 @@ const menuItems: MenuItem[] = [
       { label: "Thành phố", icon: Building2, path: "/admin/cities" },
       { label: "Địa điểm", icon: LocateFixed, path: "/admin/locations" },
       { label: "Điểm đón/trả", icon: MapPin, path: "/admin/points" },
+    ],
+  },
+  {
+    label: "Chuyến đi",
+    icon: Bus,
+    children: [
+      { label: "Tuyến đường", icon: Route, path: "/admin/routes" },
     ],
   },
   {

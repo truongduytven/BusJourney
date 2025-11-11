@@ -4,7 +4,6 @@ import BaseModel from "./BaseModel"
 export interface ITrip {
     id: string
     busRoutesId?: string
-    routeId?: string
     templateId?: string
     busId?: string
     departureTime: Date
@@ -16,7 +15,6 @@ export interface ITrip {
 export default class Trip extends BaseModel implements ITrip {
     id!: string
     busRoutesId?: string
-    routeId?: string
     templateId?: string
     busId?: string
     departureTime!: Date
@@ -27,11 +25,6 @@ export default class Trip extends BaseModel implements ITrip {
     static tableName = 'trips'
 
     static relationMappings: RelationMappings = {
-        route: {
-            relation: Model.BelongsToOneRelation,
-            modelClass: () => require("./Route").default,
-            join: { from: 'trips.route_id', to: 'routes.id' }
-        },
         busRoute: {
             relation: Model.BelongsToOneRelation,
             modelClass: () => require('./BusRoute').default,

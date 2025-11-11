@@ -14,6 +14,8 @@ import roleRouter from './role';
 import partnerRouter from './partner';
 import homeRouter from './home';
 import staffRouter from './staff';
+import routeRouter from './route';
+import busRouteRouter from './busRoute';
 
 router.use('/auth', authRouter);
 router.use('/users', userRouter);
@@ -21,6 +23,8 @@ router.use('/roles', roleRouter);
 router.use('/cities', cityRouter);
 router.use('/locations', locationRouter);
 router.use('/points', pointRouter);
+router.use('/routes', routeRouter);
+router.use('/bus-routes', busRouteRouter);
 // router.use('/routes', routeTripRouter);
 // router.use('/bus-companies', busCompanyRouter);
 // router.use('/buses', busRouter);

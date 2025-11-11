@@ -14,7 +14,7 @@ class MyTicketService {
     try {
       const query = Ticket.query()
         .withGraphFetched(
-          '[trip.[route.[startLocation.city, endLocation.city], buses.[bus_companies]], order.[coupon, transaction], pickUpPoint, dropOffPoint]'
+          '[trip.[busRoute.route.[startLocation.city, endLocation.city], buses.[bus_companies]], order.[coupon, transaction], pickUpPoint, dropOffPoint]'
         )
         .where('user_id', userId)
         .orderBy('purchase_date', 'desc');
@@ -65,12 +65,12 @@ class MyTicketService {
           },
           route: {
             from: {
-              location: ticket.trip?.route?.startLocation?.name,
-              city: ticket.trip?.route?.startLocation?.city?.name,
+              location: ticket.trip?.busRoute?.route?.startLocation?.name,
+              city: ticket.trip?.busRoute?.route?.startLocation?.city?.name,
             },
             to: {
-              location: ticket.trip?.route?.endLocation?.name,
-              city: ticket.trip?.route?.endLocation?.city?.name,
+              location: ticket.trip?.busRoute?.route?.endLocation?.name,
+              city: ticket.trip?.busRoute?.route?.endLocation?.city?.name,
             },
           },
         },
@@ -122,7 +122,7 @@ class MyTicketService {
         .withGraphFetched(
           `[
             trip.[
-              route.[startLocation.city, endLocation.city], 
+              busRoute.route.[startLocation.city, endLocation.city], 
               buses.[bus_companies, type_buses], 
               template
             ], 
@@ -166,22 +166,22 @@ class MyTicketService {
           arrivalTime: (ticket as any).trip?.arrivalTime,
           price: (ticket as any).trip?.price,
           route: {
-            routeId: (ticket as any).trip?.route?.id,
-            distance: (ticket as any).trip?.route?.distanceKm,
+            routeId: (ticket as any).trip?.busRoute?.route?.id,
+            distance: (ticket as any).trip?.busRoute?.route?.distanceKm,
             startLocation: {
-              locationId: (ticket as any).trip?.route?.startLocation?.id,
-              locationName: (ticket as any).trip?.route?.startLocation?.name,
+              locationId: (ticket as any).trip?.busRoute?.route?.startLocation?.id,
+              locationName: (ticket as any).trip?.busRoute?.route?.startLocation?.name,
               city: {
-                cityId: (ticket as any).trip?.route?.startLocation?.city?.id,
-                cityName: (ticket as any).trip?.route?.startLocation?.city?.name,
+                cityId: (ticket as any).trip?.busRoute?.route?.startLocation?.city?.id,
+                cityName: (ticket as any).trip?.busRoute?.route?.startLocation?.city?.name,
               },
             },
             endLocation: {
-              locationId: (ticket as any).trip?.route?.endLocation?.id,
-              locationName: (ticket as any).trip?.route?.endLocation?.name,
+              locationId: (ticket as any).trip?.busRoute?.route?.endLocation?.id,
+              locationName: (ticket as any).trip?.busRoute?.route?.endLocation?.name,
               city: {
-                cityId: (ticket as any).trip?.route?.endLocation?.city?.id,
-                cityName: (ticket as any).trip?.route?.endLocation?.city?.name,
+                cityId: (ticket as any).trip?.busRoute?.route?.endLocation?.city?.id,
+                cityName: (ticket as any).trip?.busRoute?.route?.endLocation?.city?.name,
               },
             },
           },

@@ -108,7 +108,7 @@ class HomeService {
     try {
       const featuredReviews = await require('../models/Reviews')
         .default.query()
-        .withGraphFetched('[account, trip.[route.[startLocation.city, endLocation.city]]]')
+        .withGraphFetched('[account, trip.[busRoute.route.[startLocation.city, endLocation.city]]]')
         .where('is_visible', true)
         .where('rating', '>=', 4)
         .whereNotNull('commenttext')
@@ -135,12 +135,12 @@ class HomeService {
         trip: review.trip
           ? {
               from: {
-                location: review.trip.route?.startLocation?.name || '',
-                city: review.trip.route?.startLocation?.city?.name || '',
+                location: review.trip.busRoute?.route?.startLocation?.name || '',
+                city: review.trip.busRoute?.route?.startLocation?.city?.name || '',
               },
               to: {
-                location: review.trip.route?.endLocation?.name || '',
-                city: review.trip.route?.endLocation?.city?.name || '',
+                location: review.trip.busRoute?.route?.endLocation?.name || '',
+                city: review.trip.busRoute?.route?.endLocation?.city?.name || '',
               },
             }
           : null,

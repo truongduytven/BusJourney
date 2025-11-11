@@ -20,6 +20,9 @@ export interface ITripDetail {
     numberComments: number;
     review: IReviewAccount[];
     route: IRouteTrip;
+    busRoute: {
+        route: IRouteTrip;
+    }
 }
 
 interface ITripPointWithPoint extends ITripPoint {

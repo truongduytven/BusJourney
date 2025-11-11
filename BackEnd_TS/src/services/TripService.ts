@@ -142,7 +142,7 @@ class TripService {
     const trip = (await Trip.query()
       .alias('t')
       .withGraphJoined(
-        '[buses.[bus_companies.[policies, cancellationRules], type_buses.[seat]], route.[startLocation, endLocation], review.[account]]'
+        '[buses.[bus_companies.[policies, cancellationRules], type_buses.[seat]], busRoute.route.[startLocation, endLocation], review.[account]]'
       )
       .where('t.id', tripId)
       .where('t.status', 'scheduled')
@@ -158,6 +158,7 @@ class TripService {
         }
       })
       .first()) as unknown as ITripDetail
+
 
     if (!trip) {
       return null
@@ -195,7 +196,7 @@ class TripService {
         countHaveDescription: trip.review.filter((r) => r.commenttext && r.commenttext.trim() !== '').length,
         countHaveImage: 0,
         typebus: trip.buses.type_buses.name,
-        route: `${trip.route.startLocation.name} - ${trip.route.endLocation.name}`,
+        route: `${trip.busRoute.route.startLocation.name} - ${trip.busRoute.route.endLocation.name}`,
         list: trip.review.map((r) => ({
           ...r,
           account: {

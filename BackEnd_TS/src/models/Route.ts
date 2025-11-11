@@ -5,14 +5,18 @@ export interface IRoute {
     id: string
     startLocationId: string
     endLocationId: string
-    distance: number
+    distanceKm: number
+    status?: string
+    createdBy?: string
 }
 
 export default class Route extends BaseModel implements IRoute {
     id!: string
     startLocationId!: string
     endLocationId!: string
-    distance!: number
+    distanceKm!: number
+    status?: string
+    createdBy?: string
 
     static tableName = 'routes'
 
@@ -38,10 +42,7 @@ export default class Route extends BaseModel implements IRoute {
             modelClass: () => require('./BusRoute').default,
             join: { from: 'routes.id', to: 'bus_routes.route_id' }
         },
-        trips: {
-            relation: Model.HasManyRelation,
-            modelClass: () => require('./Trip').default,
-            join: { from: 'routes.id', to: 'trips.route_id' }
-        }
+        // Note: trips now use bus_routes_id, not route_id directly
+        // So this relation may not be used
     }
 }

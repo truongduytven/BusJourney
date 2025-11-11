@@ -30,7 +30,7 @@ class TicketService {
           coupon
         ],
         trip.[
-          route.[
+          busRoute.route.[
             startLocation.[city],
             endLocation.[city]
           ],
@@ -96,17 +96,17 @@ class TicketService {
         price: ticket.trip?.price,
         status: ticket.trip?.status,
         route: {
-          id: ticket.trip?.route?.id,
-          distance: ticket.trip?.route?.distance,
+          id: ticket.trip?.busRoute?.route?.id,
+          distance: ticket.trip?.busRoute?.route?.distanceKm,
           startLocation: {
-            id: ticket.trip?.route?.startLocation?.id,
-            name: ticket.trip?.route?.startLocation?.name,
-            cityName: ticket.trip?.route?.startLocation?.city?.name
+            id: ticket.trip?.busRoute?.route?.startLocation?.id,
+            name: ticket.trip?.busRoute?.route?.startLocation?.name,
+            cityName: ticket.trip?.busRoute?.route?.startLocation?.city?.name
           },
           endLocation: {
-            id: ticket.trip?.route?.endLocation?.id,
-            name: ticket.trip?.route?.endLocation?.name,
-            cityName: ticket.trip?.route?.endLocation?.city?.name
+            id: ticket.trip?.busRoute?.route?.endLocation?.id,
+            name: ticket.trip?.busRoute?.route?.endLocation?.name,
+            cityName: ticket.trip?.busRoute?.route?.endLocation?.city?.name
           }
         },
         bus: {
