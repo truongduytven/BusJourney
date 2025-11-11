@@ -4,8 +4,8 @@ import BaseModel from "./BaseModel"
 export interface ITemplate {
     id: string
     companyId: string
-    routeId: string
-    typeBusId: string
+    busRoutesId: string
+    busId: string
     name: string
     is_active: boolean
     createdAt: Date
@@ -14,8 +14,8 @@ export interface ITemplate {
 export default class Template extends BaseModel implements ITemplate {
     id!: string
     companyId!: string
-    routeId!: string
-    typeBusId!: string
+    busRoutesId!: string
+    busId!: string
     name!: string
     is_active!: boolean
     createdAt!: Date
@@ -23,15 +23,15 @@ export default class Template extends BaseModel implements ITemplate {
     static tableName = 'templates'
 
     static relationMappings: RelationMappings = {
-        route: {
+        busRoute: {
             relation: Model.BelongsToOneRelation,
-            modelClass: () => require('./Route').default,
-            join: { from: 'templates.route_id', to: 'routes.id' }
+            modelClass: () => require('./BusRoute').default,
+            join: { from: 'templates.bus_routes_id', to: 'bus_routes.id' }
         },
-        typeBus: {
+        bus: {
             relation: Model.BelongsToOneRelation,
-            modelClass: () => require('./TypeBus').default,
-            join: { from: 'templates.type_bus_id', to: 'type_buses.id' }
+            modelClass: () => require('./Bus').default,
+            join: { from: 'templates.bus_id', to: 'buses.id' }
         },
         company: {
             relation: Model.BelongsToOneRelation,

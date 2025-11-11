@@ -30,11 +30,7 @@ export default class TypeBus extends BaseModel implements ITypeBus {
             modelClass: () => require('./Seat').default,
             join: { from: 'type_buses.id', to: 'seats.type_bus_id' }
         },
-        template: {
-            relation: Model.HasManyRelation,
-            modelClass: () => require('./Template').default,
-            join: { from: 'type_buses.id', to: 'templates.type_bus_id' }
-        },
+        // templates no longer reference type_buses (templates now reference bus_routes and bus_id)
         buses: {
             relation: Model.HasManyRelation,
             modelClass: () => require('./Bus').default,

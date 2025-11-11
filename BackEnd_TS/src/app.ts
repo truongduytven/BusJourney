@@ -1,94 +1,95 @@
-import createError from 'http-errors';
-import express from 'express';
-import cors from "cors";
-import path from "path";
-import cookieParser from "cookie-parser";
-import logger from "morgan";
-import swaggerUi from "swagger-ui-express";
-import swaggerJsdoc from "swagger-jsdoc";
-import indexRouter from './routes/index';
-import { Request, Response, NextFunction } from "express";
+import createError from 'http-errors'
+import express from 'express'
+import cors from 'cors'
+import cookieParser from 'cookie-parser'
+import logger from 'morgan'
+import swaggerUi from 'swagger-ui-express'
+import swaggerJsdoc from 'swagger-jsdoc'
+import indexRouter from './routes/index'
+import { Request, Response, NextFunction } from 'express'
 
 // Import database connection
-import knex from "./db";
-import { initializeDatabase } from "./init";
-import { checkDatabaseTables } from "./checkDb";
+import knex from './db'
+import { initializeDatabase } from './init'
+import { checkDatabaseTables } from './checkDb'
 
 // --------------------- //
 
-import dotenv from 'dotenv';
-dotenv.config();
+import dotenv from 'dotenv'
+dotenv.config()
 
-var app = express();
+var app = express()
 
-if(process.env.NODE_ENV !== 'production') {
-  app.use(cors({
-    origin: 'http://localhost:5173',
-  }));
+if (process.env.NODE_ENV !== 'production') {
+  app.use(cors())
 }
 
-app.disable("etag");
+app.disable('etag')
 
-app.locals.knex = knex;
+app.locals.knex = knex
 
 // Initialize database on startup
 const startDatabase = async () => {
   try {
-    await initializeDatabase();
-    await checkDatabaseTables();
+    await initializeDatabase()
+    await checkDatabaseTables()
   } catch (error) {
-    console.error('Database startup failed:', error);
+    console.error('Database startup failed:', error)
   }
-};
+}
 
-startDatabase();
+startDatabase()
 
-app.use(logger('dev'));
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
-app.use(cookieParser());
+app.use(logger('dev'))
+app.use(express.urlencoded({ extended: true }))
+app.use(express.json())
+app.use(cookieParser())
 
 const options = {
   definition: {
-    openapi: "3.0.0",
+    openapi: '3.0.0',
     info: {
-      title: "My Express API",
-      version: "1.0.0",
-      description: "API documentation with Swagger UI",
+      title: 'My Express API',
+      version: '1.0.0',
+      description: 'API documentation with Swagger UI'
     },
     servers: [
       {
-        url: "http://localhost:3000/api",
-      },
+        url: 'http://localhost:3000/api'
+      }
     ],
     components: {
       securitySchemes: {
         bearerAuth: {
-          type: "http",
-          scheme: "bearer",
-          bearerFormat: "JWT",
-        },
-      },
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT'
+        }
+      }
     },
     security: [
       {
-        bearerAuth: [],
-      },
-    ],
+        bearerAuth: []
+      }
+    ]
   },
-  apis: ["src/routes/*.ts", "src/controllers/*.ts"],
-};
-
-const swaggerSpec = swaggerJsdoc(options);
-
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-app.use('/api', indexRouter);
-
-if(process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../../FrontEnd/dist')));
-  app.get('*', (req: Request, res: Response) => {
-    res.sendFile(path.join(__dirname, '../../FrontEnd/dist/index.html'));
-  });
+  apis: ['src/routes/*.ts', 'src/controllers/*.ts']
 }
 
-export default app;
+const swaggerSpec = swaggerJsdoc(options)
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
+app.use('/api', indexRouter)
+
+app.use(function (req: Request, res: Response, next: NextFunction) {
+  next(createError(404))
+})
+
+app.use(function (err: any, req: Request, res: Response, next: NextFunction) {
+  res.locals.message = err.message
+  res.locals.error = req.app.get('env') === 'development' ? err : {}
+  res.status(err.status || 500)
+  res.json({ error: res.locals.error })
+})
+
+export default app

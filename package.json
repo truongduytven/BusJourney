@@ -1,11 +1,12 @@
 { 
-  "name": "Bus_Journey",
+  "name": "busjourney",
   "version": "1.0.0",
   "description": "A web application to manage and visualize bus journeys.",
   "main": "index.js",
   "scripts": {
     "build": "npm install --prefix BackEnd_TS && npm install --prefix FrontEnd && npm run build --prefix FrontEnd",
-    "start": "npm run start --prefix BackEnd_TS"
+    "start": "npm run start --prefix BackEnd_TS",
+    "dev": "concurrently \"npm run dev --prefix FrontEnd\" \"npm run dev --prefix BackEnd_TS\""
   },
   "keywords": [],
   "author": "",

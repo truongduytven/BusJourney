@@ -33,12 +33,12 @@ export default class Route extends BaseModel implements IRoute {
                 to: 'locations.id'
             }
         },
-        template: {
+        busRoutes: {
             relation: Model.HasManyRelation,
-            modelClass: () => require('./Template').default,
-            join: { from: 'routes.id', to: 'templates.route_id' }
+            modelClass: () => require('./BusRoute').default,
+            join: { from: 'routes.id', to: 'bus_routes.route_id' }
         },
-        trip: {
+        trips: {
             relation: Model.HasManyRelation,
             modelClass: () => require('./Trip').default,
             join: { from: 'routes.id', to: 'trips.route_id' }

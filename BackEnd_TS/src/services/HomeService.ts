@@ -10,7 +10,7 @@ class HomeService {
     try {
       // Get routes with most trips and bookings
       const featuredRoutes = await Route.query()
-        .withGraphFetched('[startLocation.city, endLocation.city, trip(active)]')
+        .withGraphFetched('[startLocation.city, endLocation.city, trips(active)]')
         .modifiers({
           active: (builder) => {
             builder
@@ -24,7 +24,7 @@ class HomeService {
           raw(`(
             SELECT COUNT(*)
             FROM trips
-            WHERE trips.route_id = routes.id
+            WHERE trips.bus_routes_id IN (SELECT id FROM bus_routes WHERE route_id = routes.id)
             AND trips.departure_time >= NOW()
           ) as upcoming_trips_count`)
         )

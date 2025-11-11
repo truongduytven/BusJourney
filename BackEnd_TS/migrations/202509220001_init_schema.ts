@@ -90,14 +90,25 @@ export async function up(knex: Knex): Promise<void> {
     t.uuid('start_location_id').references('locations.id')
     t.uuid('end_location_id').references('locations.id')
     t.integer('distance_km')
+    t.boolean('status').defaultTo(true)
+    t.uuid('created_by').references('accounts.id')
+  })
+
+  // Bus Routes: mapping between route and bus company
+  await knex.schema.createTable('bus_routes', (t) => {
+    t.uuid('id').primary().defaultTo(knex.raw('gen_random_uuid()'))
+    t.uuid('route_id').references('routes.id').notNullable()
+    t.uuid('bus_company_id').references('bus_companies.id').notNullable()
+    t.boolean('status').defaultTo(true)
   })
 
   // Templates
   await knex.schema.createTable('templates', (t) => {
     t.uuid('id').primary().defaultTo(knex.raw('gen_random_uuid()'))
     t.uuid('company_id').references('bus_companies.id')
-    t.uuid('route_id').references('routes.id')
-    t.uuid('type_bus_id').references('type_buses.id')
+    // template is now tied to a bus_route and a specific bus (not type)
+    t.uuid('bus_routes_id').references('bus_routes.id')
+    t.uuid('bus_id').references('buses.id')
     t.string('name', 50)
     t.boolean('is_active').defaultTo(true)
     t.timestamp('created_at').defaultTo(knex.fn.now())
@@ -106,6 +117,9 @@ export async function up(knex: Knex): Promise<void> {
   // Trips
   await knex.schema.createTable('trips', (t) => {
     t.uuid('id').primary().defaultTo(knex.raw('gen_random_uuid()'))
+    // trip can be created from a template (template_id set) OR manually
+    // store bus_routes_id as the resolved route+company mapping
+    t.uuid('bus_routes_id').references('bus_routes.id')
     t.uuid('route_id').references('routes.id')
     t.uuid('template_id').references('templates.id')
     t.uuid('bus_id').references('buses.id')
