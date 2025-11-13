@@ -11,6 +11,13 @@ import { authenticateToken, requireCompany } from '../middlewares/authMiddleware
 
 const router = express.Router();
 
+/**
+ * @swagger
+ * tags:
+ *   name: Staffs
+ *   description: Staff management endpoints
+ */
+
 // All routes require authentication and company role
 router.use(authenticateToken);
 router.use(requireCompany);

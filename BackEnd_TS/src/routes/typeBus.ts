@@ -7,9 +7,9 @@ const router = Router();
 /**
  * @swagger
  * tags:
- *   - name: Admin - TypeBuses
+ *   - name: Type Buses Admin
  *     description: Admin type bus management (read-only)
- *   - name: Company - TypeBuses
+ *   - name: Type Buses Company
  *     description: Company type bus management (full CRUD)
  */
 

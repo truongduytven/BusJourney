@@ -14,12 +14,13 @@ import {
   PanelLeftOpen,
   Bus,
   Clock,
-  ListChecks,
   Users,
   Route,
   AlignHorizontalDistributeCenter,
   Waypoints,
   Boxes,
+  TrendingUpDown,
+  Files,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -91,9 +92,14 @@ const menuItems: MenuItem[] = [
     path: "/company/buses" 
   },
   { 
-    label: "Phương tiện", 
-    icon: ListChecks, 
-    path: "/company/vehicles" 
+    label: "Biểu mẫu chuyến", 
+    icon: Files, 
+    path: "/company/templates" 
+  },
+  { 
+    label: "Chuyến xe", 
+    icon: TrendingUpDown, 
+    path: "/company/trips" 
   },
   { 
     label: "Đơn hàng", 

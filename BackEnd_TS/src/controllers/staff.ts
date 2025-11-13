@@ -6,7 +6,7 @@ import StaffService from '../services/StaffService';
  * /api/company/staff/list:
  *   get:
  *     summary: Get paginated list of staff for a company
- *     tags: [User]
+ *     tags: [Staffs]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -78,7 +78,7 @@ export const getListStaff = async (req: Request, res: Response) => {
  * /api/company/staff/{id}:
  *   get:
  *     summary: Get staff by ID
- *     tags: [User]
+ *     tags: [Staffs]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -130,7 +130,7 @@ export const getStaffById = async (req: Request, res: Response) => {
  * /api/company/staff:
  *   post:
  *     summary: Create new staff account
- *     tags: [User]
+ *     tags: [Staffs]
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -178,7 +178,7 @@ export const createStaff = async (req: Request, res: Response) => {
 
     if (!createdBy) {
       return res.status(400).json({
-        message: 'User ID not found in session',
+        message: 'Staffs ID not found in session',
       });
     }
 
@@ -239,7 +239,7 @@ export const createStaff = async (req: Request, res: Response) => {
  * /api/company/staff/{id}:
  *   put:
  *     summary: Update staff information
- *     tags: [User]
+ *     tags: [Staffs]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -344,7 +344,7 @@ export const updateStaff = async (req: Request, res: Response) => {
  * /api/company/staff/{id}/toggle-status:
  *   patch:
  *     summary: Toggle staff active status
- *     tags: [User]
+ *     tags: [Staffs]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -396,7 +396,7 @@ export const toggleStaffStatus = async (req: Request, res: Response) => {
  * /api/company/staff/bulk-toggle-active:
  *   put:
  *     summary: Bulk toggle staff active status
- *     tags: [User]
+ *     tags: [Staffs]
  *     security:
  *       - bearerAuth: []
  *     requestBody:

@@ -30,7 +30,7 @@ apiClient.interceptors.response.use(
   (error: AxiosError<any>) => {
     const resp = error.response;
     try {
-      if (resp && resp.status === 401) {
+      if (resp && resp.status === 403) {
         const errCode = resp.data?.message;
         if (errCode === 'Invalid or expired token') {
           localStorage.removeItem('authToken');

@@ -12,10 +12,7 @@ const router = Router();
  *   description: Ticket lookup and management endpoints
  */
 
-// Public routes
 router.post('/lookup', lookupTicket);
-
-// Protected routes - My Tickets
 router.get('/my-tickets', authenticateToken, myTicketController.getMyTickets);
 router.get('/:id/detail', authenticateToken, myTicketController.getTicketDetail);
 

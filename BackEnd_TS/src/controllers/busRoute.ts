@@ -6,7 +6,7 @@ import { BusRouteService } from '../services/BusRouteService';
  * /api/bus-routes:
  *   get:
  *     summary: Get list of bus routes (Company's routes)
- *     tags: [BusRoutes]
+ *     tags: [Bus Routes]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -73,7 +73,7 @@ export const listBusRoutes = async (req: Request, res: Response) => {
  * /api/bus-routes/{id}:
  *   get:
  *     summary: Get bus route by ID
- *     tags: [BusRoutes]
+ *     tags: [Bus Routes]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -116,7 +116,7 @@ export const getBusRoute = async (req: Request, res: Response) => {
  * /api/bus-routes:
  *   post:
  *     summary: Company creates new bus route (selects from approved routes)
- *     tags: [BusRoutes]
+ *     tags: [Bus Routes]
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -180,7 +180,7 @@ export const createBusRoute = async (req: Request, res: Response) => {
  * /api/bus-routes/{id}/status:
  *   patch:
  *     summary: Company updates bus route status (active/inactive)
- *     tags: [BusRoutes]
+ *     tags: [Bus Routes]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -247,7 +247,7 @@ export const updateBusRouteStatus = async (req: Request, res: Response) => {
  * /api/bus-routes/{id}:
  *   delete:
  *     summary: Company deletes bus route
- *     tags: [BusRoutes]
+ *     tags: [Bus Routes]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -289,7 +289,7 @@ export const deleteBusRoute = async (req: Request, res: Response) => {
  * /api/bus-routes/approved-routes:
  *   get:
  *     summary: Get list of approved routes for company to select
- *     tags: [BusRoutes]
+ *     tags: [Bus Routes]
  *     security:
  *       - bearerAuth: []
  *     parameters:

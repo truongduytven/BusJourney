@@ -7,7 +7,7 @@ class MyTicketController {
    * /tickets/my-tickets:
    *   get:
    *     summary: Get user's tickets
-   *     tags: [My Tickets]
+   *     tags: [Tickets]
    *     security:
    *       - bearerAuth: []
    *     parameters:
@@ -66,7 +66,7 @@ class MyTicketController {
    * /tickets/{id}/detail:
    *   get:
    *     summary: Get ticket detail
-   *     tags: [My Tickets]
+   *     tags: [Tickets]
    *     security:
    *       - bearerAuth: []
    *     parameters:

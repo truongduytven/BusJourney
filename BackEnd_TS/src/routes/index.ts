@@ -18,6 +18,7 @@ import routeRouter from './route';
 import busRouteRouter from './busRoute';
 import typeBusRouter from './typeBus';
 import busRouter from './bus';
+import companyTemplateRouter from './companyTemplate';
 
 router.use('/auth', authRouter);
 router.use('/users', userRouter);
@@ -29,8 +30,7 @@ router.use('/routes', routeRouter);
 router.use('/bus-routes', busRouteRouter);
 router.use('/type-buses', typeBusRouter);
 router.use('/buses', busRouter);
-// router.use('/routes', routeTripRouter);
-// router.use('/bus-companies', busCompanyRouter);
+router.use('/templates', companyTemplateRouter);
 router.use('/trips', tripRouter);
 router.use('/tickets', ticketRouter);
 router.use('/coupons', couponRouter);

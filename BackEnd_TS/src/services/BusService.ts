@@ -59,7 +59,7 @@ export class BusService {
   static async createBus(data: {
     licensePlate: string
     typeBusId: string
-    busCompanyId: string
+    companyId: string
     extensions?: string[]
     images?: string[]
   }) {
@@ -69,15 +69,19 @@ export class BusService {
       throw new Error('Biển số xe này đã tồn tại')
     }
 
-    const bus = await Bus.query().insertAndFetch({
-      licensePlate: data.licensePlate,
-      typeBusId: data.typeBusId,
-      companyId: data.busCompanyId,
-      extensions: data.extensions || [],
-      images: data.images || []
-    })
+    const formattedData: any = { ...data }
 
-    return await this.getBusById(bus.id, data.busCompanyId)
+    if( data.extensions ) {
+      formattedData.extensions = JSON.stringify(data.extensions)
+    }
+
+    if( data.images ) {
+      formattedData.images = JSON.stringify(data.images)
+    }
+
+    const bus = await Bus.query().insertAndFetch(formattedData)
+
+    return await this.getBusById(bus.id, data.companyId)
   }
 
   static async updateBus(

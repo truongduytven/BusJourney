@@ -22,6 +22,13 @@ router.put('/reset-password', resetPasswordByAccountId)
 router.get('/me', authenticateToken, ProfileController.getProfile)
 router.put('/update-phone', authenticateToken, updatePhone)
 
+/**
+ * @swagger
+ * tags:
+ *   name: Profile
+ *   description: Profile management endpoints
+ */
+
 // Profile management endpoints
 router.patch('/profile', authenticateToken, ProfileController.updateProfile)
 router.post('/profile/avatar', authenticateToken, upload.single('avatar'), ProfileController.uploadAvatar)

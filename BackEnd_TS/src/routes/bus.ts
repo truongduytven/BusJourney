@@ -5,6 +5,13 @@ import upload from '../middlewares/upload';
 
 const router = express.Router();
 
+/**
+ * @swagger
+ * tags:
+ *   name: Buses
+ *   description: Bus search and management endpoints
+ */
+
 router.get('/company', authenticateToken, BusController.companyListBuses);
 router.get('/company/:id', authenticateToken, BusController.companyGetBus);
 router.post('/company', authenticateToken, upload.array('images', 10), BusController.companyCreateBus);

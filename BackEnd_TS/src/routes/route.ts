@@ -13,6 +13,13 @@ import {
 
 const router = express.Router();
 
+/**
+ * @swagger
+ * tags:
+ *   name: Routes
+ *   description: Route management endpoints
+ */
+
 router.use(authenticateToken);
 router.get('/', listRoutes);
 router.get('/:id', getRoute);

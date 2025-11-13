@@ -57,7 +57,7 @@ export const CompanyBusesPage = () => {
     description: '',
   });
   
-  const debouncedSearch = useDebounce(searchQuery, 500);
+  const debouncedSearch = useDebounce(searchQuery, 1500);
 
   useEffect(() => {
     dispatch(fetchCompanyTypeBuses({ page: 1, pageSize: 100 }));

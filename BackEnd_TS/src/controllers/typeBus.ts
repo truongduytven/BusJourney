@@ -2,14 +2,13 @@ import { Request, Response } from 'express';
 import { TypeBusService } from '../services/TypeBusService';
 
 class TypeBusController {
-  // ==================== ADMIN ROUTES (Read-only) ====================
 
   /**
    * @swagger
    * /api/type-buses:
    *   get:
    *     summary: Get list of all type buses (Admin view)
-   *     tags: [Admin - TypeBuses]
+   *     tags: [Type Buses Admin]
    *     security:
    *       - bearerAuth: []
    *     parameters:
@@ -70,7 +69,7 @@ class TypeBusController {
    * /api/type-buses/{id}:
    *   get:
    *     summary: Get type bus detail (Admin view)
-   *     tags: [Admin - TypeBuses]
+   *     tags: [Type Buses Admin]
    *     security:
    *       - bearerAuth: []
    *     parameters:
@@ -114,7 +113,7 @@ class TypeBusController {
    * /api/company/type-buses:
    *   get:
    *     summary: Get list of company's type buses
-   *     tags: [Company - TypeBuses]
+   *     tags: [Type Buses Company]
    *     security:
    *       - bearerAuth: []
    *     parameters:
@@ -183,7 +182,7 @@ class TypeBusController {
    * /api/company/type-buses/{id}:
    *   get:
    *     summary: Get company's type bus detail
-   *     tags: [Company - TypeBuses]
+   *     tags: [Type Buses Company]
    *     security:
    *       - bearerAuth: []
    *     parameters:
@@ -233,7 +232,7 @@ class TypeBusController {
    * /api/company/type-buses:
    *   post:
    *     summary: Create new type bus (Company)
-   *     tags: [Company - TypeBuses]
+   *     tags: [Type Buses Company]
    *     security:
    *       - bearerAuth: []
    *     requestBody:
@@ -313,7 +312,7 @@ class TypeBusController {
    * /api/company/type-buses/{id}:
    *   put:
    *     summary: Update company's type bus
-   *     tags: [Company - TypeBuses]
+   *     tags: [Type Buses Company]
    *     security:
    *       - bearerAuth: []
    *     parameters:
@@ -387,7 +386,7 @@ class TypeBusController {
    * /api/company/type-buses/{id}:
    *   delete:
    *     summary: Delete company's type bus
-   *     tags: [Company - TypeBuses]
+   *     tags: [Type Buses Company]
    *     security:
    *       - bearerAuth: []
    *     parameters:

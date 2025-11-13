@@ -11,6 +11,13 @@ import { authenticateToken } from '../middlewares/authMiddleware';
 
 const router = express.Router();
 
+/**
+ * @swagger
+ * tags:
+ *   name: Coupon Management
+ *   description: Coupon management and validation endpoints
+ */
+
 // Public routes
 router.get('/list', getListCoupons);
 router.get('/:id', getCouponById);

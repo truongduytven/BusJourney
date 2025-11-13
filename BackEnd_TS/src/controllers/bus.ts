@@ -260,7 +260,7 @@ export class BusController {
       const bus = await BusService.createBus({
         licensePlate: req.body.licensePlate,
         typeBusId: req.body.typeBusId,
-        busCompanyId,
+        companyId: busCompanyId,
         extensions,
         images: imageUrls,
       });

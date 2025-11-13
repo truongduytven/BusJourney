@@ -7,6 +7,7 @@ import couponReducer from "./slices/couponSlice";
 import typeBusReducer from "./slices/typeBusSlice";
 import companyTypeBusReducer from "./slices/companyTypeBusSlice";
 import companyBusReducer from "./slices/companyBusSlice";
+import companyTemplateReducer from "./slices/companyTemplateSlice";
 import tripReducer from "./slices/tripSlice";
 import tripDetailReducer from "./slices/tripDetailSlice";
 import tripSeatReducer from "./slices/tripSeatSlice";
@@ -31,6 +32,7 @@ export const store = configureStore({
     typeBuses: typeBusReducer,
     companyTypeBuses: companyTypeBusReducer,
     companyBuses: companyBusReducer,
+    companyTemplates: companyTemplateReducer,
     trips: tripReducer,
     tripDeatails: tripDetailReducer,
     tripSeats: tripSeatReducer,

@@ -3,7 +3,7 @@ import CouponManagementService from '../services/CouponManagementService';
 
 /**
  * @swagger
- * /api/coupon-management/list:
+ * /coupon-management/list:
  *   get:
  *     summary: Get paginated list of coupons
  *     tags: [Coupon Management]
@@ -77,7 +77,7 @@ export const getListCoupons = async (req: Request, res: Response) => {
 
 /**
  * @swagger
- * /api/coupon-management/{id}:
+ * /coupon-management/{id}:
  *   get:
  *     summary: Get coupon by ID
  *     tags: [Coupon Management]
@@ -119,7 +119,7 @@ export const getCouponById = async (req: Request, res: Response) => {
 
 /**
  * @swagger
- * /api/coupon-management:
+ * /coupon-management:
  *   post:
  *     summary: Create new coupon
  *     tags: [Coupon Management]
@@ -228,7 +228,7 @@ export const createCoupon = async (req: Request, res: Response) => {
 
 /**
  * @swagger
- * /api/coupon-management/{id}:
+ * /coupon-management/{id}:
  *   put:
  *     summary: Update coupon
  *     tags: [Coupon Management]
@@ -323,7 +323,7 @@ export const updateCoupon = async (req: Request, res: Response) => {
 
 /**
  * @swagger
- * /api/coupon-management/{id}/toggle-status:
+ * /coupon-management/{id}/toggle-status:
  *   patch:
  *     summary: Toggle coupon status (active/inactive)
  *     tags: [Coupon Management]
@@ -365,7 +365,7 @@ export const toggleCouponStatus = async (req: Request, res: Response) => {
 
 /**
  * @swagger
- * /api/coupon-management/{id}/extend:
+ * /coupon-management/{id}/extend:
  *   patch:
  *     summary: Extend coupon expiration date
  *     tags: [Coupon Management]
