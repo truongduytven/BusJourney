@@ -10,7 +10,7 @@ class HomeService {
     try {
       // Get routes with most trips and bookings
       const featuredRoutes = await Route.query()
-        .withGraphFetched('[startLocation.city, endLocation.city, trips(active)]')
+        .withGraphFetched('[startLocation.city, endLocation.city, busRoutes.trips(active)]')
         .modifiers({
           active: (builder) => {
             builder

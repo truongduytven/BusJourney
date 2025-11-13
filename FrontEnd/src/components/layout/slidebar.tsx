@@ -79,6 +79,7 @@ const menuItems: MenuItem[] = [
     icon: Bus,
     children: [
       { label: "Tuyến đường", icon: Route, path: "/admin/routes" },
+      { label: "Loại xe", icon: Bus, path: "/admin/type-buses" },
     ],
   },
   {

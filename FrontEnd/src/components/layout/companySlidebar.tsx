@@ -19,6 +19,7 @@ import {
   Route,
   AlignHorizontalDistributeCenter,
   Waypoints,
+  Boxes,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -78,6 +79,11 @@ const menuItems: MenuItem[] = [
         path: "/company/bus-routes" 
       }
     ]
+  },
+  { 
+    label: "Loại xe", 
+    icon: Boxes, 
+    path: "/company/type-buses" 
   },
   { 
     label: "Chuyến xe", 

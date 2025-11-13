@@ -10,6 +10,7 @@ export interface ITypeBus {
     isFloors: boolean
     numberRowsFloor?: number
     numberColsFloor?: number
+    busCompanyId?: string
 }
 
 export default class TypeBus extends BaseModel implements ITypeBus {
@@ -21,6 +22,7 @@ export default class TypeBus extends BaseModel implements ITypeBus {
     isFloors!: boolean
     numberRowsFloor?: number
     numberColsFloor?: number
+    busCompanyId?: string
 
     static tableName = 'type_buses'
 
@@ -30,11 +32,15 @@ export default class TypeBus extends BaseModel implements ITypeBus {
             modelClass: () => require('./Seat').default,
             join: { from: 'type_buses.id', to: 'seats.type_bus_id' }
         },
-        // templates no longer reference type_buses (templates now reference bus_routes and bus_id)
         buses: {
             relation: Model.HasManyRelation,
             modelClass: () => require('./Bus').default,
             join: { from: 'type_buses.id', to: 'buses.type_bus_id' }
+        },
+        busCompany: {
+            relation: Model.BelongsToOneRelation,
+            modelClass: () => require('./BusCompany').default,
+            join: { from: 'type_buses.bus_company_id', to: 'bus_companies.id' }
         }
     }
 }

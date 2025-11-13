@@ -33,6 +33,9 @@ import { StaffPage } from "./pages/Company/staff/staffPage";
 import { AdminRoutesPage } from "./pages/Admin/route/routesPage";
 import { CompanyRoutesPage } from "./pages/Company/route/routesPage";
 import { CompanyBusRoutesPage } from "./pages/Company/busRoute/busRoutesPage";
+import { TypeBusesPage } from "./pages/Admin/typeBus/typeBusesPage";
+import { CompanyTypeBusesPage } from "./pages/Company/typeBus";
+import { TypeBusDesignerPage } from "./pages/Company/typeBus/TypeBusDesignerPage";
 
 function App() {
   const location = useLocation();
@@ -65,6 +68,7 @@ function App() {
           <Route path="locations" element={<LocationsPage />} />
           <Route path="points" element={<PointsPage />} />
           <Route path="routes" element={<AdminRoutesPage />} />
+          <Route path="type-buses" element={<TypeBusesPage />} />
           <Route path="coupons" element={<CouponsPage />} />
           <Route path="partners" element={<PartnersPage />} />
           <Route path="profile" element={<ProfilePage />} />
@@ -83,6 +87,9 @@ function App() {
           <Route path="staff" element={<StaffPage />} />
           <Route path="routes" element={<CompanyRoutesPage />} />
           <Route path="bus-routes" element={<CompanyBusRoutesPage />} />
+          <Route path="type-buses" element={<CompanyTypeBusesPage />} />
+          <Route path="type-buses/create" element={<TypeBusDesignerPage />} />
+          <Route path="type-buses/:id/edit" element={<TypeBusDesignerPage />} />
           <Route path="profile" element={<ProfilePage />} />
           {/* Additional company-specific routes (trips, vehicles, orders) can be added here */}
         </Route>

@@ -47,7 +47,7 @@ export default function TripCard({
   const startTimeNumber = new Date(item.departureTime);
   const tripData = item && {
     tripId: item.id || "",
-    route: `${item.route.startLocation.name || ""} - ${item.route.endLocation.name || ""}`,
+    route: `${item.busRoute.route.startLocation.name || ""} - ${item.busRoute.route.endLocation.name || ""}`,
     tripImage: item.buses.images[0] || "",
     busCompanyName: item.buses.bus_companies.name || "",
     departureTime: new Date(item.departureTime).toISOString(),
@@ -157,14 +157,14 @@ export default function TripCard({
               <div className="flex flex-col justify-between items-start text-lg text-primary">
                 <div>
                   <b>{startTime} •</b>{" "}
-                  {item.route.startLocation.name || "Địa chỉ đi"}
+                  {item.busRoute.route.startLocation.name || "Địa chỉ đi"}
                 </div>
                 <div className="flex-1 flex items-center text-base text-gray-500">
                   {hours}h{minutes}m
                 </div>
                 <div>
                   <b>{endTime} •</b>{" "}
-                  {item.route.endLocation.name || "Địa chỉ đến"}
+                  {item.busRoute.route.endLocation.name || "Địa chỉ đến"}
                 </div>
               </div>
             </div>

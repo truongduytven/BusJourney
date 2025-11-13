@@ -110,13 +110,21 @@ export interface TripResults {
   arrivalTime: string;
   price: string;
   status: string;
-  routeId: string;
+  busRoutesId: string;
   templateId: string;
   busId: string;
   avgRating: string;
   numberComments: string;
   buses: busData;
+  busRoute: busRouteData;
+}
+
+export interface busRouteData {
+  id: string;
+  busCompanyId: string;
+  routeId: string;
   route: routeData;
+  status: boolean;
 }
 
 export interface TripSearchPayload {
@@ -182,7 +190,6 @@ export interface routeData {
   startLocationId: string;
   endLocationId: string;
   distance: string;
-  duration: string;
   startLocation: {
     id: string;
     cityId: string;
@@ -193,6 +200,8 @@ export interface routeData {
     cityId: string;
     name: string;
   };
+  createdBy: string | null;
+  status: string;
 }
 
 export interface CouponData {
