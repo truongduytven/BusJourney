@@ -11,7 +11,7 @@ const getAuthToken = () => {
   return localStorage.getItem('authToken') || localStorage.getItem('accessToken');
 };
 
-// Attach Authorization header automatically if token exists
+
 apiClient.interceptors.request.use((config) => {
   const token = getAuthToken();
   if (token && config && config.headers) {
@@ -21,10 +21,10 @@ apiClient.interceptors.request.use((config) => {
       config.headers['Authorization'] = `Bearer ${token}`;
     }
   }
+  config.headers['Accept'] = 'application/json';
   return config;
 });
 
-// Response interceptor to handle invalid/expired tokens centrally
 apiClient.interceptors.response.use(
   (response) => response,
   (error: AxiosError<any>) => {
@@ -32,7 +32,6 @@ apiClient.interceptors.response.use(
     try {
       if (resp && resp.status === 401) {
         const errCode = resp.data?.message;
-        // We expect backend to send error codes like 'token_expired' or 'invalid_token'
         if (errCode === 'Invalid or expired token') {
           localStorage.removeItem('authToken');
           localStorage.removeItem('accessToken');

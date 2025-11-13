@@ -86,9 +86,9 @@ const menuItems: MenuItem[] = [
     path: "/company/type-buses" 
   },
   { 
-    label: "Chuyến xe", 
+    label: "Danh sách xe", 
     icon: Bus, 
-    path: "/company/trips" 
+    path: "/company/buses" 
   },
   { 
     label: "Phương tiện", 

@@ -6,6 +6,7 @@ import pointReducer from "./slices/pointSlice";
 import couponReducer from "./slices/couponSlice";
 import typeBusReducer from "./slices/typeBusSlice";
 import companyTypeBusReducer from "./slices/companyTypeBusSlice";
+import companyBusReducer from "./slices/companyBusSlice";
 import tripReducer from "./slices/tripSlice";
 import tripDetailReducer from "./slices/tripDetailSlice";
 import tripSeatReducer from "./slices/tripSeatSlice";
@@ -29,6 +30,7 @@ export const store = configureStore({
     coupons: couponReducer,
     typeBuses: typeBusReducer,
     companyTypeBuses: companyTypeBusReducer,
+    companyBuses: companyBusReducer,
     trips: tripReducer,
     tripDeatails: tripDetailReducer,
     tripSeats: tripSeatReducer,

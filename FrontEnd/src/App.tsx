@@ -36,6 +36,7 @@ import { CompanyBusRoutesPage } from "./pages/Company/busRoute/busRoutesPage";
 import { TypeBusesPage } from "./pages/Admin/typeBus/typeBusesPage";
 import { CompanyTypeBusesPage } from "./pages/Company/typeBus";
 import { TypeBusDesignerPage } from "./pages/Company/typeBus/TypeBusDesignerPage";
+import { CompanyBusesPage } from "./pages/Company/bus";
 
 function App() {
   const location = useLocation();
@@ -88,6 +89,7 @@ function App() {
           <Route path="routes" element={<CompanyRoutesPage />} />
           <Route path="bus-routes" element={<CompanyBusRoutesPage />} />
           <Route path="type-buses" element={<CompanyTypeBusesPage />} />
+          <Route path="buses" element={<CompanyBusesPage />} />
           <Route path="type-buses/create" element={<TypeBusDesignerPage />} />
           <Route path="type-buses/:id/edit" element={<TypeBusDesignerPage />} />
           <Route path="profile" element={<ProfilePage />} />
