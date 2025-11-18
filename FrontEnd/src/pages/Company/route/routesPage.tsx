@@ -123,12 +123,8 @@ export const CompanyRoutesPage = () => {
   return (
     <div className="container mx-auto py-4 px-4 md:px-6 lg:px-8">
       <div className="mb-6">
-        <h1 className="text-2xl font-semibold tracking-tight">
-          Quản lý tuyến đường
-        </h1>
-        <p className="text-sm text-gray-600 mt-1">
-          Xem danh sách tuyến và gửi yêu cầu tạo tuyến mới
-        </p>
+        <h1 className="text-3xl font-bold">Quản lý tuyến đường chung</h1>
+        <p className="text-muted-foreground mt-1">Quản lý các tuyến đường chung của hệ thống</p>
       </div>
       
       <DataTable 

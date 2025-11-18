@@ -49,14 +49,13 @@ export const createColumns = (
       <DataTableColumnHeader column={column} title="Tuyến đường" />
     ),
     cell: ({ row }) => {
-      const busRoute = row.original.busRoute;
-      if (!busRoute?.route?.startLocation || !busRoute?.route?.endLocation) {
+      if (!row.original.busRoute?.route?.startLocation || !row.original.busRoute?.route?.endLocation) {
         return <span className="text-gray-400">N/A</span>;
       }
       
       return (
         <div className="font-medium">
-          {busRoute.route.startLocation.name} → {busRoute.route.endLocation.name}
+          {row.original.busRoute.route.startLocation.name} → {row.original.busRoute.route.endLocation.name}
         </div>
       );
     },
@@ -67,15 +66,14 @@ export const createColumns = (
       <DataTableColumnHeader column={column} title="Xe sử dụng" />
     ),
     cell: ({ row }) => {
-      const bus = row.original.bus;
-      if (!bus) {
+      if (!row.original.bus) {
         return <span className="text-gray-400">N/A</span>;
       }
       return (
         <div>
-          <div className="font-medium">{bus.licensePlate}</div>
-          {bus.type_buses && (
-            <div className="text-sm text-gray-500">{bus.type_buses.name}</div>
+          <div className="font-medium">{row.original.bus.licensePlate}</div>
+          {row.original.bus.type_buses && (
+            <div className="text-sm text-gray-500">{row.original.bus.type_buses.name}</div>
           )}
         </div>
       );

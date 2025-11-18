@@ -8,22 +8,211 @@ interface TicketWithRelations extends Ticket {
   pickUpPoint?: any
   dropOffPoint?: any
 }
-
-// Interface cho request body tra cứu vé
 export interface TicketLookupRequest {
   email: string
   phone: string
   ticketCode: string
 }
 
+interface TicketListFilters {
+  search?: string
+  status?: string
+  userId?: string
+  tripId?: string
+  orderId?: string
+  pageSize?: number
+  pageNumber?: number
+  companyId?: string
+}
+interface TicketListResponse {
+  tickets: Ticket[]
+  totalTickets: number
+  totalPage: number
+  currentPage: number
+  pageSize: number
+}
+
 class TicketService {
+  async getListTickets(filters: TicketListFilters): Promise<TicketListResponse> {
+    const { search, status, userId, tripId, orderId, pageSize = 10, pageNumber = 1, companyId } = filters
+
+    let query = Ticket.query().withGraphFetched(
+      '[account, order, trip.[busRoute.[route.[startLocation, endLocation]], template, buses.bus_companies], pickUpPoint, dropOffPoint]'
+    )
+
+    // Apply company filter if provided - need to join tables for WHERE clause
+    if (companyId) {
+      query = query
+        .joinRelated('trip.buses')
+        .where('trip:buses.company_id', companyId)
+    }
+    
+    if (status) {
+      query = query.where('tickets.status', status)
+    }
+
+    if (userId) {
+      query = query.where('tickets.user_id', userId)
+    }
+
+    if (tripId) {
+      query = query.where('tickets.trip_id', tripId)
+    }
+
+    if (orderId) {
+      query = query.where('tickets.order_id', orderId)
+    }
+
+    if (search) {
+      query = query.where((builder) => {
+        builder
+          .where('tickets.ticket_code', 'ilike', `%${search}%`)
+          .orWhere('tickets.seat_code', 'ilike', `%${search}%`)
+      })
+    }
+
+    const countQuery = query.clone()
+    const total = await countQuery.resultSize()
+
+    const offset = (pageNumber - 1) * pageSize
+    const tickets = await query.orderBy('tickets.purchase_date', 'desc').limit(pageSize).offset(offset)
+
+    return {
+      tickets,
+      totalTickets: total,
+      totalPage: Math.ceil(total / pageSize),
+      currentPage: pageNumber,
+      pageSize
+    }
+  }
+
+  /**
+   * Get ticket by ID
+   */
+  async getTicketById(id: string, companyId?: string): Promise<Ticket> {
+    let query = Ticket.query()
+      .findById(id)
+      .withGraphFetched(
+        '[account, order, trip.[busRoute.[route.[startLocation, endLocation]], template, buses.bus_companies], pickUpPoint, dropOffPoint, checker]'
+      ) as any
+
+    const ticket = await query
+
+    if (!ticket) {
+      throw new Error('Ticket not found')
+    }
+
+    // Verify company ownership if companyId provided
+    // Check: ticket -> trip -> buses -> companyId
+    if (companyId && ticket.trip?.buses?.companyId !== companyId) {
+      throw new Error('Ticket does not belong to this company')
+    }
+
+    return ticket
+  }
+
+  /**
+   * Update ticket
+   */
+  async updateTicket(
+    id: string,
+    data: Partial<{
+      status: string
+      pickupPointId: string
+      dropoffPointId: string
+      seatCode: string
+      checkedDate: Date
+      checkedBy: string
+    }>,
+    companyId?: string
+  ): Promise<Ticket> {
+    const ticket = await this.getTicketById(id, companyId)
+
+    // If updating seat, check for conflicts
+    if (data.seatCode && data.seatCode !== ticket.seatCode) {
+      const existingTicket = await Ticket.query()
+        .where('trip_id', ticket.tripId)
+        .where('seat_code', data.seatCode)
+        .whereNot('id', id)
+        .whereNot('status', 'cancelled')
+        .first()
+
+      if (existingTicket) {
+        throw new Error('Seat already booked for this trip')
+      }
+    }
+
+    const updateData: any = {}
+    if (data.status) updateData.status = data.status
+    if (data.pickupPointId !== undefined) updateData.pickupPointId = data.pickupPointId
+    if (data.dropoffPointId !== undefined) updateData.dropoffPointId = data.dropoffPointId
+    if (data.seatCode) updateData.seatCode = data.seatCode
+    if (data.checkedDate) updateData.checkedDate = data.checkedDate
+    if (data.checkedBy) updateData.checkedBy = data.checkedBy
+
+    await Ticket.query().patchAndFetchById(id, updateData)
+
+    return await this.getTicketById(id, companyId)
+  }
+
+  /**
+   * Delete ticket (soft delete by changing status to cancelled)
+   */
+  async deleteTicket(id: string, companyId?: string): Promise<void> {
+    await this.getTicketById(id, companyId)
+
+    // Instead of deleting, mark as cancelled
+    await Ticket.query().patchAndFetchById(id, {
+      status: 'cancelled'
+    })
+  }
+
+  /**
+   * Toggle ticket status
+   */
+  async toggleTicketStatus(id: string, companyId?: string): Promise<Ticket> {
+    const ticket = await this.getTicketById(id, companyId)
+
+    const newStatus = ticket.status === 'cancelled' ? 'confirmed' : 'cancelled'
+
+    await Ticket.query().patchAndFetchById(id, {
+      status: newStatus
+    })
+
+    return await this.getTicketById(id, companyId)
+  }
+
+  /**
+   * Check-in ticket
+   */
+  async checkInTicket(id: string, checkedBy: string, companyId?: string): Promise<Ticket> {
+    const ticket = await this.getTicketById(id, companyId)
+
+    if (ticket.status === 'cancelled') {
+      throw new Error('Cannot check in a cancelled ticket')
+    }
+
+    if (ticket.checkedDate) {
+      throw new Error('Ticket already checked in')
+    }
+
+    await Ticket.query().patchAndFetchById(id, {
+      status: 'checked_in',
+      checkedDate: new Date(),
+      checkedBy
+    })
+
+    return await this.getTicketById(id, companyId)
+  }
+
   async lookupTicket(data: TicketLookupRequest) {
     const { email, phone, ticketCode } = data
 
     // Tìm vé với đầy đủ thông tin liên quan
     const ticketResult = await Ticket.query()
       .where('ticketCode', ticketCode)
-      .withGraphFetched(`[
+      .withGraphFetched(
+        `[
         account.[roles],
         order.[
           transaction,
@@ -42,7 +231,8 @@ class TicketService {
         ],
         pickUpPoint,
         dropOffPoint
-      ]`)
+      ]`
+      )
       .first()
 
     const ticket = ticketResult as TicketWithRelations
@@ -59,20 +249,16 @@ class TicketService {
 
     // Validate email và phone khớp với account
     if (ticketAccount.email !== email || ticketAccount.phone !== phone) {
-      return { 
-        success: false, 
-        message: 'Email hoặc số điện thoại không khớp với thông tin đặt vé', 
-        code: 'UNAUTHORIZED' 
+      return {
+        success: false,
+        message: 'Email hoặc số điện thoại không khớp với thông tin đặt vé',
+        code: 'UNAUTHORIZED'
       }
     }
 
     // Tìm thông tin time cho pickup và dropoff point từ tripPoints
-    const pickupTripPoint = ticket.trip?.tripPoints?.find(
-      (tp: any) => tp.pointId === ticket.pickupPointId
-    )
-    const dropoffTripPoint = ticket.trip?.tripPoints?.find(
-      (tp: any) => tp.pointId === ticket.dropoffPointId
-    )
+    const pickupTripPoint = ticket.trip?.tripPoints?.find((tp: any) => tp.pointId === ticket.pickupPointId)
+    const dropoffTripPoint = ticket.trip?.tripPoints?.find((tp: any) => tp.pointId === ticket.dropoffPointId)
 
     // Chuẩn bị response data với đầy đủ thông tin
     const ticketInfo = {
@@ -145,38 +331,46 @@ class TicketService {
         finalAmount: ticket.order?.finalAmount,
         status: ticket.order?.status,
         createdAt: ticket.order?.createdAt,
-        coupon: ticket.order?.coupon ? {
-          id: ticket.order.coupon.id,
-          description: ticket.order.coupon.description,
-          discountType: ticket.order.coupon.discountType,
-          discountValue: ticket.order.coupon.discountValue
-        } : null
+        coupon: ticket.order?.coupon
+          ? {
+              id: ticket.order.coupon.id,
+              description: ticket.order.coupon.description,
+              discountType: ticket.order.coupon.discountType,
+              discountValue: ticket.order.coupon.discountValue
+            }
+          : null
       },
 
       // Thông tin thanh toán
-      transaction: ticket.order?.transaction ? {
-        id: ticket.order.transaction.id,
-        amount: ticket.order.transaction.amount,
-        paymentMethod: ticket.order.transaction.paymentMethod,
-        status: ticket.order.transaction.status,
-        createdAt: ticket.order.transaction.createdAt
-      } : null,
+      transaction: ticket.order?.transaction
+        ? {
+            id: ticket.order.transaction.id,
+            amount: ticket.order.transaction.amount,
+            paymentMethod: ticket.order.transaction.paymentMethod,
+            status: ticket.order.transaction.status,
+            createdAt: ticket.order.transaction.createdAt
+          }
+        : null,
 
       // Điểm đón (với time từ trip_points)
-      pickUpPoint: ticket.pickUpPoint ? {
-        id: ticket.pickUpPoint.id,
-        type: ticket.pickUpPoint.type,
-        time: pickupTripPoint?.time || null,
-        locationName: ticket.pickUpPoint.locationName
-      } : null,
+      pickUpPoint: ticket.pickUpPoint
+        ? {
+            id: ticket.pickUpPoint.id,
+            type: ticket.pickUpPoint.type,
+            time: pickupTripPoint?.time || null,
+            locationName: ticket.pickUpPoint.locationName
+          }
+        : null,
 
       // Điểm trả (với time từ trip_points)
-      dropOffPoint: ticket.dropOffPoint ? {
-        id: ticket.dropOffPoint.id,
-        type: ticket.dropOffPoint.type,
-        time: dropoffTripPoint?.time || null,
-        locationName: ticket.dropOffPoint.locationName
-      } : null
+      dropOffPoint: ticket.dropOffPoint
+        ? {
+            id: ticket.dropOffPoint.id,
+            type: ticket.dropOffPoint.type,
+            time: dropoffTripPoint?.time || null,
+            locationName: ticket.dropOffPoint.locationName
+          }
+        : null
     }
 
     return {

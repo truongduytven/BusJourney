@@ -100,7 +100,7 @@ export function TemplateModal({
               value={selectedBusRouteId}
               onValueChange={(value) => setValue('busRoutesId', value)}
             >
-              <SelectTrigger id="busRoutesId">
+              <SelectTrigger id="busRoutesId" className='border-gray-300 w-full'>
                 <SelectValue placeholder="Chọn tuyến đường" />
               </SelectTrigger>
               <SelectContent>
@@ -122,7 +122,7 @@ export function TemplateModal({
               value={selectedBusId}
               onValueChange={(value) => setValue('busId', value)}
             >
-              <SelectTrigger id="busId">
+              <SelectTrigger id="busId" className='border-gray-300 w-full'>
                 <SelectValue placeholder="Chọn xe" />
               </SelectTrigger>
               <SelectContent>

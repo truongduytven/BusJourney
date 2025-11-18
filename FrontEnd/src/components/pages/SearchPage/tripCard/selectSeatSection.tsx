@@ -315,7 +315,7 @@ export default function SelectSeatSection({
               </div>
             </div>
 
-            <div className="flex-1 flex justify-end gap-x-4">
+            <div className="flex-2 flex justify-end gap-x-4">
               <div className="w-1/2 flex flex-col items-center">
                 <div>Tầng dưới</div>
                 <div className="flex flex-col bg-gray-100 min-h-40 min-w-40 px-3 py-4 rounded-2xl">

@@ -1,7 +1,8 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import apiClient from '@/lib/axios';
+import type { TicketListResponse, TicketFilters, UpdateTicketRequest, Ticket } from '@/types/ticket';
 
-// Types
+// Types for ticket lookup (existing)
 export interface TicketLookupRequest {
   email: string;
   phone: string;
@@ -136,3 +137,142 @@ export const lookupTicket = createAsyncThunk<
     }
   }
 );
+
+// Admin: Fetch ticket list
+export const fetchAdminTickets = createAsyncThunk<
+  TicketListResponse,
+  TicketFilters & { pageSize?: number; pageNumber?: number },
+  { rejectValue: string }
+>('tickets/fetchAdminList', async (filters, { rejectWithValue }) => {
+  try {
+    const params = new URLSearchParams();
+    
+    if (filters.search) params.append('search', filters.search);
+    if (filters.status) params.append('status', filters.status);
+    if (filters.userId) params.append('userId', filters.userId);
+    if (filters.tripId) params.append('tripId', filters.tripId);
+    if (filters.orderId) params.append('orderId', filters.orderId);
+    if (filters.pageSize) params.append('pageSize', filters.pageSize.toString());
+    if (filters.pageNumber) params.append('pageNumber', filters.pageNumber.toString());
+
+    const response = await apiClient.get(`/admin/tickets/list?${params.toString()}`);
+    return response.data.data;
+  } catch (error: any) {
+    return rejectWithValue(error.response?.data?.message || 'Failed to fetch tickets');
+  }
+});
+
+// Company: Fetch ticket list
+export const fetchCompanyTickets = createAsyncThunk<
+  TicketListResponse,
+  TicketFilters & { pageSize?: number; pageNumber?: number },
+  { rejectValue: string }
+>('tickets/fetchCompanyList', async (filters, { rejectWithValue }) => {
+  try {
+    const params = new URLSearchParams();
+    
+    if (filters.search) params.append('search', filters.search);
+    if (filters.status) params.append('status', filters.status);
+    if (filters.userId) params.append('userId', filters.userId);
+    if (filters.tripId) params.append('tripId', filters.tripId);
+    if (filters.orderId) params.append('orderId', filters.orderId);
+    if (filters.pageSize) params.append('pageSize', filters.pageSize.toString());
+    if (filters.pageNumber) params.append('pageNumber', filters.pageNumber.toString());
+
+    const response = await apiClient.get(`/company-tickets/company/list?${params.toString()}`);
+    return response.data.data;
+  } catch (error: any) {
+    return rejectWithValue(error.response?.data?.message || 'Failed to fetch tickets');
+  }
+});
+
+// Admin: Update ticket
+export const updateAdminTicket = createAsyncThunk<
+  void,
+  { id: string; data: UpdateTicketRequest },
+  { rejectValue: string }
+>('tickets/updateAdmin', async ({ id, data }, { rejectWithValue }) => {
+  try {
+    await apiClient.put(`/admin/tickets/${id}`, data);
+  } catch (error: any) {
+    return rejectWithValue(error.response?.data?.message || 'Failed to update ticket');
+  }
+});
+
+// Company: Update ticket
+export const updateCompanyTicket = createAsyncThunk<
+  void,
+  { id: string; data: UpdateTicketRequest },
+  { rejectValue: string }
+>('tickets/updateCompany', async ({ id, data }, { rejectWithValue }) => {
+  try {
+    await apiClient.put(`/company-tickets/company/${id}`, data);
+  } catch (error: any) {
+    return rejectWithValue(error.response?.data?.message || 'Failed to update ticket');
+  }
+});
+
+// Admin: Delete ticket
+export const deleteAdminTicket = createAsyncThunk<
+  void,
+  string,
+  { rejectValue: string }
+>('tickets/deleteAdmin', async (id, { rejectWithValue }) => {
+  try {
+    await apiClient.delete(`/admin/tickets/${id}`);
+  } catch (error: any) {
+    return rejectWithValue(error.response?.data?.message || 'Failed to delete ticket');
+  }
+});
+
+// Company: Delete ticket
+export const deleteCompanyTicket = createAsyncThunk<
+  void,
+  string,
+  { rejectValue: string }
+>('tickets/deleteCompany', async (id, { rejectWithValue }) => {
+  try {
+    await apiClient.delete(`/company-tickets/company/${id}`);
+  } catch (error: any) {
+    return rejectWithValue(error.response?.data?.message || 'Failed to delete ticket');
+  }
+});
+
+// Admin: Toggle ticket status
+export const toggleAdminTicketStatus = createAsyncThunk<
+  void,
+  string,
+  { rejectValue: string }
+>('tickets/toggleStatusAdmin', async (id, { rejectWithValue }) => {
+  try {
+    await apiClient.patch(`/admin/tickets/${id}/toggle-status`);
+  } catch (error: any) {
+    return rejectWithValue(error.response?.data?.message || 'Failed to toggle ticket status');
+  }
+});
+
+// Company: Toggle ticket status
+export const toggleCompanyTicketStatus = createAsyncThunk<
+  void,
+  string,
+  { rejectValue: string }
+>('tickets/toggleStatusCompany', async (id, { rejectWithValue }) => {
+  try {
+    await apiClient.patch(`/company-tickets/company/${id}/toggle-status`);
+  } catch (error: any) {
+    return rejectWithValue(error.response?.data?.message || 'Failed to toggle ticket status');
+  }
+});
+
+// Company: Check-in ticket
+export const checkInTicket = createAsyncThunk<
+  void,
+  string,
+  { rejectValue: string }
+>('tickets/checkIn', async (id, { rejectWithValue }) => {
+  try {
+    await apiClient.post(`/company-tickets/company/${id}/check-in`);
+  } catch (error: any) {
+    return rejectWithValue(error.response?.data?.message || 'Failed to check in ticket');
+  }
+});

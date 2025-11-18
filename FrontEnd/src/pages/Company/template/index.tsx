@@ -96,6 +96,14 @@ export default function CompanyTemplatesPage() {
             data,
           })
         ).unwrap();
+        await dispatch(
+          fetchCompanyTemplates({
+            page: currentPage,
+            pageSize,
+            search: searchQuery || undefined,
+            isActive: isActive === 'all' ? undefined : isActive === 'true',
+          })
+        ).unwrap();
         toast.success('Cập nhật template thành công');
       } else {
         await dispatch(createCompanyTemplate(data)).unwrap();
@@ -154,7 +162,7 @@ export default function CompanyTemplatesPage() {
   const columns = createColumns(handleEdit, handleToggleActive);
 
   return (
-    <div className="container mx-auto py-6">
+    <div className="container mx-auto py-4 px-4 md:px-6 lg:px-8">
       <div className="mb-6">
         <h1 className="text-3xl font-bold">Quản lý Template</h1>
         <p className="text-muted-foreground mt-1">

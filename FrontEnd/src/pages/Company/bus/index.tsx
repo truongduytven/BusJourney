@@ -198,7 +198,12 @@ export const CompanyBusesPage = () => {
   });
 
   return (
-    <div className="container mx-auto py-6">
+    <div className="container mx-auto py-4 px-4 md:px-6 lg:px-8">
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold">Quản lý xe</h1>
+        <p className="text-muted-foreground mt-1">Quản lý các xe của nhà xe</p>
+      </div>
+
       <DataTable
         columns={columns}
         data={busData}

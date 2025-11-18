@@ -8,12 +8,15 @@ import typeBusReducer from "./slices/typeBusSlice";
 import companyTypeBusReducer from "./slices/companyTypeBusSlice";
 import companyBusReducer from "./slices/companyBusSlice";
 import companyTemplateReducer from "./slices/companyTemplateSlice";
+import companyTripReducer from "./slices/companyTripSlice";
+import companyTripPointReducer from "./slices/companyTripPointSlice";
 import tripReducer from "./slices/tripSlice";
 import tripDetailReducer from "./slices/tripDetailSlice";
 import tripSeatReducer from "./slices/tripSeatSlice";
 import selectedTicketReducer from "./slices/selectedTripSlice";
 import authReducer from "./slices/authSlice";
 import ticketReducer from "./slices/ticketSlice";
+import ticketManagementReducer from "./slices/ticketManagementSlice";
 import paymentReducer from "./slices/paymentSlice";
 import userReducer from "./slices/userSlice";
 import partnerReducer from "./slices/partnerSlice";
@@ -33,12 +36,15 @@ export const store = configureStore({
     companyTypeBuses: companyTypeBusReducer,
     companyBuses: companyBusReducer,
     companyTemplates: companyTemplateReducer,
+    companyTrips: companyTripReducer,
+    companyTripPoints: companyTripPointReducer,
     trips: tripReducer,
     tripDeatails: tripDetailReducer,
     tripSeats: tripSeatReducer,
     selectedTicket: selectedTicketReducer,
     auth: authReducer,
     ticket: ticketReducer,
+    ticketManagement: ticketManagementReducer,
     payment: paymentReducer,
     users: userReducer,
     partners: partnerReducer,

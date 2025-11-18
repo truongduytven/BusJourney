@@ -198,7 +198,7 @@ export default function BusModal({
                 setFormData({ ...formData, typeBusId: value })
               }
             >
-              <SelectTrigger>
+              <SelectTrigger className='border-gray-300 w-full'>
                 <SelectValue placeholder="Chọn loại xe" />
               </SelectTrigger>
               <SelectContent>

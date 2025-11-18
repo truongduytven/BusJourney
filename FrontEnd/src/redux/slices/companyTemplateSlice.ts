@@ -61,12 +61,8 @@ const companyTemplateSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(updateCompanyTemplate.fulfilled, (state, action) => {
+      .addCase(updateCompanyTemplate.fulfilled, (state) => {
         state.loading = false;
-        const index = state.templates.findIndex(template => template.id === action.payload.data.id);
-        if (index !== -1) {
-          state.templates[index] = action.payload.data;
-        }
       })
       .addCase(updateCompanyTemplate.rejected, (state, action) => {
         state.loading = false;

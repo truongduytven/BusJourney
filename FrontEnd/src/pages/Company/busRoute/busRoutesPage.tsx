@@ -32,10 +32,10 @@ export const CompanyBusRoutesPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [searchQuery, setSearchQuery] = useState<string>("");
-  
+
   // Modal state
   const [modalOpen, setModalOpen] = useState(false);
-  
+
   // Confirm dialog state
   const [confirmDialog, setConfirmDialog] = useState<{
     open: boolean;
@@ -47,10 +47,10 @@ export const CompanyBusRoutesPage = () => {
   }>({
     open: false,
     type: "toggle",
-    title: '',
-    description: '',
+    title: "",
+    description: "",
   });
-  
+
   // Debounce search query
   const debouncedSearch = useDebounce(searchQuery, 500);
 
@@ -61,13 +61,16 @@ export const CompanyBusRoutesPage = () => {
 
   // Fetch bus routes when any filter changes
   useEffect(() => {
-    const statusFilter = status === "all" ? undefined : status === "active" ? true : false;
-    dispatch(fetchBusRoutes({ 
-      page: currentPage, 
-      pageSize,
-      status: statusFilter,
-      search: debouncedSearch 
-    }));
+    const statusFilter =
+      status === "all" ? undefined : status === "active" ? true : false;
+    dispatch(
+      fetchBusRoutes({
+        page: currentPage,
+        pageSize,
+        status: statusFilter,
+        search: debouncedSearch,
+      })
+    );
   }, [dispatch, currentPage, pageSize, status, debouncedSearch]);
 
   useEffect(() => {
@@ -116,10 +119,10 @@ export const CompanyBusRoutesPage = () => {
       type: "toggle",
       busRouteId,
       currentStatus,
-      title: currentStatus ? 'Xác nhận vô hiệu hóa' : 'Xác nhận kích hoạt',
-      description: currentStatus 
-        ? 'Bạn có chắc chắn muốn vô hiệu hóa tuyến xe này? Tuyến xe sẽ không thể sử dụng cho chuyến đi mới.'
-        : 'Bạn có chắc chắn muốn kích hoạt tuyến xe này?',
+      title: currentStatus ? "Xác nhận vô hiệu hóa" : "Xác nhận kích hoạt",
+      description: currentStatus
+        ? "Bạn có chắc chắn muốn vô hiệu hóa tuyến xe này? Tuyến xe sẽ không thể sử dụng cho chuyến đi mới."
+        : "Bạn có chắc chắn muốn kích hoạt tuyến xe này?",
     });
   };
 
@@ -128,21 +131,30 @@ export const CompanyBusRoutesPage = () => {
       open: true,
       type: "delete",
       busRouteId,
-      title: 'Xác nhận xóa',
-      description: 'Bạn có chắc chắn muốn xóa tuyến xe này? Hành động này không thể hoàn tác.',
+      title: "Xác nhận xóa",
+      description:
+        "Bạn có chắc chắn muốn xóa tuyến xe này? Hành động này không thể hoàn tác.",
     });
   };
 
   const handleConfirmAction = async () => {
-    if (confirmDialog.type === "toggle" && confirmDialog.busRouteId && confirmDialog.currentStatus !== undefined) {
+    if (
+      confirmDialog.type === "toggle" &&
+      confirmDialog.busRouteId &&
+      confirmDialog.currentStatus !== undefined
+    ) {
       try {
-        await dispatch(updateBusRouteStatus({
-          id: confirmDialog.busRouteId,
-          status: !confirmDialog.currentStatus
-        })).unwrap();
-        
+        await dispatch(
+          updateBusRouteStatus({
+            id: confirmDialog.busRouteId,
+            status: !confirmDialog.currentStatus,
+          })
+        ).unwrap();
+
         toast.success(
-          !confirmDialog.currentStatus ? "Đã kích hoạt tuyến xe" : "Đã vô hiệu hóa tuyến xe"
+          !confirmDialog.currentStatus
+            ? "Đã kích hoạt tuyến xe"
+            : "Đã vô hiệu hóa tuyến xe"
         );
         refetchBusRoutes();
       } catch (error: any) {
@@ -157,17 +169,25 @@ export const CompanyBusRoutesPage = () => {
         toast.error(error.message || "Có lỗi xảy ra");
       }
     }
-    setConfirmDialog({ open: false, type: "toggle", title: '', description: '' });
+    setConfirmDialog({
+      open: false,
+      type: "toggle",
+      title: "",
+      description: "",
+    });
   };
 
   const refetchBusRoutes = () => {
-    const statusFilter = status === "all" ? undefined : status === "active" ? true : false;
-    dispatch(fetchBusRoutes({ 
-      page: currentPage, 
-      pageSize,
-      status: statusFilter,
-      search: debouncedSearch 
-    }));
+    const statusFilter =
+      status === "all" ? undefined : status === "active" ? true : false;
+    dispatch(
+      fetchBusRoutes({
+        page: currentPage,
+        pageSize,
+        status: statusFilter,
+        search: debouncedSearch,
+      })
+    );
   };
 
   const handleModalSuccess = () => {
@@ -176,24 +196,24 @@ export const CompanyBusRoutesPage = () => {
 
   // Create columns with action handlers
   const columns = useMemo(
-    () => createColumns({
-      onToggleActive: handleToggleActive,
-      onDelete: handleDelete,
-    }),
+    () =>
+      createColumns({
+        onToggleActive: handleToggleActive,
+        onDelete: handleDelete,
+      }),
     []
   );
 
   return (
     <div className="container mx-auto py-4 px-4 md:px-6 lg:px-8">
       <div className="mb-6">
-        <h1 className="text-2xl font-semibold tracking-tight">
-          Quản lý tuyến xe
-        </h1>
+        <h1 className="text-3xl font-bold">Quản lý tuyến đường</h1>
+        <p className="text-muted-foreground mt-1">Quản lý các tuyến đường của nhà xe</p>
       </div>
-      
-      <DataTable 
-        columns={columns} 
-        data={busRouteData} 
+
+      <DataTable
+        columns={columns}
+        data={busRouteData}
         totalRows={data?.length || 0}
         status={status}
         onStatusChange={handleStatusChange}
@@ -205,22 +225,25 @@ export const CompanyBusRoutesPage = () => {
         onBulkToggleActive={handleBulkToggleActive}
         onExportExcel={handleExportExcel}
       />
-      
+
       <BusRouteModal
         open={modalOpen}
         onOpenChange={setModalOpen}
         onSuccess={handleModalSuccess}
       />
-      
+
       {/* Confirmation Dialog */}
-      <AlertDialog 
-        open={confirmDialog.open} 
-        onOpenChange={(open) => !open && setConfirmDialog({ 
-          open: false, 
-          type: "toggle", 
-          title: '', 
-          description: '' 
-        })}
+      <AlertDialog
+        open={confirmDialog.open}
+        onOpenChange={(open) =>
+          !open &&
+          setConfirmDialog({
+            open: false,
+            type: "toggle",
+            title: "",
+            description: "",
+          })
+        }
       >
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -230,15 +253,19 @@ export const CompanyBusRoutesPage = () => {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setConfirmDialog({ 
-              open: false, 
-              type: "toggle", 
-              title: '', 
-              description: '' 
-            })}>
+            <AlertDialogCancel
+              onClick={() =>
+                setConfirmDialog({
+                  open: false,
+                  type: "toggle",
+                  title: "",
+                  description: "",
+                })
+              }
+            >
               Hủy
             </AlertDialogCancel>
-            <AlertDialogAction 
+            <AlertDialogAction
               onClick={handleConfirmAction}
               className={
                 confirmDialog.type === "delete"

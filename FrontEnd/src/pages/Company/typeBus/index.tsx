@@ -31,7 +31,7 @@ export const CompanyTypeBusesPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [searchQuery, setSearchQuery] = useState<string>("");
-  
+
   // Confirm dialog state
   const [confirmDialog, setConfirmDialog] = useState<{
     open: boolean;
@@ -42,23 +42,26 @@ export const CompanyTypeBusesPage = () => {
   }>({
     open: false,
     type: "delete",
-    title: '',
-    description: '',
+    title: "",
+    description: "",
   });
-  
+
   // Debounce search query
   const debouncedSearch = useDebounce(searchQuery, 500);
 
   // Fetch type buses when any filter changes
   useEffect(() => {
-    const floorsFilter = isFloors === "all" ? undefined : isFloors === "true" ? true : false;
+    const floorsFilter =
+      isFloors === "all" ? undefined : isFloors === "true" ? true : false;
 
-    dispatch(fetchCompanyTypeBuses({ 
-      page: currentPage,
-      pageSize,
-      isFloors: floorsFilter,
-      search: debouncedSearch || undefined,
-    }));
+    dispatch(
+      fetchCompanyTypeBuses({
+        page: currentPage,
+        pageSize,
+        isFloors: floorsFilter,
+        search: debouncedSearch || undefined,
+      })
+    );
   }, [dispatch, isFloors, currentPage, pageSize, debouncedSearch]);
 
   useEffect(() => {
@@ -99,8 +102,9 @@ export const CompanyTypeBusesPage = () => {
       open: true,
       type: "delete",
       typeBusId,
-      title: 'Xác nhận xóa',
-      description: 'Bạn có chắc chắn muốn xóa loại xe này? Hành động này không thể hoàn tác.',
+      title: "Xác nhận xóa",
+      description:
+        "Bạn có chắc chắn muốn xóa loại xe này? Hành động này không thể hoàn tác.",
     });
   };
 
@@ -114,17 +118,25 @@ export const CompanyTypeBusesPage = () => {
         toast.error(error || "Có lỗi xảy ra");
       }
     }
-    setConfirmDialog({ open: false, type: "delete", title: '', description: '' });
+    setConfirmDialog({
+      open: false,
+      type: "delete",
+      title: "",
+      description: "",
+    });
   };
 
   const refetchTypeBuses = () => {
-    const floorsFilter = isFloors === "all" ? undefined : isFloors === "true" ? true : false;
-    dispatch(fetchCompanyTypeBuses({ 
-      page: currentPage,
-      pageSize,
-      isFloors: floorsFilter,
-      search: debouncedSearch || undefined,
-    }));
+    const floorsFilter =
+      isFloors === "all" ? undefined : isFloors === "true" ? true : false;
+    dispatch(
+      fetchCompanyTypeBuses({
+        page: currentPage,
+        pageSize,
+        isFloors: floorsFilter,
+        search: debouncedSearch || undefined,
+      })
+    );
   };
 
   const handleBulkDelete = async (ids: string[]) => {
@@ -142,27 +154,24 @@ export const CompanyTypeBusesPage = () => {
 
   // Get initial data for edit mode
   const columns = useMemo(
-    () => createColumns({
-      onEdit: handleEditTypeBus,
-      onDelete: handleDelete,
-    }),
+    () =>
+      createColumns({
+        onEdit: handleEditTypeBus,
+        onDelete: handleDelete,
+      }),
     []
   );
 
   return (
     <div className="container mx-auto py-4 px-4 md:px-6 lg:px-8">
       <div className="mb-6">
-        <h1 className="text-2xl font-semibold tracking-tight">
-          Quản lý loại xe
-        </h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Quản lý các loại xe của nhà xe bạn
-        </p>
+        <h1 className="text-3xl font-bold">Quản lý loại xe</h1>
+        <p className="text-muted-foreground mt-1">Quản lý các loại xe của nhà xe</p>
       </div>
-      
-      <DataTable 
-        columns={columns} 
-        data={typeBusData} 
+
+      <DataTable
+        columns={columns}
+        data={typeBusData}
         totalRows={data?.length || 0}
         isFloors={isFloors}
         onIsFloorsChange={handleIsFloorsChange}
@@ -173,16 +182,19 @@ export const CompanyTypeBusesPage = () => {
         onCreateTypeBus={handleOpenCreateModal}
         onBulkDelete={handleBulkDelete}
       />
-      
+
       {/* Confirmation Dialog */}
-      <AlertDialog 
-        open={confirmDialog.open} 
-        onOpenChange={(open) => !open && setConfirmDialog({ 
-          open: false, 
-          type: "delete", 
-          title: '', 
-          description: '' 
-        })}
+      <AlertDialog
+        open={confirmDialog.open}
+        onOpenChange={(open) =>
+          !open &&
+          setConfirmDialog({
+            open: false,
+            type: "delete",
+            title: "",
+            description: "",
+          })
+        }
       >
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -192,15 +204,19 @@ export const CompanyTypeBusesPage = () => {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setConfirmDialog({ 
-              open: false, 
-              type: "delete", 
-              title: '', 
-              description: '' 
-            })}>
+            <AlertDialogCancel
+              onClick={() =>
+                setConfirmDialog({
+                  open: false,
+                  type: "delete",
+                  title: "",
+                  description: "",
+                })
+              }
+            >
               Hủy
             </AlertDialogCancel>
-            <AlertDialogAction 
+            <AlertDialogAction
               onClick={handleConfirmAction}
               className="bg-red-600 hover:bg-red-700"
             >

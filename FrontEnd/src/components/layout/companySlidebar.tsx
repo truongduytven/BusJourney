@@ -13,7 +13,6 @@ import {
   PanelRightOpen,
   PanelLeftOpen,
   Bus,
-  Clock,
   Users,
   Route,
   AlignHorizontalDistributeCenter,
@@ -21,6 +20,8 @@ import {
   Boxes,
   TrendingUpDown,
   Files,
+  MapPin,
+  Tickets,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -102,9 +103,14 @@ const menuItems: MenuItem[] = [
     path: "/company/trips" 
   },
   { 
-    label: "Đơn hàng", 
-    icon: Clock, 
-    path: "/company/orders" 
+    label: "Chuyến điểm", 
+    icon: MapPin, 
+    path: "/company/trip-points" 
+  },
+  { 
+    label: "Vé đã bán", 
+    icon: Tickets, 
+    path: "/company/tickets" 
   },
   { 
     label: "Cài đặt", 

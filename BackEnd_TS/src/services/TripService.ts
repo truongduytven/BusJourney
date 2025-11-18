@@ -45,7 +45,7 @@ class TripService {
       .joinRelated('busRoute.route.endLocation')
       .where('busRoute:route:startLocation.city_id', fromCityId)
       .where('busRoute:route:endLocation.city_id', toCityId)
-      .where('t.status', 'scheduled')
+      .where('t.status', true)
       .whereRaw('t.departure_time >= ?', [convertDate])
       .whereRaw('t.departure_time <= ?', [lastDate])
       .select('t.*')
@@ -145,7 +145,7 @@ class TripService {
         '[buses.[bus_companies.[policies, cancellationRules], type_buses.[seat]], busRoute.route.[startLocation, endLocation], review.[account]]'
       )
       .where('t.id', tripId)
-      .where('t.status', 'scheduled')
+      .where('t.status', true)
       .avg('review.rating as avgRating')
       .count('review.id as numberComments')
       .leftJoinRelated('review')
@@ -230,7 +230,7 @@ class TripService {
       .withGraphJoined('[ticket]')
       .withGraphFetched('[tripPoints.point]')
       .where('t.id', tripId)
-      .where('t.status', 'scheduled')
+      .where('t.status', true)
       .first()) as unknown as IGetListTrip
 
     if (!trip) {

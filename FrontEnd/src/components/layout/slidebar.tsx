@@ -21,6 +21,7 @@ import {
   Handshake,
   Route,
   Bus,
+  Tickets,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -91,6 +92,11 @@ const menuItems: MenuItem[] = [
     label: "Đối tác",
     icon: Handshake,
     path: "/admin/partners",
+  },
+  {
+    label: "Vé đã bán",
+    icon: Tickets,
+    path: "/admin/tickets",
   },
   {
     label: "Cài đặt",
