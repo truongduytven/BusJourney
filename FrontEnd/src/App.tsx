@@ -43,6 +43,8 @@ import CompanyTripPointsPage from "./pages/Company/tripPoint";
 import { Spinner } from "./components/ui/spinner";
 import AdminTicketsPage from "./pages/Admin/ticket";
 import CompanyTicketsPage from "./pages/Company/ticket";
+import AdminReviewsPage from "./pages/Admin/review";
+import CompanyReviewsPage from "./pages/Company/review";
 
 function App() {
   const location = useLocation();
@@ -87,6 +89,7 @@ function App() {
             <Route path="coupons" element={<CouponsPage />} />
             <Route path="partners" element={<PartnersPage />} />
             <Route path="tickets" element={<AdminTicketsPage />} />
+            <Route path="reviews" element={<AdminReviewsPage />} />
             <Route path="profile" element={<ProfilePage />} />
           </Route>
 
@@ -109,6 +112,7 @@ function App() {
             <Route path="trips" element={<CompanyTripsPage />} />
             <Route path="trip-points" element={<CompanyTripPointsPage />} />
             <Route path="tickets" element={<CompanyTicketsPage />} />
+            <Route path="reviews" element={<CompanyReviewsPage />} />
             <Route path="type-buses/create" element={<TypeBusDesignerPage />} />
             <Route
               path="type-buses/:id/edit"

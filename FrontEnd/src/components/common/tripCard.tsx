@@ -26,7 +26,6 @@ import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import type { TripResults } from "@/types/trip";
 import { useAppDispatch, useAppSelector } from "@/redux/hook";
-import { fetchTripDetail } from "@/redux/thunks/tripDetailThunks";
 import { fetchTripSeat } from "@/redux/thunks/tripSeatThunks";
 interface TripCardProps {
   selectedTrip: string | null;
@@ -40,7 +39,7 @@ export default function TripCard({
   item,
 }: TripCardProps) {
   const dispatch = useAppDispatch();
-  const { list, status, listTripId } = useAppSelector((state) => state.tripDeatails);
+  const { cache } = useAppSelector((state) => state.tripDeatails);
   const { listSeats, listSeatsTripId, statusSeats } = useAppSelector((state) => state.tripSeats);
   const [isShowDetail, setIsShowDetail] = useState(false);
   const [isShowModal, setIsShowModal] = useState(false);
@@ -80,8 +79,9 @@ export default function TripCard({
 
   //fetch trip detail 
   useEffect(() => {
-    if (isShowDetail && !listTripId.includes(item.id)) {
-      dispatch(fetchTripDetail(item.id));
+    if (isShowDetail && !cache[item.id]) {
+      // Initialize cache entry for this trip if it doesn't exist
+      // The actual data will be fetched by DetailSection when tabs are clicked
     }
     if (isShowModal && selectedTrip && !listSeatsTripId.includes(item.id)) {
       dispatch(fetchTripSeat(item.id));
@@ -141,7 +141,7 @@ export default function TripCard({
               {item.buses.bus_companies.name || "Tên công ty"}{" "}
               <Badge className="text-white bg-primary">
                 <Star className="text-yellow-500" fill="yellow" />
-                {Number.parseFloat(item.avgRating).toFixed(1) || 0} (
+                {item.avgRating ? Number.parseFloat(item.avgRating).toFixed(1) : 0} (
                 {item.numberComments || 0})
               </Badge>
             </div>
@@ -271,7 +271,7 @@ export default function TripCard({
             </div>
           </div>
         </div>
-        {isShowDetail && <DetailSection data={list.find((data) => data.tripId === item.id)} status={status} />}
+        {isShowDetail && <DetailSection tripId={item.id} />}
         {selectedTrip && selectedTrip === item.id && (
           <SelectSeatSection data={listSeats.find((seat) => seat.tripId === item.id)} status={statusSeats} setIsShowModal={setIsShowModal} tripData={tripData} />
         )}

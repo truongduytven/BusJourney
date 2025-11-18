@@ -206,6 +206,288 @@ class TripController {
       })
     }
   }
+
+  /**
+   * @swagger
+   * /trips/{id}/coupons:
+   *   get:
+   *     summary: Get trip coupons by trip ID
+   *     tags: [Trips]
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         schema:
+   *           type: string
+   *         required: true
+   *         description: Trip ID
+   *     responses:
+   *       200:
+   *         description: Trip coupons
+   *       404:
+   *         description: Trip not found
+   *       500:
+   *         description: Server error
+   */
+  async getTripCoupons(req: Request, res: Response) {
+    try {
+      const { id } = req.params
+      const result = await TripService.getTripCoupons(id)
+      
+      if (!result) {
+        return res.status(404).json({ message: 'Trip not found' })
+      }
+
+      res.json({
+        message: 'Lấy danh sách mã giảm giá thành công',
+        data: result
+      })
+    } catch (err: any) {
+      res.status(500).json({
+        error: err.message,
+        message: 'Lỗi hệ thống'
+      })
+    }
+  }
+
+  /**
+   * @swagger
+   * /trips/{id}/points:
+   *   get:
+   *     summary: Get trip pickup/dropoff points by trip ID
+   *     tags: [Trips]
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         schema:
+   *           type: string
+   *         required: true
+   *         description: Trip ID
+   *     responses:
+   *       200:
+   *         description: Trip points
+   *       404:
+   *         description: Trip not found
+   *       500:
+   *         description: Server error
+   */
+  async getTripPoints(req: Request, res: Response) {
+    try {
+      const { id } = req.params
+      const result = await TripService.getTripPoints(id)
+      
+      if (!result) {
+        return res.status(404).json({ message: 'Trip not found' })
+      }
+
+      res.json({
+        message: 'Lấy điểm đón/trả thành công',
+        data: result
+      })
+    } catch (err: any) {
+      res.status(500).json({
+        error: err.message,
+        message: 'Lỗi hệ thống'
+      })
+    }
+  }
+
+  /**
+   * @swagger
+   * /trips/{id}/ratings:
+   *   get:
+   *     summary: Get trip ratings by trip ID with filters and pagination
+   *     tags: [Trips]
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         schema:
+   *           type: string
+   *         required: true
+   *         description: Trip ID
+   *       - in: query
+   *         name: page
+   *         schema:
+   *           type: integer
+   *         description: Page number (default 1)
+   *       - in: query
+   *         name: pageSize
+   *         schema:
+   *           type: integer
+   *         description: Items per page (default 5)
+   *       - in: query
+   *         name: filterType
+   *         schema:
+   *           type: string
+   *           enum: [all, withComment, withImage]
+   *         description: Filter type (default all)
+   *       - in: query
+   *         name: starRatings
+   *         schema:
+   *           type: string
+   *         description: Comma-separated star ratings (e.g., "4,5")
+   *     responses:
+   *       200:
+   *         description: Trip ratings
+   *       404:
+   *         description: Trip not found
+   *       500:
+   *         description: Server error
+   */
+  async getTripRatings(req: Request, res: Response) {
+    try {
+      const { id } = req.params
+      const { page, pageSize, filterType, starRatings } = req.query
+
+      const params = {
+        page: page ? Number(page) : 1,
+        pageSize: pageSize ? Number(pageSize) : 5,
+        filterType: (filterType as 'all' | 'withComment' | 'withImage') || 'all',
+        starRatings: starRatings ? (starRatings as string).split(',').map(Number) : []
+      }
+
+      const result = await TripService.getTripRatings(id, params)
+      
+      if (!result) {
+        return res.status(404).json({ message: 'Trip not found' })
+      }
+
+      res.json({
+        message: 'Lấy đánh giá thành công',
+        data: result
+      })
+    } catch (err: any) {
+      res.status(500).json({
+        error: err.message,
+        message: 'Lỗi hệ thống'
+      })
+    }
+  }
+
+  /**
+   * @swagger
+   * /trips/{id}/policies:
+   *   get:
+   *     summary: Get trip policies by trip ID
+   *     tags: [Trips]
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         schema:
+   *           type: string
+   *         required: true
+   *         description: Trip ID
+   *     responses:
+   *       200:
+   *         description: Trip policies
+   *       404:
+   *         description: Trip not found
+   *       500:
+   *         description: Server error
+   */
+  async getTripPolicies(req: Request, res: Response) {
+    try {
+      const { id } = req.params
+      const result = await TripService.getTripPolicies(id)
+      
+      if (!result) {
+        return res.status(404).json({ message: 'Trip not found' })
+      }
+
+      res.json({
+        message: 'Lấy chính sách thành công',
+        data: result
+      })
+    } catch (err: any) {
+      res.status(500).json({
+        error: err.message,
+        message: 'Lỗi hệ thống'
+      })
+    }
+  }
+
+  /**
+   * @swagger
+   * /trips/{id}/images:
+   *   get:
+   *     summary: Get trip images by trip ID
+   *     tags: [Trips]
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         schema:
+   *           type: string
+   *         required: true
+   *         description: Trip ID
+   *     responses:
+   *       200:
+   *         description: Trip images
+   *       404:
+   *         description: Trip not found
+   *       500:
+   *         description: Server error
+   */
+  async getTripImages(req: Request, res: Response) {
+    try {
+      const { id } = req.params
+      const result = await TripService.getTripImages(id)
+      
+      if (!result) {
+        return res.status(404).json({ message: 'Trip not found' })
+      }
+
+      res.json({
+        message: 'Lấy hình ảnh thành công',
+        data: result
+      })
+    } catch (err: any) {
+      res.status(500).json({
+        error: err.message,
+        message: 'Lỗi hệ thống'
+      })
+    }
+  }
+
+  /**
+   * @swagger
+   * /trips/{id}/extensions:
+   *   get:
+   *     summary: Get trip extensions/utilities by trip ID
+   *     tags: [Trips]
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         schema:
+   *           type: string
+   *         required: true
+   *         description: Trip ID
+   *     responses:
+   *       200:
+   *         description: Trip extensions
+   *       404:
+   *         description: Trip not found
+   *       500:
+   *         description: Server error
+   */
+  async getTripExtensions(req: Request, res: Response) {
+    try {
+      const { id } = req.params
+      const result = await TripService.getTripExtensions(id)
+      
+      if (!result) {
+        return res.status(404).json({ message: 'Trip not found' })
+      }
+
+      res.json({
+        message: 'Lấy tiện ích thành công',
+        data: result
+      })
+    } catch (err: any) {
+      res.status(500).json({
+        error: err.message,
+        message: 'Lỗi hệ thống'
+      })
+    }
+  }
 }
 
 export default new TripController()

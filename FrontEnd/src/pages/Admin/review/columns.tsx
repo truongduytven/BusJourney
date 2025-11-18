@@ -1,21 +1,19 @@
 import type { ColumnDef } from "@tanstack/react-table";
-import type { Ticket } from "@/types/ticket";
+import type { Review } from "@/types/review";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { MoreHorizontal, Trash2, Lock, Unlock } from "lucide-react";
+import { MoreVertical, Eye, EyeOff, Star } from "lucide-react";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
 import { DataTableColumnHeader } from "@/components/table/data-table-column-header";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 export const createColumns = ({
-  onDelete,
-  onToggleStatus,
+  onToggleVisibility,
 }: {
-  onDelete: (ticket: Ticket) => void;
-  onToggleStatus: (ticket: Ticket) => void;
-}): ColumnDef<Ticket>[] => [
+  onToggleVisibility: (review: Review) => void;
+}): ColumnDef<Review>[] => [
   {
     id: "select",
     header: ({ table }) => (
@@ -39,21 +37,39 @@ export const createColumns = ({
     enableHiding: false,
   },
   {
-    accessorKey: "ticketCode",
+    accessorKey: "rating",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Mã vé" />
+      <DataTableColumnHeader column={column} title="Đánh giá" />
     ),
     cell: ({ row }) => {
-      return <div className="font-medium">{row.original.ticketCode}</div>;
+      const rating = row.original.rating;
+      return (
+        <div className="flex items-center justify-center gap-1">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <Star
+              key={i}
+              className={`h-4 w-4 ${
+                i < rating ? "fill-yellow-400 text-yellow-400" : "text-gray-300"
+              }`}
+            />
+          ))}
+          <span className="ml-1 font-medium">({rating})</span>
+        </div>
+      );
     },
   },
   {
-    accessorKey: "seatCode",
+    accessorKey: "commenttext",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Ghế" />
+      <DataTableColumnHeader column={column} title="Nội dung" />
     ),
     cell: ({ row }) => {
-      return <div className="font-medium">{row.original.seatCode}</div>;
+      const comment = row.original.commenttext;
+      return (
+        <div className="max-w-[300px]">
+          <p className="line-clamp-2 text-sm">{comment}</p>
+        </div>
+      );
     },
   },
   {
@@ -93,7 +109,7 @@ export const createColumns = ({
 
       return (
         <div>
-          <div className="font-medium">{tripName}</div>
+          <div className="font-medium text-sm">{tripName}</div>
           <div className="text-xs text-gray-500">
             {format(new Date(trip.departureTime), "dd/MM/yyyy HH:mm", { locale: vi })}
           </div>
@@ -102,92 +118,72 @@ export const createColumns = ({
     },
   },
   {
-    accessorKey: "purchaseDate",
+    accessorKey: "bus_companies",
+    header: "Nhà xe",
+    cell: ({ row }) => {
+      const company = row.original.bus_companies;
+      if (!company) {
+        return <span className="text-gray-400">N/A</span>;
+      }
+      return <div className="font-medium">{company.name}</div>;
+    },
+  },
+  {
+    accessorKey: "createdAt",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Ngày mua" />
+      <DataTableColumnHeader column={column} title="Ngày tạo" />
     ),
     cell: ({ row }) => {
       try {
-        return format(new Date(row.original.purchaseDate), "dd/MM/yyyy HH:mm", { locale: vi });
+        return format(new Date(row.original.createAt), "dd/MM/yyyy HH:mm", { locale: vi });
       } catch {
-        return row.original.purchaseDate;
+        return row.original.createAt;
       }
     },
   },
   {
-    accessorKey: "status",
-    header: "Trạng thái",
+    accessorKey: "isVisible",
+    header: "Hiển thị",
     cell: ({ row }) => {
-      const status = row.original.status;
-      let variant: "default" | "secondary" | "destructive" | "outline" = "default";
-      let label = status;
-
-      switch (status) {
-        case "valid":
-          variant = "default";
-          label = "Đã xác nhận";
-          break;
-        case "cancelled":
-          variant = "destructive";
-          label = "Đã hủy";
-          break;
-        case "checked_in":
-          variant = "secondary";
-          label = "Đã check-in";
-          break;
-        case "completed":
-          variant = "outline";
-          label = "Hoàn thành";
-          break;
-      }
-
-      return <Badge variant={variant}>{label}</Badge>;
+      const isVisible = row.original.isVisible;
+      return (
+        <Badge variant={isVisible ? "default" : "secondary"}>
+          {isVisible ? "Hiển thị" : "Ẩn"}
+        </Badge>
+      );
     },
   },
   {
     id: "actions",
     header: "Hành động",
     cell: ({ row }) => {
-      const ticket = row.original;
-      const isCancelled = ticket.status === "cancelled";
+      const review = row.original;
+      const isVisible = review.isVisible;
 
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Mở menu</span>
-              <MoreHorizontal className="h-4 w-4" />
+            <Button variant="ghost" className="h-8 w-8 p-0 hover:bg-gray-100">
+              <span className="sr-only">Open menu</span>
+              <MoreVertical className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
+          <DropdownMenuContent align="end" className="w-[160px]">
             <DropdownMenuItem
-              className={isCancelled ? "text-green-600" : "text-red-600"}
-              onClick={(e) => {
-                e.stopPropagation();
-                onToggleStatus(ticket);
-              }}
+              onClick={() => onToggleVisibility(review)}
+              className="cursor-pointer"
             >
-              {isCancelled ? (
+              {isVisible ? (
                 <>
-                  <Unlock className="mr-2 h-4 w-4" />
-                  Kích hoạt
+                  <EyeOff className="mr-2 h-4 w-4" />
+                  Ẩn đánh giá
                 </>
               ) : (
                 <>
-                  <Lock className="mr-2 h-4 w-4" />
-                  Hủy vé
+                  <Eye className="mr-2 h-4 w-4" />
+                  Hiện đánh giá
                 </>
               )}
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              className="text-red-600"
-              onClick={(e) => {
-                e.stopPropagation();
-                onDelete(ticket);
-              }}
-            >
-              <Trash2 className="mr-2 h-4 w-4" />
-              Xóa
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

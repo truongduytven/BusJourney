@@ -1,6 +1,6 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import apiClient from '@/lib/axios';
-import type { TicketListResponse, TicketFilters, UpdateTicketRequest, Ticket } from '@/types/ticket';
+import type { TicketListResponse, TicketFilters, UpdateTicketRequest } from '@/types/ticket';
 
 // Types for ticket lookup (existing)
 export interface TicketLookupRequest {

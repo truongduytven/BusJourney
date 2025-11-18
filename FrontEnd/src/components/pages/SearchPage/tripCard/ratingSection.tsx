@@ -17,15 +17,46 @@ import { formatDate, formatTime } from "@/utils";
 
 interface RatingSectionProps {
   data: IListRating | undefined;
-  sortType?: string | null;
-  filterRate?: string[] | null;
-  onSelect?: (item: string) => void;
-  setSortType: (item: string | null) => void;
+  sortType: string;
+  filterRate: number[];
+  onSelect: (star: number) => void;
+  setSortType: (item: string) => void;
+  currentPage: number;
+  onPageChange: (page: number) => void;
 }
 
 export default function RatingSection(
-    { sortType, filterRate, onSelect, setSortType, data }: RatingSectionProps
+    { sortType, filterRate, onSelect, setSortType, data, currentPage, onPageChange }: RatingSectionProps
 ) {
+  const totalPages = data?.pagination?.totalPages || 1;
+  
+  const renderPageNumbers = () => {
+    const pages = [];
+    const maxPagesToShow = 5;
+    let startPage = Math.max(1, currentPage - Math.floor(maxPagesToShow / 2));
+    let endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
+    
+    if (endPage - startPage < maxPagesToShow - 1) {
+      startPage = Math.max(1, endPage - maxPagesToShow + 1);
+    }
+    
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(
+        <PaginationItem key={i}>
+          <PaginationLink 
+            onClick={() => onPageChange(i)}
+            isActive={currentPage === i}
+            className="cursor-pointer"
+          >
+            {i}
+          </PaginationLink>
+        </PaginationItem>
+      );
+    }
+    
+    return pages;
+  };
+
   return (
     <div className="w-full flex justify-center">
       <div className="w-[70%] flex flex-col gap-y-4 text-primary">
@@ -89,9 +120,9 @@ export default function RatingSection(
             <PopoverContent className="flex flex-col gap-y-3 w-fit border-gray-300">
               <div className="flex items-center space-x-2">
                 <Checkbox
-                  checked={filterRate?.includes("5 sao")}
+                  checked={filterRate.includes(5)}
                   id="option-one"
-                  onCheckedChange={() => onSelect?.("5 sao")}
+                  onCheckedChange={() => onSelect(5)}
                 />
                 <Label className="font-normal text-base" htmlFor="option-one">
                   5 sao{" "}
@@ -104,9 +135,9 @@ export default function RatingSection(
               </div>
               <div className="flex items-center space-x-2">
                 <Checkbox
-                  checked={filterRate?.includes("4 sao")}
+                  checked={filterRate.includes(4)}
                   id="option-two"
-                  onCheckedChange={() => onSelect?.("4 sao")}
+                  onCheckedChange={() => onSelect(4)}
                 />
                 <Label className="font-normal text-base" htmlFor="option-two">
                   4 sao
@@ -118,9 +149,9 @@ export default function RatingSection(
               </div>
               <div className="flex items-center space-x-2">
                 <Checkbox
-                  checked={filterRate?.includes("3 sao")}
+                  checked={filterRate.includes(3)}
                   id="option-three"
-                  onCheckedChange={() => onSelect?.("3 sao")}
+                  onCheckedChange={() => onSelect(3)}
                 />
                 <Label className="font-normal text-base" htmlFor="option-three">
                   3 sao
@@ -131,11 +162,11 @@ export default function RatingSection(
               </div>
               <div className="flex items-center space-x-2">
                 <Checkbox
-                  checked={filterRate?.includes("2 sao")}
-                  id="option-two"
-                  onCheckedChange={() => onSelect?.("2 sao")}
+                  checked={filterRate.includes(2)}
+                  id="option-four"
+                  onCheckedChange={() => onSelect(2)}
                 />
-                <Label className="font-normal text-base" htmlFor="option-two">
+                <Label className="font-normal text-base" htmlFor="option-four">
                   2 sao
                   <Star className="text-yellow-300" fill="yellow" size={14} />
                   <Star className="text-yellow-300" fill="yellow" size={14} />
@@ -143,11 +174,11 @@ export default function RatingSection(
               </div>
               <div className="flex items-center space-x-2">
                 <Checkbox
-                  checked={filterRate?.includes("1 sao")}
-                  id="option-three"
-                  onCheckedChange={() => onSelect?.("1 sao")}
+                  checked={filterRate.includes(1)}
+                  id="option-five"
+                  onCheckedChange={() => onSelect(1)}
                 />
-                <Label className="font-normal text-base" htmlFor="option-three">
+                <Label className="font-normal text-base" htmlFor="option-five">
                   1 sao
                   <Star className="text-yellow-300" fill="yellow" size={14} />
                 </Label>
@@ -199,27 +230,23 @@ export default function RatingSection(
             </div>
           ))}
         </div>
-        <Pagination className="w-full mt-6">
+        {data && data.pagination && data.pagination.totalItems > 0 && <Pagination className="w-full mt-6">
           <PaginationContent>
             <PaginationItem>
-              <PaginationPrevious href="#" />
+              <PaginationPrevious 
+                onClick={() => currentPage > 1 && onPageChange(currentPage - 1)}
+                className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+              />
             </PaginationItem>
+            {renderPageNumbers()}
             <PaginationItem>
-              <PaginationLink href="#">1</PaginationLink>
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationLink href="#" isActive>
-                2
-              </PaginationLink>
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationLink href="#">3</PaginationLink>
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationNext href="#" />
+              <PaginationNext 
+                onClick={() => currentPage < totalPages && onPageChange(currentPage + 1)}
+                className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+              />
             </PaginationItem>
           </PaginationContent>
-        </Pagination>
+        </Pagination>}
       </div>
     </div>
   );

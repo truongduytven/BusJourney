@@ -110,11 +110,6 @@ export default function AdminTicketsPage() {
     toast.success("Đang xuất file Excel...");
   };
 
-  const handleEditTicket = (ticket: Ticket) => {
-    setSelectedTicket(ticket);
-    setModalOpen(true);
-  };
-
   const handleToggleStatus = (ticket: Ticket) => {
     const isCancelled = ticket.status === "cancelled";
     setConfirmDialog({
@@ -188,7 +183,6 @@ export default function AdminTicketsPage() {
 
   const columns = useMemo(
     () => createColumns({
-      onEdit: handleEditTicket,
       onDelete: handleDeleteTicket,
       onToggleStatus: handleToggleStatus,
     }),

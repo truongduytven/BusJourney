@@ -17,6 +17,7 @@ import selectedTicketReducer from "./slices/selectedTripSlice";
 import authReducer from "./slices/authSlice";
 import ticketReducer from "./slices/ticketSlice";
 import ticketManagementReducer from "./slices/ticketManagementSlice";
+import reviewManagementReducer from "./slices/reviewManagementSlice";
 import paymentReducer from "./slices/paymentSlice";
 import userReducer from "./slices/userSlice";
 import partnerReducer from "./slices/partnerSlice";
@@ -45,6 +46,7 @@ export const store = configureStore({
     auth: authReducer,
     ticket: ticketReducer,
     ticketManagement: ticketManagementReducer,
+    reviewManagement: reviewManagementReducer,
     payment: paymentReducer,
     users: userReducer,
     partners: partnerReducer,

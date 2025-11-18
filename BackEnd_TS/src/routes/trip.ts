@@ -10,7 +10,13 @@ import tripController from '../controllers/trip';
  */
 
 router.post("/search", tripController.searchTrips);
-router.get("/:id", tripController.getTripById);
 router.get("/seats/:id", tripController.getTripSeatsById);
+router.get("/:id/coupons", tripController.getTripCoupons);
+router.get("/:id/points", tripController.getTripPoints);
+router.get("/:id/ratings", tripController.getTripRatings);
+router.get("/:id/policies", tripController.getTripPolicies);
+router.get("/:id/images", tripController.getTripImages);
+router.get("/:id/extensions", tripController.getTripExtensions);
+router.get("/:id", tripController.getTripById);
 
 export default router;

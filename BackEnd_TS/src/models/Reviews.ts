@@ -4,6 +4,7 @@ import BaseModel from "./BaseModel"
 export interface IReview {
     id: string
     tripId: string
+    companyId: string
     rating: number
     commenttext: string
     createdAt: string
@@ -14,6 +15,7 @@ export interface IReview {
 export default class Review extends BaseModel implements IReview {
     id!: string
     tripId!: string
+    companyId!: string
     rating!: number
     commenttext!: string
     createdAt!: string
@@ -32,6 +34,11 @@ export default class Review extends BaseModel implements IReview {
             relation: Model.BelongsToOneRelation,
             modelClass: () => require('./Accounts').default,
             join: { from: 'reviews.create_by', to: 'accounts.id' }
+        },
+        bus_companies: {
+            relation: Model.BelongsToOneRelation,
+            modelClass: () => require('./BusCompany').default,
+            join: { from: 'reviews.company_id', to: 'bus_companies.id' }
         }
     }
 }

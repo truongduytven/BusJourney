@@ -20,6 +20,37 @@ export interface TripDetail {
   extensions:string[];
 }
 
+export interface TripDetailCoupons {
+  tripId: string;
+  coupons: ICoupon[];
+}
+
+export interface TripDetailPoints {
+  tripId: string;
+  points: ITripPoint;
+}
+
+export interface TripDetailRatings {
+  tripId: string;
+  rating: IListRating;
+}
+
+export interface TripDetailPolicies {
+  tripId: string;
+  companyPolicies: ICompanyPolicy[];
+  cancellationRules: ICancellationRule[];
+}
+
+export interface TripDetailImages {
+  tripId: string;
+  images: string[];
+}
+
+export interface TripDetailExtensions {
+  tripId: string;
+  extensions: string[];
+}
+
 export interface ICompanyPolicy {
   id: string;
   policyType: string;
@@ -41,6 +72,12 @@ export interface IListRating {
   typebus: string;
   route: string;
   list: IListRatingItem[];
+  pagination?: {
+    currentPage: number;
+    pageSize: number;
+    totalItems: number;
+    totalPages: number;
+  };
 }
 
 interface IListRatingItem {

@@ -3,7 +3,6 @@ import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
-  Settings,
   LogOut,
   Menu,
   ChevronDown,
@@ -22,6 +21,7 @@ import {
   Route,
   Bus,
   Tickets,
+  Star,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -99,9 +99,9 @@ const menuItems: MenuItem[] = [
     path: "/admin/tickets",
   },
   {
-    label: "Cài đặt",
-    icon: Settings,
-    path: "/admin/settings",
+    label: "Đánh giá",
+    icon: Star,
+    path: "/admin/reviews",
   },
 ];
 

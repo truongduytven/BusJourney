@@ -18,17 +18,17 @@ interface SearchTripsParams {
 
 class TripService {
   async searchTrips(params: SearchTripsParams) {
-    const { 
-      pageNumber = 1, 
-      pageSize = 10, 
-      minPrice, 
-      maxPrice, 
+    const {
+      pageNumber = 1,
+      pageSize = 10,
+      minPrice,
+      maxPrice,
       sort = 'default',
-      fromCityId, 
-      toCityId, 
-      departureDate, 
-      typeBus, 
-      companiesId 
+      fromCityId,
+      toCityId,
+      departureDate,
+      typeBus,
+      companiesId
     } = params
 
     const convertDate = new Date(departureDate)
@@ -40,7 +40,9 @@ class TripService {
     // Base query cho trips
     let tripQuery = Trip.query()
       .alias('t')
-      .withGraphJoined('[buses.[bus_companies.[policies, cancellationRules], type_buses.[seat]], busRoute.route.[startLocation, endLocation]]')
+      .withGraphJoined(
+        '[buses.[bus_companies.[policies, cancellationRules], type_buses.[seat]], busRoute.route.[startLocation, endLocation]]'
+      )
       .joinRelated('busRoute.route.startLocation')
       .joinRelated('busRoute.route.endLocation')
       .where('busRoute:route:startLocation.city_id', fromCityId)
@@ -159,7 +161,6 @@ class TripService {
       })
       .first()) as unknown as ITripDetail
 
-
     if (!trip) {
       return null
     }
@@ -177,18 +178,22 @@ class TripService {
         status: coupon.status
       })),
       points: {
-        startPoint: trip.tripPoints.filter((tp) => tp.point.type === 'pickup').map((tp) => ({
-          id: tp.point.id,
-          time: tp.time,
-          type: tp.point.type,
-          locationName: tp.point.locationName
-        })),
-        endPoint: trip.tripPoints.filter((tp) => tp.point.type === 'dropoff').map((tp) => ({
-          id: tp.point.id,
-          time: tp.time,
-          type: tp.point.type,
-          locationName: tp.point.locationName
-        }))
+        startPoint: trip.tripPoints
+          .filter((tp) => tp.point.type === 'pickup')
+          .map((tp) => ({
+            id: tp.point.id,
+            time: tp.time,
+            type: tp.point.type,
+            locationName: tp.point.locationName
+          })),
+        endPoint: trip.tripPoints
+          .filter((tp) => tp.point.type === 'dropoff')
+          .map((tp) => ({
+            id: tp.point.id,
+            time: tp.time,
+            type: tp.point.type,
+            locationName: tp.point.locationName
+          }))
       },
       rating: {
         average: trip.avgRating ? Number(trip.avgRating).toFixed(1) : 0,
@@ -206,19 +211,245 @@ class TripService {
           }
         }))
       },
-      companyPolicies: trip.buses!.bus_companies.policies!.filter((p) => p.isActive).map((p) => ({
-        id: p.id,
-        policyType: p.policyType,
-        title: p.title,
-        content: p.content,
-      })),
-      cancellationRules: trip.buses!.bus_companies.cancellationRules!.filter((r) => r.isActive).map((r) => ({
-        id: r.id,
-        timeBeforeDeparture: r.timeBeforeDeparture,
-        refundPercentage: r.refundPercentage,
-        feeAmount: r.feeAmount,
-      })),
+      companyPolicies: trip
+        .buses!.bus_companies.policies!.filter((p) => p.isActive)
+        .map((p) => ({
+          id: p.id,
+          policyType: p.policyType,
+          title: p.title,
+          content: p.content
+        })),
+      cancellationRules: trip
+        .buses!.bus_companies.cancellationRules!.filter((r) => r.isActive)
+        .map((r) => ({
+          id: r.id,
+          timeBeforeDeparture: r.timeBeforeDeparture,
+          refundPercentage: r.refundPercentage,
+          feeAmount: r.feeAmount
+        })),
       images: trip.buses.images,
+      extensions: trip.buses.extensions
+    }
+  }
+
+  async getTripCoupons(tripId: string) {
+    const trip = (await Trip.query()
+      .alias('t')
+      .withGraphFetched('buses.bus_companies.coupons(activeCoupons)')
+      .modifiers({
+        activeCoupons(builder) {
+          builder.where('status', 'active').where('valid_to', '>=', new Date()).where('valid_from', '<=', new Date())
+        }
+      })
+      .where('t.id', tripId)
+      .where('t.status', true)
+      .first()) as unknown as ITripDetail
+
+    if (!trip) {
+      return null
+    }
+
+    return {
+      tripId,
+      coupons: trip.buses!.bus_companies.coupons.map((coupon) => ({
+        id: coupon.id,
+        discountType: coupon.discountType,
+        discountValue: coupon.discountValue,
+        description: coupon.description,
+        validFrom: coupon.validFrom,
+        validTo: coupon.validTo,
+        maxDiscountValue: coupon.maxDiscountValue,
+        status: coupon.status
+      }))
+    }
+  }
+
+  async getTripPoints(tripId: string) {
+    const trip = (await Trip.query()
+      .alias('t')
+      .withGraphFetched('[tripPoints.point]')
+      .where('t.id', tripId)
+      .where('t.status', true)
+      .first()) as unknown as ITripDetail
+
+    if (!trip) {
+      return null
+    }
+
+    return {
+      tripId,
+      points: {
+        startPoint: trip.tripPoints
+          .filter((tp) => tp.point.type === 'pickup')
+          .map((tp) => ({
+            id: tp.point.id,
+            time: tp.time,
+            type: tp.point.type,
+            locationName: tp.point.locationName
+          })),
+        endPoint: trip.tripPoints
+          .filter((tp) => tp.point.type === 'dropoff')
+          .map((tp) => ({
+            id: tp.point.id,
+            time: tp.time,
+            type: tp.point.type,
+            locationName: tp.point.locationName
+          }))
+      }
+    }
+  }
+
+  async getTripRatings(
+    tripId: string,
+    params?: {
+      page?: number;
+      pageSize?: number;
+      filterType?: 'all' | 'withComment' | 'withImage';
+      starRatings?: number[];
+    }
+  ) {
+    const { page = 1, pageSize = 5, filterType = 'all', starRatings = [] } = params || {};
+
+    // Get overall statistics
+    const rating = await Trip.query()
+      .alias('t')
+      .leftJoinRelated('review')
+      .where('t.id', tripId)
+      .where('t.status', true)
+      .avg('review.rating as avgRating')
+      .count('review.id as numberComments')
+      .first() as any
+
+    if (!rating) return null
+
+    // Get trip info
+    const trip = await Trip.query()
+      .alias('t')
+      .withGraphFetched('[buses.type_buses, busRoute.route.[startLocation, endLocation]]')
+      .where('t.id', tripId)
+      .first() as any
+
+    // Build query for reviews with filters
+    let reviewQuery = Trip.query()
+      .alias('t')
+      .withGraphFetched('[review.[account]]')
+      .where('t.id', tripId)
+      .where('t.status', true)
+      .first() as any
+
+    const allReviews = await reviewQuery
+    let filteredReviews = allReviews?.review || []
+
+    // Apply filters
+    if (filterType === 'withComment') {
+      filteredReviews = filteredReviews.filter((r: any) => r.commenttext?.trim())
+    } else if (filterType === 'withImage') {
+      filteredReviews = filteredReviews.filter((r: any) => r.images && r.images.length > 0)
+    }
+
+    // Filter by star ratings
+    if (starRatings.length > 0) {
+      filteredReviews = filteredReviews.filter((r: any) => starRatings.includes(r.rating))
+    }
+
+    // Calculate pagination
+    const totalFiltered = filteredReviews.length
+    const totalPages = Math.ceil(totalFiltered / pageSize)
+    const offset = (page - 1) * pageSize
+    const paginatedReviews = filteredReviews.slice(offset, offset + pageSize)
+
+    return {
+      tripId,
+      rating: {
+        average: rating.avgRating ? Number(rating.avgRating).toFixed(1) : 0,
+        totalReviews: Number(rating.numberComments),
+        countHaveDescription: allReviews?.review.filter((r: any) => r.commenttext?.trim()).length || 0,
+        countHaveImage: allReviews?.review.filter((r: any) => r.images && r.images.length > 0).length || 0,
+        typebus: trip.buses.type_buses.name,
+        route: `${trip.busRoute.route.startLocation.name} - ${trip.busRoute.route.endLocation.name}`,
+        list: paginatedReviews.map((r: any) => ({
+          ...r,
+          account: {
+            id: r.account.id,
+            name: r.account.name,
+            avatar: r.account.avatar
+          }
+        })),
+        pagination: {
+          currentPage: page,
+          pageSize,
+          totalItems: totalFiltered,
+          totalPages
+        }
+      }
+    }
+  }
+
+  async getTripPolicies(tripId: string) {
+    const trip = (await Trip.query()
+      .alias('t')
+      .withGraphJoined('[buses.bus_companies.[policies, cancellationRules]]')
+      .where('t.id', tripId)
+      .where('t.status', true)
+      .first()) as unknown as ITripDetail
+
+    if (!trip) {
+      return null
+    }
+
+    return {
+      tripId,
+      companyPolicies: trip
+        .buses!.bus_companies.policies!.filter((p) => p.isActive)
+        .map((p) => ({
+          id: p.id,
+          policyType: p.policyType,
+          title: p.title,
+          content: p.content
+        })),
+      cancellationRules: trip
+        .buses!.bus_companies.cancellationRules!.filter((r) => r.isActive)
+        .map((r) => ({
+          id: r.id,
+          timeBeforeDeparture: r.timeBeforeDeparture,
+          refundPercentage: r.refundPercentage,
+          feeAmount: r.feeAmount
+        }))
+    }
+  }
+
+  async getTripImages(tripId: string) {
+    const trip = (await Trip.query()
+      .alias('t')
+      .withGraphJoined('[buses]')
+      .where('t.id', tripId)
+      .where('t.status', true)
+      .first()) as unknown as ITripDetail
+
+    if (!trip) {
+      return null
+    }
+
+    return {
+      tripId,
+      images: trip.buses.images
+    }
+  }
+
+  async getTripExtensions(tripId: string) {
+    const trip = (await Trip.query()
+      .alias('t')
+      .withGraphJoined('[buses]')
+      .where('t.id', tripId)
+      .where('t.status', true)
+      .first()) as unknown as ITripDetail
+
+    if (!trip) {
+      return null
+    }
+
+    return {
+      tripId,
       extensions: trip.buses.extensions
     }
   }
@@ -250,18 +481,22 @@ class TripService {
       seats: trip.buses.type_buses.seat,
       bookedSeats: trip.ticket.filter((r) => r.status === 'valid').map((t) => t.seatCode),
       points: {
-        startPoint: trip.tripPoints.filter((tp) => tp.point.type === 'pickup').map((tp) => ({
-          id: tp.point.id,
-          time: tp.time,
-          type: tp.point.type,
-          locationName: tp.point.locationName
-        })),
-        endPoint: trip.tripPoints.filter((tp) => tp.point.type === 'dropoff').map((tp) => ({
-          id: tp.point.id,
-          time: tp.time,
-          type: tp.point.type,
-          locationName: tp.point.locationName
-        }))
+        startPoint: trip.tripPoints
+          .filter((tp) => tp.point.type === 'pickup')
+          .map((tp) => ({
+            id: tp.point.id,
+            time: tp.time,
+            type: tp.point.type,
+            locationName: tp.point.locationName
+          })),
+        endPoint: trip.tripPoints
+          .filter((tp) => tp.point.type === 'dropoff')
+          .map((tp) => ({
+            id: tp.point.id,
+            time: tp.time,
+            type: tp.point.type,
+            locationName: tp.point.locationName
+          }))
       }
     }
   }
