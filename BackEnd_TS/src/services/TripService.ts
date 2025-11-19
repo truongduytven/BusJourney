@@ -35,108 +35,110 @@ class TripService {
     const startOfDay = moment(departureDate).startOf('day').toDate()
     const endOfDay = moment(departureDate).endOf('day').toDate()
 
-    const offset = (Number(pageNumber) - 1) * Number(pageSize)
+    // const offset = (Number(pageNumber) - 1) * Number(pageSize)
 
-    // Base query cho trips
-    let tripQuery = Trip.query()
-      .alias('t')
-      .withGraphJoined(
-        '[buses.[bus_companies.[policies, cancellationRules], type_buses.[seat]], busRoute.route.[startLocation, endLocation]]'
-      )
-      .joinRelated('busRoute.route.startLocation')
-      .joinRelated('busRoute.route.endLocation')
-      .where('busRoute:route:startLocation.city_id', fromCityId)
-      .where('busRoute:route:endLocation.city_id', toCityId)
-      .where('t.status', true)
-      .whereRaw('t.departure_time >= ?', [startOfDay])
-      .whereRaw('t.departure_time <= ?', [endOfDay])
-      .select('t.*')
-      .avg('review.rating as avgRating')
-      .count('review.id as numberComments')
-      .leftJoinRelated('review')
-      .groupBy('t.id')
-      .withGraphFetched('buses.bus_companies.coupons(activeCoupons)')
-      .modifiers({
-        activeCoupons(builder) {
-          builder.where('status', 'active')
-        }
-      })
+    // // Base query cho trips
+    // let tripQuery = Trip.query()
+    //   .alias('t')
+    //   .withGraphJoined(
+    //     '[buses.[bus_companies.[policies, cancellationRules], type_buses.[seat]], busRoute.route.[startLocation, endLocation]]'
+    //   )
+    //   .joinRelated('busRoute.route.startLocation')
+    //   .joinRelated('busRoute.route.endLocation')
+    //   .where('busRoute:route:startLocation.city_id', fromCityId)
+    //   .where('busRoute:route:endLocation.city_id', toCityId)
+    //   .where('t.status', true)
+    //   .whereRaw('t.departure_time >= ?', [startOfDay])
+    //   .whereRaw('t.departure_time <= ?', [endOfDay])
+    //   .select('t.*')
+    //   .avg('review.rating as avgRating')
+    //   .count('review.id as numberComments')
+    //   .leftJoinRelated('review')
+    //   .groupBy('t.id')
+    //   .withGraphFetched('buses.bus_companies.coupons(activeCoupons)')
+    //   .modifiers({
+    //     activeCoupons(builder) {
+    //       builder.where('status', 'active')
+    //     }
+    //   })
 
-    // Filters
-    if (companiesId && companiesId.length > 0) {
-      tripQuery = tripQuery.joinRelated('buses').whereIn('buses.company_id', companiesId)
-    }
-    if (typeBus && typeBus.length > 0) {
-      tripQuery = tripQuery.joinRelated('buses').whereIn('buses.type_bus_id', typeBus)
-    }
-    if (minPrice) {
-      tripQuery = tripQuery.where('t.price', '>=', Number(minPrice))
-    }
-    if (maxPrice) {
-      tripQuery = tripQuery.where('t.price', '<=', Number(maxPrice))
-    }
+    // // Filters
+    // if (companiesId && companiesId.length > 0) {
+    //   tripQuery = tripQuery.joinRelated('buses').whereIn('buses.company_id', companiesId)
+    // }
+    // if (typeBus && typeBus.length > 0) {
+    //   tripQuery = tripQuery.joinRelated('buses').whereIn('buses.type_bus_id', typeBus)
+    // }
+    // if (minPrice) {
+    //   tripQuery = tripQuery.where('t.price', '>=', Number(minPrice))
+    // }
+    // if (maxPrice) {
+    //   tripQuery = tripQuery.where('t.price', '<=', Number(maxPrice))
+    // }
 
-    // Sorting
-    switch (sort) {
-      case 'price_asc':
-        tripQuery = tripQuery.orderBy('t.price', 'asc')
-        break
-      case 'price_desc':
-        tripQuery = tripQuery.orderBy('t.price', 'desc')
-        break
-      case 'early':
-        tripQuery = tripQuery.orderBy('t.departure_time', 'asc')
-        break
-      case 'late':
-        tripQuery = tripQuery.orderBy('t.departure_time', 'desc')
-        break
-      case 'high_rate':
-        tripQuery = tripQuery.orderBy('avgRating', 'desc')
-        break
-      case 'low_rate':
-        tripQuery = tripQuery.orderBy('avgRating', 'asc')
-        break
-      default:
-        tripQuery = tripQuery.orderBy('t.departure_time', 'asc')
-    }
+    // // Sorting
+    // switch (sort) {
+    //   case 'price_asc':
+    //     tripQuery = tripQuery.orderBy('t.price', 'asc')
+    //     break
+    //   case 'price_desc':
+    //     tripQuery = tripQuery.orderBy('t.price', 'desc')
+    //     break
+    //   case 'early':
+    //     tripQuery = tripQuery.orderBy('t.departure_time', 'asc')
+    //     break
+    //   case 'late':
+    //     tripQuery = tripQuery.orderBy('t.departure_time', 'desc')
+    //     break
+    //   case 'high_rate':
+    //     tripQuery = tripQuery.orderBy('avgRating', 'desc')
+    //     break
+    //   case 'low_rate':
+    //     tripQuery = tripQuery.orderBy('avgRating', 'asc')
+    //     break
+    //   default:
+    //     tripQuery = tripQuery.orderBy('t.departure_time', 'asc')
+    // }
 
-    // Pagination
-    const [trips, total] = await Promise.all([
-      tripQuery.clone().limit(Number(pageSize)).offset(offset),
-      tripQuery.clone().resultSize()
-    ])
+    // // Pagination
+    // const [trips, total] = await Promise.all([
+    //   tripQuery.clone().limit(Number(pageSize)).offset(offset),
+    //   tripQuery.clone().resultSize()
+    // ])
 
-    // Lấy danh sách loại bus
-    const listBus = await TypeBus.query()
-      .select('type_buses.id', 'type_buses.name')
-      .count('buses:trips.id as quantity')
-      .joinRelated('buses.trips')
-      .whereIn(
-        'buses:trips.id',
-        trips.map((t) => t.id)
-      )
-      .groupBy('type_buses.id')
+    // // Lấy danh sách loại bus
+    // const listBus = await TypeBus.query()
+    //   .select('type_buses.id', 'type_buses.name')
+    //   .count('buses:trips.id as quantity')
+    //   .joinRelated('buses.trips')
+    //   .whereIn(
+    //     'buses:trips.id',
+    //     trips.map((t) => t.id)
+    //   )
+    //   .groupBy('type_buses.id')
 
-    // Lấy danh sách công ty
-    const listCompany = await BusCompany.query()
-      .select('bus_companies.id', 'bus_companies.name')
-      .count('buses:trips.id as quantity')
-      .joinRelated('buses.trips')
-      .whereIn(
-        'buses:trips.id',
-        trips.map((t) => t.id)
-      )
-      .groupBy('bus_companies.id')
+    // // Lấy danh sách công ty
+    // const listCompany = await BusCompany.query()
+    //   .select('bus_companies.id', 'bus_companies.name')
+    //   .count('buses:trips.id as quantity')
+    //   .joinRelated('buses.trips')
+    //   .whereIn(
+    //     'buses:trips.id',
+    //     trips.map((t) => t.id)
+    //   )
+    //   .groupBy('bus_companies.id')
 
     return {
-      success: true,
-      page: Number(pageNumber),
-      pageSize: Number(pageSize),
-      totalItems: total,
-      totalPages: Math.ceil(total / Number(pageSize)),
-      listBus,
-      listCompany,
-      data: trips
+      // success: true,
+      // page: Number(pageNumber),
+      // pageSize: Number(pageSize),
+      // totalItems: total,
+      // totalPages: Math.ceil(total / Number(pageSize)),
+      // listBus,
+      // listCompany,
+      // data: trips
+      startDate: startOfDay,
+      endDate: endOfDay
     }
   }
 
