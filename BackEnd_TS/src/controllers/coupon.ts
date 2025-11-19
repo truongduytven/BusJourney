@@ -4,7 +4,7 @@ import Coupon from '../models/Coupon'
 
 class CouponController {
     /**
-     * @swagger
+     * @openapi
      * /coupons/validate:
      *   post:
      *     summary: Validate a coupon for a specific user
@@ -64,7 +64,7 @@ class CouponController {
     }
 
     /**
-     * @swagger
+     * @openapi
      * /coupons/apply:
      *   post:
      *     summary: Apply a coupon to calculate discount
@@ -136,7 +136,7 @@ class CouponController {
     }
 
     /**
-     * @swagger
+     * @openapi
      * /coupons/available/{userId}:
      *   get:
      *     summary: Get available coupons for a user
@@ -196,7 +196,7 @@ class CouponController {
     }
 
     /**
-     * @swagger
+     * @openapi
      * /coupons/usage-history/{userId}:
      *   get:
      *     summary: Get user's coupon usage history
@@ -247,7 +247,7 @@ class CouponController {
     }
 
     /**
-     * @swagger
+     * @openapi
      * /coupons/{couponCode}:
      *   get:
      *     summary: Get coupon details by code

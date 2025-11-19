@@ -3,7 +3,7 @@ import PaymentService, { CreatePaymentRequest } from '../services/PaymentService
 
 class PaymentController {
   /**
-   * @swagger
+   * @openapi
    * /payment/create:
    *   post:
    *     summary: Tạo thanh toán với VNPay
@@ -110,7 +110,7 @@ class PaymentController {
   }
 
   /**
-   * @swagger
+   * @openapi
    * /payment/vnpay-return:
    *   get:
    *     summary: Xử lý kết quả trả về từ VNPay

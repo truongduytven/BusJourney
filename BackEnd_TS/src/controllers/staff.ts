@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import StaffService from '../services/StaffService';
 
 /**
- * @swagger
+ * @openapi
  * /api/company/staff/list:
  *   get:
  *     summary: Get paginated list of staff for a company
@@ -74,7 +74,7 @@ export const getListStaff = async (req: Request, res: Response) => {
 };
 
 /**
- * @swagger
+ * @openapi
  * /api/company/staff/{id}:
  *   get:
  *     summary: Get staff by ID
@@ -126,7 +126,7 @@ export const getStaffById = async (req: Request, res: Response) => {
 };
 
 /**
- * @swagger
+ * @openapi
  * /api/company/staff:
  *   post:
  *     summary: Create new staff account
@@ -235,7 +235,7 @@ export const createStaff = async (req: Request, res: Response) => {
 };
 
 /**
- * @swagger
+ * @openapi
  * /api/company/staff/{id}:
  *   put:
  *     summary: Update staff information
@@ -340,7 +340,7 @@ export const updateStaff = async (req: Request, res: Response) => {
 };
 
 /**
- * @swagger
+ * @openapi
  * /api/company/staff/{id}/toggle-status:
  *   patch:
  *     summary: Toggle staff active status
@@ -392,7 +392,7 @@ export const toggleStaffStatus = async (req: Request, res: Response) => {
 };
 
 /**
- * @swagger
+ * @openapi
  * /api/company/staff/bulk-toggle-active:
  *   put:
  *     summary: Bulk toggle staff active status

@@ -4,7 +4,7 @@ import cloudinary from '../config/cloudinary';
 
 export class BusController {
   /**
-   * @swagger
+   * @openapi
    * /api/buses:
    *   get:
    *     summary: Get all buses (Admin view all)
@@ -55,7 +55,7 @@ export class BusController {
   }
 
   /**
-   * @swagger
+   * @openapi
    * /api/buses/{id}:
    *   get:
    *     summary: Get bus by ID (Admin)
@@ -90,7 +90,7 @@ export class BusController {
   }
 
   /**
-   * @swagger
+   * @openapi
    * /api/buses/company:
    *   get:
    *     summary: Get company's buses
@@ -150,7 +150,7 @@ export class BusController {
   }
 
   /**
-   * @swagger
+   * @openapi
    * /api/buses/company/{id}:
    *   get:
    *     summary: Get company's bus by ID
@@ -193,7 +193,7 @@ export class BusController {
   }
 
   /**
-   * @swagger
+   * @openapi
    * /api/buses/company:
    *   post:
    *     summary: Create new bus
@@ -279,7 +279,7 @@ export class BusController {
   }
 
   /**
-   * @swagger
+   * @openapi
    * /api/buses/company/{id}:
    *   put:
    *     summary: Update bus
@@ -376,7 +376,7 @@ export class BusController {
   }
 
   /**
-   * @swagger
+   * @openapi
    * /api/buses/company/{id}:
    *   delete:
    *     summary: Delete bus

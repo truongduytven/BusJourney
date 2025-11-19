@@ -12,7 +12,7 @@ import {
 const router = express.Router();
 
 /**
- * @swagger
+ * @openapi
  * tags:
  *   name: Bus Routes
  *   description: Bus route search and management endpoints

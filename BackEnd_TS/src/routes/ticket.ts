@@ -6,7 +6,7 @@ import { authenticateToken } from '../middlewares/authMiddleware';
 const router = Router();
 
 /**
- * @swagger
+ * @openapi
  * tags:
  *   name: Tickets
  *   description: Ticket lookup and management endpoints

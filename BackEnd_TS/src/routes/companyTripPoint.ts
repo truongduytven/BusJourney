@@ -11,7 +11,7 @@ import {
 const router = express.Router()
 
 /**
- * @swagger
+ * @openapi
  * /api/company-trip-points/company:
  *   get:
  *     summary: Lấy danh sách điểm đón/trả của công ty
@@ -55,7 +55,7 @@ const router = express.Router()
 router.get('/company', listCompanyTripPoints)
 
 /**
- * @swagger
+ * @openapi
  * /api/company-trip-points/company/{id}:
  *   get:
  *     summary: Lấy chi tiết điểm đón/trả
@@ -73,7 +73,7 @@ router.get('/company', listCompanyTripPoints)
 router.get('/company/:id', getTripPointById)
 
 /**
- * @swagger
+ * @openapi
  * /api/company-trip-points/company:
  *   post:
  *     summary: Tạo điểm đón/trả mới
@@ -112,7 +112,7 @@ router.get('/company/:id', getTripPointById)
 router.post('/company', createTripPoint)
 
 /**
- * @swagger
+ * @openapi
  * /api/company-trip-points/company/{id}:
  *   put:
  *     summary: Cập nhật điểm đón/trả
@@ -146,7 +146,7 @@ router.post('/company', createTripPoint)
 router.put('/company/:id', updateTripPoint)
 
 /**
- * @swagger
+ * @openapi
  * /api/company-trip-points/company/{id}:
  *   delete:
  *     summary: Xóa điểm đón/trả
@@ -164,7 +164,7 @@ router.put('/company/:id', updateTripPoint)
 router.delete('/company/:id', deleteTripPoint)
 
 /**
- * @swagger
+ * @openapi
  * /api/company-trip-points/company/{id}/toggle:
  *   put:
  *     summary: Bật/tắt trạng thái điểm đón/trả

@@ -3,7 +3,7 @@ const router = express.Router();
 import tripController from '../controllers/trip';
 
 /**
- * @swagger
+ * @openapi
  * tags:
  *   name: Trips
  *   description: Trip search and management endpoints

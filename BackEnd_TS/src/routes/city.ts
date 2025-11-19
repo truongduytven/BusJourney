@@ -4,7 +4,7 @@ import cityController from "../controllers/city";
 import { authenticateToken, requireAdmin } from '../middlewares/authMiddleware';
 
 /**
- * @swagger
+ * @openapi
  * tags:
  *   name: Cities
  *   description: City management endpoints

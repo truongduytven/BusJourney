@@ -10,7 +10,7 @@ import { authenticateToken } from '../middlewares/authMiddleware';
 const router = Router();
 
 /**
- * @swagger
+ * @openapi
  * tags:
  *   name: Company Reviews
  *   description: Company review management endpoints

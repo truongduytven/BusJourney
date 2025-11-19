@@ -3,7 +3,7 @@ import PartnerService from '../services/PartnerService'
 
 class PartnerController {
   /**
-   * @swagger
+   * @openapi
    * /partners/register:
    *   post:
    *     summary: Register as a partner (Public endpoint)
@@ -74,7 +74,7 @@ class PartnerController {
   }
 
   /**
-   * @swagger
+   * @openapi
    * /partners:
    *   get:
    *     summary: Get list of partner registrations (Admin only)
@@ -133,7 +133,7 @@ class PartnerController {
   }
 
   /**
-   * @swagger
+   * @openapi
    * /partners/{id}:
    *   get:
    *     summary: Get partner by ID (Admin only)
@@ -175,7 +175,7 @@ class PartnerController {
   }
 
   /**
-   * @swagger
+   * @openapi
    * /partners/{id}/status:
    *   patch:
    *     summary: Update partner status (Admin only)
@@ -238,7 +238,7 @@ class PartnerController {
   }
 
   /**
-   * @swagger
+   * @openapi
    * /partners/{id}:
    *   delete:
    *     summary: Delete partner registration (Admin only)
@@ -279,7 +279,7 @@ class PartnerController {
   }
 
   /**
-   * @swagger
+   * @openapi
    * /partners/stats:
    *   get:
    *     summary: Get partner statistics (Admin only)

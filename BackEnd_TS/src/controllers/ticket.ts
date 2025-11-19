@@ -3,7 +3,7 @@ import TicketService, { TicketLookupRequest } from '../services/TicketService';
 
 class TicketController {
   /**
-   * @swagger
+   * @openapi
    * /tickets/lookup:
    *   post:
    *     summary: Tra cứu thông tin vé
@@ -72,7 +72,7 @@ class TicketController {
   }
 
   /**
-   * @swagger
+   * @openapi
    * /admin/tickets/list:
    *   get:
    *     summary: Get paginated list of tickets (Admin)
@@ -141,7 +141,7 @@ class TicketController {
   }
 
   /**
-   * @swagger
+   * @openapi
    * /company-tickets/company/list:
    *   get:
    *     summary: Get paginated list of tickets for company

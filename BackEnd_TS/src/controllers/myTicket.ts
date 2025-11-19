@@ -3,7 +3,7 @@ import MyTicketService from '../services/MyTicketService';
 
 class MyTicketController {
   /**
-   * @swagger
+   * @openapi
    * /tickets/my-tickets:
    *   get:
    *     summary: Get user's tickets
@@ -62,7 +62,7 @@ class MyTicketController {
   }
 
   /**
-   * @swagger
+   * @openapi
    * /tickets/{id}/detail:
    *   get:
    *     summary: Get ticket detail

@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import LocationService from '../services/LocationService';
 
 /**
- * @swagger
+ * @openapi
  * /api/locations/list:
  *   get:
  *     summary: Get paginated list of locations
@@ -68,7 +68,7 @@ export const getListLocations = async (req: Request, res: Response) => {
 };
 
 /**
- * @swagger
+ * @openapi
  * /api/locations/{id}:
  *   get:
  *     summary: Get location by ID
@@ -110,7 +110,7 @@ export const getLocationById = async (req: Request, res: Response) => {
 };
 
 /**
- * @swagger
+ * @openapi
  * /api/locations:
  *   post:
  *     summary: Create new location
@@ -175,7 +175,7 @@ export const createLocation = async (req: Request, res: Response) => {
 };
 
 /**
- * @swagger
+ * @openapi
  * /api/locations/{id}:
  *   put:
  *     summary: Update location
@@ -240,7 +240,7 @@ export const updateLocation = async (req: Request, res: Response) => {
 };
 
 /**
- * @swagger
+ * @openapi
  * /api/locations/{id}:
  *   delete:
  *     summary: Delete location

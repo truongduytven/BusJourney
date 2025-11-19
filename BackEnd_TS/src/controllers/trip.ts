@@ -3,7 +3,7 @@ import TripService from '../services/TripService'
 
 class TripController {
   /**
-   * @swagger
+   * @openapi
    * /trips/search:
    *   post:
    *     summary: Search trips
@@ -104,7 +104,7 @@ class TripController {
   }
 
   /**
-   * @swagger
+   * @openapi
    * /trips/{id}:
    *   get:
    *     summary: Get trip details by ID
@@ -156,7 +156,7 @@ class TripController {
   }
 
   /**
-   * @swagger
+   * @openapi
    * /trips/seats/{id}:
    *   get:
    *     summary: Get trip seats by trip ID
@@ -208,7 +208,7 @@ class TripController {
   }
 
   /**
-   * @swagger
+   * @openapi
    * /trips/{id}/coupons:
    *   get:
    *     summary: Get trip coupons by trip ID
@@ -250,7 +250,7 @@ class TripController {
   }
 
   /**
-   * @swagger
+   * @openapi
    * /trips/{id}/points:
    *   get:
    *     summary: Get trip pickup/dropoff points by trip ID
@@ -292,7 +292,7 @@ class TripController {
   }
 
   /**
-   * @swagger
+   * @openapi
    * /trips/{id}/ratings:
    *   get:
    *     summary: Get trip ratings by trip ID with filters and pagination
@@ -364,7 +364,7 @@ class TripController {
   }
 
   /**
-   * @swagger
+   * @openapi
    * /trips/{id}/policies:
    *   get:
    *     summary: Get trip policies by trip ID
@@ -406,7 +406,7 @@ class TripController {
   }
 
   /**
-   * @swagger
+   * @openapi
    * /trips/{id}/images:
    *   get:
    *     summary: Get trip images by trip ID
@@ -448,7 +448,7 @@ class TripController {
   }
 
   /**
-   * @swagger
+   * @openapi
    * /trips/{id}/extensions:
    *   get:
    *     summary: Get trip extensions/utilities by trip ID

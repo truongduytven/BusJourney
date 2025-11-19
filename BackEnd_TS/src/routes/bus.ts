@@ -6,7 +6,7 @@ import upload from '../middlewares/upload';
 const router = express.Router();
 
 /**
- * @swagger
+ * @openapi
  * tags:
  *   name: Buses
  *   description: Bus search and management endpoints

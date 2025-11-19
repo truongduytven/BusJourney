@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { RouteService } from '../services/RouteService';
 
 /**
- * @swagger
+ * @openapi
  * /api/routes:
  *   get:
  *     summary: Get list of routes (Admin & Company can view)
@@ -75,7 +75,7 @@ export const listRoutes = async (req: Request, res: Response) => {
 };
 
 /**
- * @swagger
+ * @openapi
  * /api/routes/{id}:
  *   get:
  *     summary: Get route by ID
@@ -128,7 +128,7 @@ export const getRoute = async (req: Request, res: Response) => {
 };
 
 /**
- * @swagger
+ * @openapi
  * /api/routes:
  *   post:
  *     summary: Company creates route request (status = Pending)
@@ -212,7 +212,7 @@ export const createRouteAsCompany = async (req: Request, res: Response) => {
 };
 
 /**
- * @swagger
+ * @openapi
  * /api/routes/admin-create:
  *   post:
  *     summary: Admin creates route directly (status = Approved)
@@ -296,7 +296,7 @@ export const createRouteAsAdmin = async (req: Request, res: Response) => {
 };
 
 /**
- * @swagger
+ * @openapi
  * /api/routes/{id}/status:
  *   patch:
  *     summary: Admin updates route status (Approve/Reject/Pending)
@@ -371,7 +371,7 @@ export const updateRouteStatus = async (req: Request, res: Response) => {
 };
 
 /**
- * @swagger
+ * @openapi
  * /api/routes/{id}:
  *   delete:
  *     summary: Admin deletes route
@@ -421,7 +421,7 @@ export const deleteRoute = async (req: Request, res: Response) => {
 };
 
 /**
- * @swagger
+ * @openapi
  * /api/routes/bulk-update-status:
  *   post:
  *     summary: Admin bulk updates status of multiple routes

@@ -4,7 +4,7 @@ import CouponController from '../controllers/coupon'
 const router = express.Router()
 
 /**
- * @swagger
+ * @openapi
  * tags:
  *   name: Coupons
  *   description: Coupon management and validation endpoints

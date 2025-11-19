@@ -11,7 +11,7 @@ import { authenticateToken } from '../middlewares/authMiddleware';
 const router = Router();
 
 /**
- * @swagger
+ * @openapi
  * tags:
  *   name: Admin - Tickets
  *   description: Admin ticket management endpoints

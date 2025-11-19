@@ -11,7 +11,7 @@ import AuthService, {
 
 class AuthController {
   /**
-   * @swagger
+   * @openapi
    * /auth/signin:
    *   post:
    *     summary: Đăng nhập
@@ -73,7 +73,7 @@ class AuthController {
   }
 
   /**
-   * @swagger
+   * @openapi
    * /auth/signup:
    *   post:
    *     summary: Đăng ký tài khoản mới
@@ -144,7 +144,7 @@ class AuthController {
   }
 
   /**
-   * @swagger
+   * @openapi
    * /auth/verify-otp:
    *   post:
    *     summary: Xác thực OTP
@@ -204,7 +204,7 @@ class AuthController {
   }
 
   /**
-   * @swagger
+   * @openapi
    * /auth/change-password:
    *   put:
    *     summary: Đổi mật khẩu
@@ -273,7 +273,7 @@ class AuthController {
   }
 
   /**
-   * @swagger
+   * @openapi
    * /auth/reset-password:
    *   put:
    *     summary: Reset mật khẩu
@@ -333,7 +333,7 @@ class AuthController {
   }
 
   /**
-   * @swagger
+   * @openapi
    * /auth/me:
    *   get:
    *     summary: Lấy thông tin tài khoản
@@ -379,7 +379,7 @@ class AuthController {
   }
 
   /**
-   * @swagger
+   * @openapi
    * /auth/resend-otp:
    *   post:
    *     summary: Gửi lại mã OTP
@@ -436,7 +436,7 @@ class AuthController {
   }
 
   /**
-   * @swagger
+   * @openapi
    * /auth/google-signin:
    *   post:
    *     summary: Đăng nhập bằng Google OAuth
@@ -496,7 +496,7 @@ class AuthController {
   }
 
   /**
-   * @swagger
+   * @openapi
    * /auth/update-phone:
    *   put:
    *     summary: Cập nhật số điện thoại

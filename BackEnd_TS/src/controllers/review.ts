@@ -6,7 +6,7 @@ import ReviewService from '../services/ReviewService';
  */
 
 /**
- * @swagger
+ * @openapi
  * /api/admin-reviews/list:
  *   get:
  *     summary: Get paginated list of reviews (Admin)
@@ -88,7 +88,7 @@ export const getAdminReviews = async (req: Request, res: Response) => {
 };
 
 /**
- * @swagger
+ * @openapi
  * /api/admin-reviews/{id}:
  *   get:
  *     summary: Get review by ID (Admin)
@@ -132,7 +132,7 @@ export const getAdminReviewById = async (req: Request, res: Response) => {
 };
 
 /**
- * @swagger
+ * @openapi
  * /api/admin-reviews/{id}:
  *   put:
  *     summary: Update review (Admin)
@@ -197,7 +197,7 @@ export const updateAdminReview = async (req: Request, res: Response) => {
 };
 
 /**
- * @swagger
+ * @openapi
  * /api/admin-reviews/{id}:
  *   delete:
  *     summary: Delete review (Admin)
@@ -240,7 +240,7 @@ export const deleteAdminReview = async (req: Request, res: Response) => {
 };
 
 /**
- * @swagger
+ * @openapi
  * /api/admin-reviews/{id}/toggle-visibility:
  *   patch:
  *     summary: Toggle review visibility (Admin only)
@@ -288,7 +288,7 @@ export const toggleAdminReviewVisibility = async (req: Request, res: Response) =
  */
 
 /**
- * @swagger
+ * @openapi
  * /api/company-reviews/list:
  *   get:
  *     summary: Get paginated list of reviews (Company)
@@ -372,7 +372,7 @@ export const getCompanyReviews = async (req: Request, res: Response) => {
 };
 
 /**
- * @swagger
+ * @openapi
  * /api/company-reviews/{id}:
  *   get:
  *     summary: Get review by ID (Company)
@@ -421,7 +421,7 @@ export const getCompanyReviewById = async (req: Request, res: Response) => {
 };
 
 /**
- * @swagger
+ * @openapi
  * /api/company-reviews/{id}:
  *   put:
  *     summary: Update review (Company - cannot change visibility)
@@ -489,7 +489,7 @@ export const updateCompanyReview = async (req: Request, res: Response) => {
 };
 
 /**
- * @swagger
+ * @openapi
  * /api/company-reviews/{id}:
  *   delete:
  *     summary: Delete review (Company)

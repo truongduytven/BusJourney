@@ -4,7 +4,7 @@ import roleController from '../controllers/role';
 import { authenticateToken, requireAdmin } from '../middlewares/authMiddleware';
 
 /**
- * @swagger
+ * @openapi
  * tags:
  *   name: Roles
  *   description: Role management endpoints

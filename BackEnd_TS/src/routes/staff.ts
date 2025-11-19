@@ -12,7 +12,7 @@ import { authenticateToken, requireCompany } from '../middlewares/authMiddleware
 const router = express.Router();
 
 /**
- * @swagger
+ * @openapi
  * tags:
  *   name: Staffs
  *   description: Staff management endpoints

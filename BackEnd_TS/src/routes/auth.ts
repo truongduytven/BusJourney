@@ -6,7 +6,7 @@ import upload from '../middlewares/upload'
 const router = Router()
 
 /**
- * @swagger
+ * @openapi
  * tags:
  *   name: Auth
  *   description: Authentication and authorization endpoints
@@ -23,7 +23,7 @@ router.get('/me', authenticateToken, ProfileController.getProfile)
 router.put('/update-phone', authenticateToken, updatePhone)
 
 /**
- * @swagger
+ * @openapi
  * tags:
  *   name: Profile
  *   description: Profile management endpoints

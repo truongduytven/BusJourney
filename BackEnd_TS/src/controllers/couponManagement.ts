@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import CouponManagementService from '../services/CouponManagementService';
 
 /**
- * @swagger
+ * @openapi
  * /coupon-management/list:
  *   get:
  *     summary: Get paginated list of coupons
@@ -76,7 +76,7 @@ export const getListCoupons = async (req: Request, res: Response) => {
 };
 
 /**
- * @swagger
+ * @openapi
  * /coupon-management/{id}:
  *   get:
  *     summary: Get coupon by ID
@@ -118,7 +118,7 @@ export const getCouponById = async (req: Request, res: Response) => {
 };
 
 /**
- * @swagger
+ * @openapi
  * /coupon-management:
  *   post:
  *     summary: Create new coupon
@@ -227,7 +227,7 @@ export const createCoupon = async (req: Request, res: Response) => {
 };
 
 /**
- * @swagger
+ * @openapi
  * /coupon-management/{id}:
  *   put:
  *     summary: Update coupon
@@ -322,7 +322,7 @@ export const updateCoupon = async (req: Request, res: Response) => {
 };
 
 /**
- * @swagger
+ * @openapi
  * /coupon-management/{id}/toggle-status:
  *   patch:
  *     summary: Toggle coupon status (active/inactive)
@@ -364,7 +364,7 @@ export const toggleCouponStatus = async (req: Request, res: Response) => {
 };
 
 /**
- * @swagger
+ * @openapi
  * /coupon-management/{id}/extend:
  *   patch:
  *     summary: Extend coupon expiration date

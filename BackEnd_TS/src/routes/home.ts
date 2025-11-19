@@ -4,7 +4,7 @@ import HomeController from '../controllers/home';
 const router = Router();
 
 /**
- * @swagger
+ * @openapi
  * tags:
  *   name: Home
  *   description: Homepage data endpoints

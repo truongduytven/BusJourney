@@ -4,7 +4,7 @@ import { TypeBusService } from '../services/TypeBusService';
 class TypeBusController {
 
   /**
-   * @swagger
+   * @openapi
    * /api/type-buses:
    *   get:
    *     summary: Get list of all type buses (Admin view)
@@ -65,7 +65,7 @@ class TypeBusController {
   }
 
   /**
-   * @swagger
+   * @openapi
    * /api/type-buses/{id}:
    *   get:
    *     summary: Get type bus detail (Admin view)
@@ -109,7 +109,7 @@ class TypeBusController {
   // ==================== COMPANY ROUTES (Full CRUD) ====================
 
   /**
-   * @swagger
+   * @openapi
    * /api/company/type-buses:
    *   get:
    *     summary: Get list of company's type buses
@@ -178,7 +178,7 @@ class TypeBusController {
   }
 
   /**
-   * @swagger
+   * @openapi
    * /api/company/type-buses/{id}:
    *   get:
    *     summary: Get company's type bus detail
@@ -228,7 +228,7 @@ class TypeBusController {
   }
 
   /**
-   * @swagger
+   * @openapi
    * /api/company/type-buses:
    *   post:
    *     summary: Create new type bus (Company)
@@ -308,7 +308,7 @@ class TypeBusController {
   }
 
   /**
-   * @swagger
+   * @openapi
    * /api/company/type-buses/{id}:
    *   put:
    *     summary: Update company's type bus
@@ -382,7 +382,7 @@ class TypeBusController {
   }
 
   /**
-   * @swagger
+   * @openapi
    * /api/company/type-buses/{id}:
    *   delete:
    *     summary: Delete company's type bus

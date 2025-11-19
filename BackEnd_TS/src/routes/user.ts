@@ -5,7 +5,7 @@ import { authenticateToken, requireAdmin } from '../middlewares/authMiddleware';
 import upload from '../middlewares/uploadMiddleware';
 
 /**
- * @swagger
+ * @openapi
  * tags:
  *   name: Users
  *   description: User management endpoints (for Admins only)

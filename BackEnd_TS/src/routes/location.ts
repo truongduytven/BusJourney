@@ -12,7 +12,7 @@ const router = Router();
 
 
 /**
- * @swagger
+ * @openapi
  * tags:
  *   name: Locations
  *   description: Location management endpoints

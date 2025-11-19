@@ -12,7 +12,7 @@ import { authenticateToken } from '../middlewares/authMiddleware';
 const router = Router();
 
 /**
- * @swagger
+ * @openapi
  * tags:
  *   name: Company - Tickets
  *   description: Company ticket management endpoints

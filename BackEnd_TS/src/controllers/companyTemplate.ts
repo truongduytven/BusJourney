@@ -3,7 +3,7 @@ import { CompanyTemplateService } from '../services/CompanyTemplateService';
 
 export class CompanyTemplateController {
   /**
-   * @swagger
+   * @openapi
    * /api/templates/company:
    *   get:
    *     summary: Get company's templates
@@ -73,7 +73,7 @@ export class CompanyTemplateController {
   }
 
   /**
-   * @swagger
+   * @openapi
    * /api/templates/company/{id}:
    *   get:
    *     summary: Get company's template by ID
@@ -116,7 +116,7 @@ export class CompanyTemplateController {
   }
 
   /**
-   * @swagger
+   * @openapi
    * /api/templates/company:
    *   post:
    *     summary: Create new template
@@ -174,7 +174,7 @@ export class CompanyTemplateController {
   }
 
   /**
-   * @swagger
+   * @openapi
    * /api/templates/company/{id}:
    *   put:
    *     summary: Update template
@@ -232,7 +232,7 @@ export class CompanyTemplateController {
   }
 
   /**
-   * @swagger
+   * @openapi
    * /api/templates/company/{id}/toggle:
    *   put:
    *     summary: Toggle template status
@@ -286,7 +286,7 @@ export class CompanyTemplateController {
   }
 
   /**
-   * @swagger
+   * @openapi
    * /api/templates/company/bulk-toggle:
    *   put:
    *     summary: Toggle multiple templates status

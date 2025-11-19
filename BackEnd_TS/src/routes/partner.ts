@@ -4,7 +4,7 @@ import partnerController from "../controllers/partner";
 import { authenticateToken, requireAdmin } from '../middlewares/authMiddleware';
 
 /**
- * @swagger
+ * @openapi
  * tags:
  *   name: Partners
  *   description: Partner registration and management endpoints

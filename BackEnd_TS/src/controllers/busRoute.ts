@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { BusRouteService } from '../services/BusRouteService';
 
 /**
- * @swagger
+ * @openapi
  * /api/bus-routes:
  *   get:
  *     summary: Get list of bus routes (Company's routes)
@@ -69,7 +69,7 @@ export const listBusRoutes = async (req: Request, res: Response) => {
 };
 
 /**
- * @swagger
+ * @openapi
  * /api/bus-routes/{id}:
  *   get:
  *     summary: Get bus route by ID
@@ -112,7 +112,7 @@ export const getBusRoute = async (req: Request, res: Response) => {
 };
 
 /**
- * @swagger
+ * @openapi
  * /api/bus-routes:
  *   post:
  *     summary: Company creates new bus route (selects from approved routes)
@@ -176,7 +176,7 @@ export const createBusRoute = async (req: Request, res: Response) => {
 };
 
 /**
- * @swagger
+ * @openapi
  * /api/bus-routes/{id}/status:
  *   patch:
  *     summary: Company updates bus route status (active/inactive)
@@ -243,7 +243,7 @@ export const updateBusRouteStatus = async (req: Request, res: Response) => {
 };
 
 /**
- * @swagger
+ * @openapi
  * /api/bus-routes/{id}:
  *   delete:
  *     summary: Company deletes bus route
@@ -285,7 +285,7 @@ export const deleteBusRoute = async (req: Request, res: Response) => {
 };
 
 /**
- * @swagger
+ * @openapi
  * /api/bus-routes/approved-routes:
  *   get:
  *     summary: Get list of approved routes for company to select

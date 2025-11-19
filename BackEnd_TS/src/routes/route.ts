@@ -14,7 +14,7 @@ import {
 const router = express.Router();
 
 /**
- * @swagger
+ * @openapi
  * tags:
  *   name: Routes
  *   description: Route management endpoints

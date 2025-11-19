@@ -5,7 +5,7 @@ import { authenticateToken } from '../middlewares/authMiddleware';
 const router = Router();
 
 /**
- * @swagger
+ * @openapi
  * tags:
  *   name: Company Templates
  *   description: Company template search and management endpoints

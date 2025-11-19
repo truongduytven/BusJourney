@@ -5,7 +5,7 @@ import { authenticateToken, requireAdmin, requireCompany } from '../middlewares/
 const router = Router();
 
 /**
- * @swagger
+ * @openapi
  * tags:
  *   - name: Type Buses Admin
  *     description: Admin type bus management (read-only)

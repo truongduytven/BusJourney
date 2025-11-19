@@ -3,7 +3,7 @@ import ProfileService from '../services/ProfileService';
 
 class ProfileController {
   /**
-   * @swagger
+   * @openapi
    * /auth/profile:
    *   get:
    *     summary: Get user profile
@@ -47,7 +47,7 @@ class ProfileController {
   }
 
   /**
-   * @swagger
+   * @openapi
    * /auth/profile:
    *   patch:
    *     summary: Update user profile
@@ -106,7 +106,7 @@ class ProfileController {
   }
 
   /**
-   * @swagger
+   * @openapi
    * /auth/profile/avatar:
    *   post:
    *     summary: Upload user avatar
@@ -167,7 +167,7 @@ class ProfileController {
   }
 
   /**
-   * @swagger
+   * @openapi
    * /auth/profile/password:
    *   patch:
    *     summary: Change user password

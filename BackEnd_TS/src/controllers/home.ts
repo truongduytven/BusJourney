@@ -3,7 +3,7 @@ import HomeService from '../services/HomeService';
 
 class HomeController {
   /**
-   * @swagger
+   * @openapi
    * /home/featured-routes:
    *   get:
    *     summary: Get featured routes
@@ -36,7 +36,7 @@ class HomeController {
   }
 
   /**
-   * @swagger
+   * @openapi
    * /home/active-coupons:
    *   get:
    *     summary: Get active coupons
@@ -69,7 +69,7 @@ class HomeController {
   }
 
   /**
-   * @swagger
+   * @openapi
    * /home/featured-reviews:
    *   get:
    *     summary: Get featured reviews

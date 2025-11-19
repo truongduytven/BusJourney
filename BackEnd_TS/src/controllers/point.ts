@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import PointService from '../services/PointService';
 
 /**
- * @swagger
+ * @openapi
  * /api/points/list:
  *   get:
  *     summary: Get paginated list of points
@@ -69,7 +69,7 @@ export const getListPoints = async (req: Request, res: Response) => {
 };
 
 /**
- * @swagger
+ * @openapi
  * /api/points/{id}:
  *   get:
  *     summary: Get point by ID
@@ -111,7 +111,7 @@ export const getPointById = async (req: Request, res: Response) => {
 };
 
 /**
- * @swagger
+ * @openapi
  * /api/points:
  *   post:
  *     summary: Create new point
@@ -177,7 +177,7 @@ export const createPoint = async (req: Request, res: Response) => {
 };
 
 /**
- * @swagger
+ * @openapi
  * /api/points/{id}:
  *   put:
  *     summary: Update point
@@ -243,7 +243,7 @@ export const updatePoint = async (req: Request, res: Response) => {
 };
 
 /**
- * @swagger
+ * @openapi
  * /api/points/{id}:
  *   delete:
  *     summary: Delete point

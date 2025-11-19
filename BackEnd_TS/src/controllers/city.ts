@@ -3,7 +3,7 @@ import CityService from '../services/CityService'
 
 class CityController {
   /**
-   * @swagger
+   * @openapi
    * /cities:
    *   get:
    *     summary: Get all cities

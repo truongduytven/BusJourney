@@ -12,7 +12,7 @@ import { authenticateToken } from '../middlewares/authMiddleware';
 const router = express.Router();
 
 /**
- * @swagger
+ * @openapi
  * tags:
  *   name: Coupon Management
  *   description: Coupon management and validation endpoints

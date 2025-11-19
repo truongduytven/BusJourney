@@ -3,7 +3,7 @@ import { CompanyTripService } from '../services/CompanyTripService';
 
 export class CompanyTripController {
   /**
-   * @swagger
+   * @openapi
    * /company-trips/company:
    *   get:
    *     summary: Get company's trips
@@ -100,7 +100,7 @@ export class CompanyTripController {
   }
 
   /**
-   * @swagger
+   * @openapi
    * /company-trips/company/{id}:
    *   get:
    *     summary: Get company's trip by ID
@@ -143,7 +143,7 @@ export class CompanyTripController {
   }
 
   /**
-   * @swagger
+   * @openapi
    * /company-trips/company:
    *   post:
    *     summary: Create new trip
@@ -207,7 +207,7 @@ export class CompanyTripController {
   }
 
   /**
-   * @swagger
+   * @openapi
    * /company-trips/company/bulk:
    *   post:
    *     summary: Create multiple trips
@@ -274,7 +274,7 @@ export class CompanyTripController {
   }
 
   /**
-   * @swagger
+   * @openapi
    * /company-trips/company/{id}:
    *   put:
    *     summary: Update trip
@@ -340,7 +340,7 @@ export class CompanyTripController {
   }
 
   /**
-   * @swagger
+   * @openapi
    * /company-trips/company/{id}/toggle:
    *   put:
    *     summary: Toggle trip status
@@ -394,7 +394,7 @@ export class CompanyTripController {
   }
 
   /**
-   * @swagger
+   * @openapi
    * /company-trips/company/bulk-toggle:
    *   put:
    *     summary: Toggle multiple trips status

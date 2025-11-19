@@ -5,7 +5,7 @@ import { authenticateToken } from '../middlewares/authMiddleware';
 const router = Router();
 
 /**
- * @swagger
+ * @openapi
  * tags:
  *   name: Payment
  *   description: Payment processing with VNPay integration

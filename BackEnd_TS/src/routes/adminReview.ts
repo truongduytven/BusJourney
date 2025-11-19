@@ -11,7 +11,7 @@ import { authenticateToken, requireAdmin } from '../middlewares/authMiddleware';
 const router = Router();
 
 /**
- * @swagger
+ * @openapi
  * tags:
  *   name: Admin Reviews
  *   description: Admin review management endpoints

@@ -12,7 +12,7 @@ const router = Router();
 
 
 /**
- * @swagger
+ * @openapi
  * tags:
  *   name: Points
  *   description: Point management endpoints
