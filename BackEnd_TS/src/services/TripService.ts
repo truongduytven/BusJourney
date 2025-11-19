@@ -2,6 +2,7 @@ import Trip from '../models/Trip'
 import TypeBus from '../models/TypeBus'
 import BusCompany from '../models/BusCompany'
 import { IGetListTrip, ITripDetail } from '../types/trip.interface'
+import moment from 'moment'
 
 interface SearchTripsParams {
   pageNumber?: number
@@ -31,23 +32,9 @@ class TripService {
       companiesId
     } = params
 
-    const convertDate = new Date(departureDate)
-    // Set to start of day in UTC (00:00:00)
-    const startOfDay = new Date(Date.UTC(
-      convertDate.getFullYear(),
-      convertDate.getMonth(),
-      convertDate.getDate(),
-      0, 0, 0, 0
-    ))
-    
-    // Set to end of day in UTC (23:59:59.999)
-    const endOfDay = new Date(Date.UTC(
-      convertDate.getFullYear(),
-      convertDate.getMonth(),
-      convertDate.getDate(),
-      23, 59, 59, 999
-    ))
-    
+    const startOfDay = moment(departureDate).startOf('day').toDate()
+    const endOfDay = moment(departureDate).endOf('day').toDate()
+
     const offset = (Number(pageNumber) - 1) * Number(pageSize)
 
     // Base query cho trips
@@ -315,32 +302,32 @@ class TripService {
   async getTripRatings(
     tripId: string,
     params?: {
-      page?: number;
-      pageSize?: number;
-      filterType?: 'all' | 'withComment' | 'withImage';
-      starRatings?: number[];
+      page?: number
+      pageSize?: number
+      filterType?: 'all' | 'withComment' | 'withImage'
+      starRatings?: number[]
     }
   ) {
-    const { page = 1, pageSize = 5, filterType = 'all', starRatings = [] } = params || {};
+    const { page = 1, pageSize = 5, filterType = 'all', starRatings = [] } = params || {}
 
     // Get overall statistics
-    const rating = await Trip.query()
+    const rating = (await Trip.query()
       .alias('t')
       .leftJoinRelated('review')
       .where('t.id', tripId)
       .where('t.status', true)
       .avg('review.rating as avgRating')
       .count('review.id as numberComments')
-      .first() as any
+      .first()) as any
 
     if (!rating) return null
 
     // Get trip info
-    const trip = await Trip.query()
+    const trip = (await Trip.query()
       .alias('t')
       .withGraphFetched('[buses.type_buses, busRoute.route.[startLocation, endLocation]]')
       .where('t.id', tripId)
-      .first() as any
+      .first()) as any
 
     // Build query for reviews with filters
     let reviewQuery = Trip.query()
