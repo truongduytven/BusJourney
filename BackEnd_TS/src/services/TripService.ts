@@ -32,9 +32,22 @@ class TripService {
     } = params
 
     const convertDate = new Date(departureDate)
-    convertDate.setHours(convertDate.getHours() - 7, convertDate.getMinutes(), 0, 0)
-    const lastDate = new Date(departureDate)
-    lastDate.setHours(23, 59, 59, 999)
+    // Set to start of day in UTC (00:00:00)
+    const startOfDay = new Date(Date.UTC(
+      convertDate.getFullYear(),
+      convertDate.getMonth(),
+      convertDate.getDate(),
+      0, 0, 0, 0
+    ))
+    
+    // Set to end of day in UTC (23:59:59.999)
+    const endOfDay = new Date(Date.UTC(
+      convertDate.getFullYear(),
+      convertDate.getMonth(),
+      convertDate.getDate(),
+      23, 59, 59, 999
+    ))
+    
     const offset = (Number(pageNumber) - 1) * Number(pageSize)
 
     // Base query cho trips
@@ -48,8 +61,8 @@ class TripService {
       .where('busRoute:route:startLocation.city_id', fromCityId)
       .where('busRoute:route:endLocation.city_id', toCityId)
       .where('t.status', true)
-      .whereRaw('t.departure_time >= ?', [convertDate])
-      .whereRaw('t.departure_time <= ?', [lastDate])
+      .whereRaw('t.departure_time >= ?', [startOfDay])
+      .whereRaw('t.departure_time <= ?', [endOfDay])
       .select('t.*')
       .avg('review.rating as avgRating')
       .count('review.id as numberComments')
