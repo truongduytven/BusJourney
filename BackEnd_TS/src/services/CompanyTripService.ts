@@ -3,6 +3,7 @@ import Template from '../models/Template'
 import Bus from '../models/Bus'
 import BusRoute from '../models/BusRoute'
 import CompanyTrip from '../types/company-trip.interface'
+import moment from 'moment'
 
 export class CompanyTripService {
   static async listCompanyTrips(
@@ -64,11 +65,13 @@ export class CompanyTripService {
     }
 
     if (startDate) {
-      query = query.where('departure_time', '>=', startDate)
+      const startOfDay = moment(startDate).add(1, 'day').startOf('day').toDate()
+      query = query.where('departure_time', '>=', startOfDay)
     }
 
     if (endDate) {
-      query = query.where('departure_time', '<=', `${endDate} 23:59:59`)
+      const endOfDay = moment(endDate).add(1, 'day').endOf('day').toDate()
+      query = query.where('departure_time', '<=', endOfDay)
     }
 
     const total = await query.resultSize()
@@ -237,8 +240,14 @@ export class CompanyTripService {
     }
 
     const trips = data.dates.map((date) => {
-      const departureDateTime = new Date(`${date}T${data.departureTime}`)
-      const arrivalDateTime = new Date(`${date}T${data.arrivalTime}`)
+      // Parse date string and time, treating input as local time (GMT+7)
+      const [year, month, day] = date.split('-').map(Number)
+      const [depHours, depMinutes] = data.departureTime.split(':').map(Number)
+      const [arrHours, arrMinutes] = data.arrivalTime.split(':').map(Number)
+      
+      // Create dates in UTC, adding 7 hours to convert from GMT+7 to UTC
+      const departureDateTime = new Date(Date.UTC(year, month - 1, day, depHours - 7, depMinutes, 0, 0))
+      const arrivalDateTime = new Date(Date.UTC(year, month - 1, day, arrHours - 7, arrMinutes, 0, 0))
 
       return {
         bus_routes_id: data.busRoutesId,

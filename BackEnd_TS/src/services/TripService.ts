@@ -32,8 +32,8 @@ class TripService {
       companiesId
     } = params
 
-    const startOfDay = moment(departureDate).add(7, 'hours').startOf('day').toDate()
-    const endOfDay = moment(departureDate).add(7, 'hours').endOf('day').toDate()
+    const startOfDay = moment(departureDate).add(1, 'day').startOf('day').toDate()
+    const endOfDay = moment(departureDate).add(1, 'day').endOf('day').toDate()
 
     const offset = (Number(pageNumber) - 1) * Number(pageSize)
 
