@@ -7,7 +7,7 @@ export const checkDatabaseTables = async () => {
       FROM information_schema.tables 
       WHERE table_schema = 'public'
     `)
-
+    console.log('✅ Kết nối thành công!')
     return tables.rows
   } catch (error) {
     console.error('❌ Error checking database tables:', error)
